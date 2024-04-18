@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class RequestUser {
+
     @NotBlank(message = "이메일을 입력해주세요")
     @Email(message = "이메일 양식이 아닙니다.")
     private String email;
@@ -44,4 +45,5 @@ public class RequestUser {
 
     @JsonIgnore
     private LocalDateTime createdAt;
+
 }

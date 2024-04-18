@@ -1,13 +1,11 @@
 package com.bootakhae.webapp.common.utils;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -16,10 +14,14 @@ public class AesCryptoUtil {
     /**
      * 키 반환
      */
-    public static SecretKey getKey() throws Exception {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); // 비밀키 생성객체
-        keyGenerator.init(128); // 특정 크기에 대해 KeyGenerator 초기화
-        return keyGenerator.generateKey(); // 비밀키 생성
+    public static SecretKey getKey() {
+        try {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); // 비밀키 생성객체
+            keyGenerator.init(128); // 특정 크기에 대해 KeyGenerator 초기화
+            return keyGenerator.generateKey(); // 비밀키 생성
+        }catch(NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

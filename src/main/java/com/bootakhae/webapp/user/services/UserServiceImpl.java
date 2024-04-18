@@ -21,6 +21,10 @@ import javax.crypto.spec.IvParameterSpec;
 @Slf4j
 public class UserServiceImpl implements UserService{
 
+    // todo: 실제 서비스 시에는 해당값을 고정값으로 지정
+    private static final SecretKey SECRETKEY = AesCryptoUtil.getKey();
+    private static final IvParameterSpec IV = AesCryptoUtil.getIv();
+
     private final UserRepository userRepository;
     private final Environment env;
 
@@ -36,17 +40,15 @@ public class UserServiceImpl implements UserService{
 
     private CryptoInfoDto userInfoEncrypt(UserDto userDetails){
         try{
-            SecretKey key = AesCryptoUtil.getKey();
-            IvParameterSpec iv = AesCryptoUtil.getIv();
             String specName = env.getProperty("aes.spec");
 
-            userDetails.setAddress1(AesCryptoUtil.encrypt(specName,key,iv,userDetails.getAddress1()));
-            userDetails.setAddress2(AesCryptoUtil.encrypt(specName,key,iv,userDetails.getAddress2()));
-            userDetails.setEmail(AesCryptoUtil.encrypt(specName,key,iv,userDetails.getEmail()));
-            userDetails.setName(AesCryptoUtil.encrypt(specName,key,iv,userDetails.getName()));
-            userDetails.setPhone(AesCryptoUtil.encrypt(specName,key,iv,userDetails.getPhone()));
+            userDetails.setAddress1(AesCryptoUtil.encrypt(specName,SECRETKEY,IV,userDetails.getAddress1()));
+            userDetails.setAddress2(AesCryptoUtil.encrypt(specName,SECRETKEY,IV,userDetails.getAddress2()));
+            userDetails.setEmail(AesCryptoUtil.encrypt(specName,SECRETKEY,IV,userDetails.getEmail()));
+            userDetails.setName(AesCryptoUtil.encrypt(specName,SECRETKEY,IV,userDetails.getName()));
+            userDetails.setPhone(AesCryptoUtil.encrypt(specName,SECRETKEY,IV,userDetails.getPhone()));
 
-            return new CryptoInfoDto(userDetails,key, iv);
+            return userDetails;
         }
         catch(Exception e){
             log.error("");
@@ -54,15 +56,27 @@ public class UserServiceImpl implements UserService{
         }
     }
 
-    private UserDto userInfoDecrypt(UserDto userDetails, SecretKey key, IvParameterSpec iv){
+    private String userInfoEncrypt(String info){ // 단일 정보 암호화
         try{
             String specName = env.getProperty("aes.spec");
 
-            userDetails.setAddress1(AesCryptoUtil.decrypt(specName,key,iv,userDetails.getAddress1()));
-            userDetails.setAddress2(AesCryptoUtil.decrypt(specName,key,iv,userDetails.getAddress2()));
-            userDetails.setEmail(AesCryptoUtil.decrypt(specName,key,iv,userDetails.getEmail()));
-            userDetails.setName(AesCryptoUtil.decrypt(specName,key,iv,userDetails.getName()));
-            userDetails.setPhone(AesCryptoUtil.decrypt(specName,key,iv,userDetails.getPhone()));
+            return AesCryptoUtil.encrypt(specName,SECRETKEY,IV,info);
+        }
+        catch(Exception e){
+            log.error("");
+            throw new RuntimeException(e);
+        }
+    }
+
+    private UserDto userDecrypt(UserDto userDetails){
+        try{
+            String specName = env.getProperty("aes.spec");
+
+            userDetails.setAddress1(AesCryptoUtil.decrypt(specName,SECRETKEY,IV,userDetails.getAddress1()));
+            userDetails.setAddress2(AesCryptoUtil.decrypt(specName,SECRETKEY,IV,userDetails.getAddress2()));
+            userDetails.setEmail(AesCryptoUtil.decrypt(specName,SECRETKEY,IV,userDetails.getEmail()));
+            userDetails.setName(AesCryptoUtil.decrypt(specName,SECRETKEY,IV,userDetails.getName()));
+            userDetails.setPhone(AesCryptoUtil.decrypt(specName,SECRETKEY,IV,userDetails.getPhone()));
 
             return userDetails;
         }
