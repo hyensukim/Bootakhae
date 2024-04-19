@@ -1,7 +1,6 @@
-package com.bootakhae.webapp.user.vo;
+package com.bootakhae.webapp.user.vo.response;
 
 import lombok.Data;
-import org.mapstruct.Mapping;
 
 import java.time.LocalDateTime;
 

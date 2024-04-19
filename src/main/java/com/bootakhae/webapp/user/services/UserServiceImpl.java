@@ -36,13 +36,12 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final Environment env;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
     @Override
     public UserDto signup(UserDto userDetails) {
         log.debug("회원 가입 서비스 실행");
-        CryptoInfoDto cryptoInfo = userInfoEncrypt(userDetails);
-        UserEntity user  = UserMapper.INSTANCE.dtoToEntity(cryptoInfo.getUserDetails());
         UserEntity user  = UserMapper.INSTANCE.dtoToEntity(userEncrypt(userDetails));
 
         if(userRepository.existsByEmail(user.getEmail())){

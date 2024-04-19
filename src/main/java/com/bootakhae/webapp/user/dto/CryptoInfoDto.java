@@ -1,7 +1,6 @@
 package com.bootakhae.webapp.user.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 
 import javax.crypto.SecretKey;

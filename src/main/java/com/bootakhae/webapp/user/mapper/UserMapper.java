@@ -2,8 +2,9 @@ package com.bootakhae.webapp.user.mapper;
 
 import com.bootakhae.webapp.user.dto.UserDto;
 import com.bootakhae.webapp.user.entities.UserEntity;
-import com.bootakhae.webapp.user.vo.RequestUser;
-import com.bootakhae.webapp.user.vo.ResponseUser;
+import com.bootakhae.webapp.user.vo.request.RequestLogin;
+import com.bootakhae.webapp.user.vo.request.RequestUser;
+import com.bootakhae.webapp.user.vo.response.ResponseUser;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -20,7 +21,7 @@ public interface UserMapper {
     @Mapping(target = "name" ,source = "name" )
     @Mapping(target = "nickname" ,source = "nickname" )
     @Mapping(target = "phone" ,source = "phone" )
-    UserEntity dtoToEntity(UserDto orderDto);
+    UserEntity dtoToEntity(UserDto userDto);
 
     // target : dto, source : entity - db 데이터 반환
     @Mapping(target = "email" ,source = "email" )
@@ -32,7 +33,7 @@ public interface UserMapper {
     @Mapping(target = "phone" ,source = "phone" )
     @Mapping(target = "userId" ,source = "userId" )
     @Mapping(target = "createdAt", source = "createdAt")
-    UserDto entityToDto(UserEntity orderEntity);
+    UserDto entityToDto(UserEntity userEntity);
 
     // target : dto, source : vo - 입력 데이터
     @Mapping(target = "email" ,source = "email" )
@@ -44,7 +45,11 @@ public interface UserMapper {
     @Mapping(target = "phone" ,source = "phone" )
     @Mapping(target = "userId" ,source = "userId" )
     @Mapping(target = "createdAt", source = "createdAt")
-    UserDto voToDto(RequestUser requestOrder);
+    UserDto voToDto(RequestUser requestUser);
+
+    @Mapping(target = "email" ,source = "email" )
+    @Mapping(target = "password" ,source = "password" )
+    UserDto voToDto(RequestLogin requestLogin);
 
     // target : vo, source : dto - 출력 데이터
     @Mapping(target = "resEmail" ,source = "email" )
@@ -65,7 +70,7 @@ public interface UserMapper {
 //    @Mapping(target = "phone" ,source = "resPhone" )
 //    @Mapping(target = "userId" ,source = "resUserId" )
 //    @Mapping(target = "createdAt", source = "resCreatedAt")
-    ResponseUser dtoToVo(UserDto orderDto);
+    ResponseUser dtoToVo(UserDto userDto);
 
     // target : vo, source : entity - 필요 시 정의
 //    @Mapping(target = "productId" ,source = "productId" )

@@ -1,4 +1,4 @@
-package com.bootakhae.webapp.user.vo;
+package com.bootakhae.webapp.user.vo.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
