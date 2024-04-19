@@ -100,14 +100,14 @@ public class UserServiceImpl implements UserService{
         UserEntity userEntity = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("비밀번호 변경 실패 : 존재하지 않는 회원입니다."));
 
-        if(!userEntity.getPassword().equals(oldPw)){
+        if(!passwordEncoder.matches(oldPw, userEntity.getPassword())){
             throw new RuntimeException("비밀번호 변경 실패 : 비밀번호가 일치하지 않습니다.");
         }
         else if(!newPw.equals(confirmPw)){
             throw new RuntimeException("비밀번호 변경 실패 : 비밀번호를 다시 확인해주세요");
         }
         else{
-            userEntity.changePw(newPw);
+            userEntity.changePw(passwordEncoder.encode(newPw));
             return UserMapper.INSTANCE.entityToDto(userEntity);
         }
     }
