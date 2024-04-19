@@ -1,7 +1,6 @@
 package com.bootakhae.webapp.user.services;
 
 import com.bootakhae.webapp.common.utils.AesCryptoUtil;
-import com.bootakhae.webapp.user.dto.CryptoInfoDto;
 import com.bootakhae.webapp.user.dto.UserDto;
 import com.bootakhae.webapp.user.entities.UserEntity;
 import com.bootakhae.webapp.user.mapper.UserMapper;
@@ -51,7 +50,18 @@ public class UserServiceImpl implements UserService{
         user.changePw(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
         UserDto userDto = UserMapper.INSTANCE.entityToDto(user);
-        return userInfoDecrypt(userDto, cryptoInfo.getKey(), cryptoInfo.getIv());
+        return userDecrypt(userDto);
+    }
+
+    @Override
+    public UserDto getOneByUserId(String userId) {
+        log.debug("회원 상세 조회 실행");
+        UserEntity user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("회원 상세 조회 실패 : 존재하지 않는 회원입니다."));
+        UserDto userDto = UserMapper.INSTANCE.entityToDto(user);
+        return userDecrypt(userDto);
+    }
+
     @Override
     public UserDto getUserDetailsByEmail(String encryptedEmail) {
         log.debug("JWT 발급 : 이메일로 회원 정보 조회 실행");
@@ -60,9 +70,48 @@ public class UserServiceImpl implements UserService{
         UserDto userDto = UserMapper.INSTANCE.entityToDto(user);
         return userDecrypt(userDto);
     }
+
+    @Transactional
+    @Override
+    public UserDto updateUserInfo(UserDto userDetails, String userId) {
+        log.debug("회원 정보 수정 실행");
+        UserEntity userEntity = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("회원 정보 수정 실패 : 존재하지 않는 회원입니다."));
+
+        if(Objects.nonNull(userDetails.getAddress1())){
+            userEntity.updateAddOne(userInfoEncrypt(userDetails.getAddress1()));
+        }
+        if(Objects.nonNull(userDetails.getAddress2())){
+            userEntity.updateAddTwo(userInfoEncrypt(userDetails.getAddress2()));
+        }
+        if(Objects.nonNull(userDetails.getPhone())){
+            userEntity.updatePh(userInfoEncrypt(userDetails.getPhone()));
+        }
+
+        userDetails = UserMapper.INSTANCE.entityToDto(userEntity);
+
+        return userDecrypt(userDetails);
     }
 
-    private CryptoInfoDto userInfoEncrypt(UserDto userDetails){
+    @Transactional
+    @Override
+    public UserDto updateUserPassword(String userId, String oldPw, String newPw, String confirmPw) {
+        log.debug("회원 비밀번호 수정 실행");
+        UserEntity userEntity = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("비밀번호 변경 실패 : 존재하지 않는 회원입니다."));
+
+        if(!userEntity.getPassword().equals(oldPw)){
+            throw new RuntimeException("비밀번호 변경 실패 : 비밀번호가 일치하지 않습니다.");
+        }
+        else if(!newPw.equals(confirmPw)){
+            throw new RuntimeException("비밀번호 변경 실패 : 비밀번호를 다시 확인해주세요");
+        }
+        else{
+            userEntity.changePw(newPw);
+            return UserMapper.INSTANCE.entityToDto(userEntity);
+        }
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
@@ -111,6 +160,7 @@ public class UserServiceImpl implements UserService{
 //                .build();
 //    }
 
+    private UserDto userEncrypt(UserDto userDetails){ // 전체 정보 암호화
         try{
             String specName = env.getProperty("aes.spec");
 
@@ -123,7 +173,7 @@ public class UserServiceImpl implements UserService{
             return userDetails;
         }
         catch(Exception e){
-            log.error("");
+            log.error("전체 암호화 실패");
             throw new RuntimeException(e);
         }
     }
@@ -135,7 +185,7 @@ public class UserServiceImpl implements UserService{
             return AesCryptoUtil.encrypt(specName,SECRETKEY,IV,info);
         }
         catch(Exception e){
-            log.error("");
+            log.error("일부 암호화 실패");
             throw new RuntimeException(e);
         }
     }
@@ -153,7 +203,19 @@ public class UserServiceImpl implements UserService{
             return userDetails;
         }
         catch(Exception e){
-            log.error("");
+            log.error("전체 복호화 실패");
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String userInfoDecrypt(String info){ // 단일 정보 암호화
+        try{
+            String specName = env.getProperty("aes.spec");
+
+            return AesCryptoUtil.decrypt(specName,SECRETKEY,IV,info);
+        }
+        catch(Exception e){
+            log.error("일부 복호화 실패");
             throw new RuntimeException(e);
         }
     }

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -79,4 +78,26 @@ public class UserEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", nullable = false, length = 10)
     private Role role;
+
+    public void changePw(String newPw){
+        this.password = newPw;
+    }
+
+    public void updateAddOne(String ad){
+        if(!this.address1.equals(ad)){
+            this.address1 = ad;
+        }
+    }
+
+    public void updateAddTwo(String ad){
+        if(!this.address2.equals(ad)){
+            this.address2 = ad;
+        }
+    }
+
+    public void updatePh(String ph){
+        if(!this.phone.equals(ph)){
+            this.phone = ph;
+        }
+    }
 }
