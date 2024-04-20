@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Table(name = "users")
 @Getter
 @NoArgsConstructor
-//@AllArgsConstructor
 public class UserEntity extends BaseEntity {
 
     @Builder

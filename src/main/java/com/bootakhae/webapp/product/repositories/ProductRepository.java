@@ -2,8 +2,6 @@ package com.bootakhae.webapp.product.repositories;
 
 import com.bootakhae.webapp.product.entities.ProductEntity;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
