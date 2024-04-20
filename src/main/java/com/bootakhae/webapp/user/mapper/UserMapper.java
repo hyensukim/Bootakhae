@@ -32,6 +32,7 @@ public interface UserMapper {
     @Mapping(target = "nickname" ,source = "nickname" )
     @Mapping(target = "phone" ,source = "phone" )
     @Mapping(target = "userId" ,source = "userId" )
+    @Mapping(target = "role" ,source = "role")
     @Mapping(target = "createdAt", source = "createdAt")
     UserDto entityToDto(UserEntity userEntity);
 
@@ -47,10 +48,6 @@ public interface UserMapper {
     @Mapping(target = "createdAt", source = "createdAt")
     UserDto voToDto(RequestUser requestUser);
 
-    @Mapping(target = "email" ,source = "email" )
-    @Mapping(target = "password" ,source = "password" )
-    UserDto voToDto(RequestLogin requestLogin);
-
     // target : vo, source : dto - 출력 데이터
     @Mapping(target = "resEmail" ,source = "email" )
     @Mapping(target = "resPassword" ,source = "password" )
@@ -61,23 +58,5 @@ public interface UserMapper {
     @Mapping(target = "resPhone" ,source = "phone" )
     @Mapping(target = "resUserId" ,source = "userId" )
     @Mapping(target = "resCreatedAt", source = "createdAt")
-//    @Mapping(target = "email" ,source = "resEmail" )
-//    @Mapping(target = "password" ,source = "resPassword" )
-//    @Mapping(target = "address1" ,source = "resAddress1" )
-//    @Mapping(target = "address2" ,source = "resAddress2" )
-//    @Mapping(target = "name" ,source = "resName" )
-//    @Mapping(target = "nickname" ,source = "resNickname" )
-//    @Mapping(target = "phone" ,source = "resPhone" )
-//    @Mapping(target = "userId" ,source = "resUserId" )
-//    @Mapping(target = "createdAt", source = "resCreatedAt")
     ResponseUser dtoToVo(UserDto userDto);
-
-    // target : vo, source : entity - 필요 시 정의
-//    @Mapping(target = "productId" ,source = "productId" )
-//    @Mapping(target = "qty" ,source = "qty" )
-//    @Mapping(target = "unitPrice" ,source = "unitPrice" )
-//    @Mapping(target = "totalPrice" ,source = "totalPrice" )
-//    @Mapping(target = "orderId" ,source = "orderId" )
-//    @Mapping(target = "createdAt", source = "createdAt")
-//    ResponseUser entityToVo(UserEntity orderEntity);
 }
