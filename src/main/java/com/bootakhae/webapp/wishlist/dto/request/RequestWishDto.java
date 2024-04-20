@@ -14,6 +14,6 @@ public class RequestWishDto {
 
     private String userId;
 
-    private Integer quantity;
+    private Long quantity;
 
 }
