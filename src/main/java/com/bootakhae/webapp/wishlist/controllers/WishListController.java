@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/v1/wishes")
 @RequiredArgsConstructor
@@ -20,6 +22,13 @@ public class WishListController {
     @GetMapping("health-check")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("service is available");
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ResponseWishDto>> wishList(@RequestParam(defaultValue = "0") int nowPage,
+                                                          @RequestParam(defaultValue = "6") int pageSize){
+        List<ResponseWishDto> responseList = wishListService.getWishList(nowPage, pageSize);
+        return ResponseEntity.status(HttpStatus.OK).body(responseList);
     }
 
     @PostMapping
