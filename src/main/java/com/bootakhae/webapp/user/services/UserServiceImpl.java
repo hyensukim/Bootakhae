@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
+
 import java.util.Objects;
 
 @Service
@@ -120,45 +120,16 @@ public class UserServiceImpl implements UserService{
         UserEntity userEntity = userRepository.findByEmail(EncryptedEmail)
                 .orElseThrow(()->new UsernameNotFoundException(username));
 
-        String authorities = userEntity.getRole().name();
-
-        List<SimpleGrantedAuthority> authorityList = Arrays.stream(authorities.split(","))
-                .map(SimpleGrantedAuthority::new).toList();
+//        String authorities = userEntity.getRole().name();
+//
+//        List<SimpleGrantedAuthority> authorityList = Arrays.stream(authorities.split(","))
+//                .map(SimpleGrantedAuthority::new).toList();
 
         return new User(userEntity.getEmail(), userEntity.getPassword(),
                 true,true,true,true,
-                authorityList);
+                new ArrayList<>());
     }
 
-//    @Override
-//    public AuthInfoDto login(UserDto userDetails) {
-//        log.debug("회원 로그인 실행");
-//        String encryptedEmail = userInfoEncrypt(userDetails.getEmail());
-//
-//        UserEntity user = userRepository.findByEmail(encryptedEmail).orElseThrow(
-//            () -> new RuntimeException("로그인 실패 : 가입하지 않은 회원입니다.")
-//        );
-//
-//        if(!passwordEncoder.matches(userDetails.getPassword(), user.getPassword())){
-//            throw new RuntimeException("로그인 실패 : 아이디와 비밀번호가 일치하지 않습니다.");
-//        }
-//        /* todo : UserDetails를 커스텀 해줘야 이렇게 짤 수 있는건가? */
-////        Authentication authentication = null;
-////        try {
-////             authentication = authenticationManagerBuilder.getObject()
-////                    .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
-////        }catch(Exception e){
-////            throw new RuntimeException(e);
-////        }
-//        userDetails = UserMapper.INSTANCE.entityToDto(user);
-//
-//        String accessToken = tokenProvider.createToken(user.getUserId());
-//
-//        return AuthInfoDto.builder()
-//                .userDetails(userDecrypt(userDetails))
-//                .accessToken(accessToken)
-//                .build();
-//    }
 
     private UserDto userEncrypt(UserDto userDetails){ // 전체 정보 암호화
         try{

@@ -11,9 +11,7 @@ import org.springframework.util.StringUtils;
 
 
 @Component
-@RequiredArgsConstructor
 public class AuthUtil {
-    private final HttpServletRequest request;
 
     public UserEntity getUserInfo(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -25,7 +23,7 @@ public class AuthUtil {
         }
     }
 
-    public String getToken(){
+    public String getToken(HttpServletRequest request){
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if(StringUtils.hasText(authorizationHeader)){
             return authorizationHeader.substring(7);

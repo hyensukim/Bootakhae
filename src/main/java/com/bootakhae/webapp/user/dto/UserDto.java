@@ -1,5 +1,6 @@
 package com.bootakhae.webapp.user.dto;
 
+import com.bootakhae.webapp.user.constant.Role;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,5 +15,6 @@ public class UserDto {
     private String nickname;
     private String phone;
     private String userId;
+    private Role role;
     private LocalDateTime createdAt;
 }

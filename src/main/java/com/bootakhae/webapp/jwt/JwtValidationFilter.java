@@ -29,10 +29,11 @@ public class JwtValidationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse resp, FilterChain chain)
             throws ServletException, IOException {
         log.debug("JWT 검증 필터 방문");
-        String accessToken = authUtil.getToken();
+        String accessToken = authUtil.getToken(req);
         if(accessToken != null && tokenProvider.validateToken(accessToken)) {
             Authentication authentication = tokenProvider.getAuthentication(accessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.debug("인증 완료");
         }
         chain.doFilter(req,resp);
     }

@@ -1,5 +1,6 @@
 package com.bootakhae.webapp.jwt;
 
+import com.bootakhae.webapp.user.dto.UserDto;
 import com.bootakhae.webapp.user.services.UserService;
 
 import io.jsonwebtoken.Claims;
@@ -13,10 +14,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -24,28 +30,7 @@ import javax.crypto.SecretKey;
 public class TokenProvider{
 
     private  final Environment env;
-    private  UserService userService;
-
-// 해당 로직 AuthenticationFilter 안으로 이전
-//    public String createToken(String userId){
-//        /*권한이 여러개인 경우 구현*/
-//        String authorities = auth.getAuthorities()
-//                .stream().map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.joining(","));
-//
-//        long millis = System.currentTimeMillis();
-//        Date now = new Date(millis);
-//        Date expiration = new Date(millis + Long.parseLong(Objects.requireNonNull(
-//                env.getProperty("token.expiration_time"))));
-//
-//        return Jwts.builder()
-//                .subject(userId)
-//                .issuedAt(now)
-//                .expiration(expiration)
-//                .claim("auth", authorities) // 권한이 여러개인 경우 구현
-//                .signWith(getSigningKey())
-//                .compact();
-//    }
+    private  final UserService userService;
 
     /**
      * Username 을 기반으로 UserEntity 조회 후 있으면, UsernamePasswordAuthenticationToken 을 생성
@@ -63,9 +48,16 @@ public class TokenProvider{
 //        List<SimpleGrantedAuthority> authorityList = Arrays.stream(authorities.split(","))
 //                .map(SimpleGrantedAuthority::new).toList();
 
-        UserDetails userDetails = userService.loadUserByUsername(claims.getSubject());
+        UserDto dto = userService.getOneByUserId(claims.getSubject());
 
-        return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
+        List<SimpleGrantedAuthority> authorityList = Arrays.stream(dto.getRole().name().split(","))
+                .map(SimpleGrantedAuthority::new).toList();
+
+        User user =  new User(dto.getUserId(),dto.getPassword(),
+                true,true,true,true,
+                authorityList);
+
+        return new UsernamePasswordAuthenticationToken(user, token, user.getAuthorities());
     }
 
     public boolean validateToken(String token){
