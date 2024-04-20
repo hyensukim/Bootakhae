@@ -6,7 +6,7 @@ import com.bootakhae.webapp.user.entities.UserEntity;
 import com.bootakhae.webapp.user.repositories.UserRepository;
 import com.bootakhae.webapp.wishlist.dto.request.RequestWishDto;
 import com.bootakhae.webapp.wishlist.dto.response.ResponseWishDto;
-import com.bootakhae.webapp.wishlist.entities.WishlistEntity;
+import com.bootakhae.webapp.wishlist.entities.WishEntity;
 import com.bootakhae.webapp.wishlist.repositories.WishlistRepository;
 
 import com.bootakhae.webapp.wishlist.vo.ProductInfo;
@@ -41,15 +41,15 @@ public class WishlistServiceImpl implements WishlistService {
                 () -> new RuntimeException("찜 등록 : 등록되지 않은 상품입니다.")
         );
 
-        WishlistEntity wishList = WishlistEntity.builder()
+        WishEntity wish = WishEntity.builder()
                 .user(user)
                 .product(product)
                 .quantity(requestWishDto.getQuantity())
                 .build();
 
-        wishList = wishListRepository.save(wishList);
+        wish = wishListRepository.save(wish);
 
-        return wishList.entityToDto();
+        return wish.entityToDto();
     }
 
     /**
@@ -67,12 +67,12 @@ public class WishlistServiceImpl implements WishlistService {
                 () -> new RuntimeException("찜 수량 변경 : 등록되지 않은 상품입니다.")
         );
 
-        WishlistEntity wishList = wishListRepository.findByProductAndUser(product, user).orElseThrow(
+        WishEntity wish = wishListRepository.findByProductAndUser(product, user).orElseThrow(
                 () -> new RuntimeException("찜 수량 변경 : 존재하지 않는 찜목록 입니다.")
         );
 
-        wishList.changeQty(requestWishDto.getQuantity());
-        return wishList.entityToDto();
+        wish.changeQty(requestWishDto.getQuantity());
+        return wish.entityToDto();
     }
 
     /**
@@ -90,11 +90,11 @@ public class WishlistServiceImpl implements WishlistService {
                 () -> new RuntimeException("찜 삭제 : 등록되지 않은 상품입니다.")
         );
 
-        WishlistEntity wishList = wishListRepository.findByProductAndUser(product, user).orElseThrow(
+        WishEntity wish = wishListRepository.findByProductAndUser(product, user).orElseThrow(
                 () -> new RuntimeException("찜 삭제 : 존재하지 않는 찜목록 입니다.")
         );
 
-        wishListRepository.delete(wishList);
+        wishListRepository.delete(wish);
     }
 
     @Override
@@ -106,8 +106,8 @@ public class WishlistServiceImpl implements WishlistService {
         );
 
         PageRequest pageRequest = PageRequest.of(nowPage, pageSize);
-        Page<WishlistEntity> pageList = wishListRepository.findAllByUser(user,pageRequest);
-        List<ProductInfo> productInfoList = pageList.stream().map(WishlistEntity::entityToVo).toList();
+        Page<WishEntity> pageList = wishListRepository.findAllByUser(user,pageRequest);
+        List<ProductInfo> productInfoList = pageList.stream().map(WishEntity::entityToVo).toList();
         return ResponseWishDto.builder()
                 .userId(user.getUserId())
                 .productInfoList(productInfoList)

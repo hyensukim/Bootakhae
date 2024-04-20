@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WishlistEntity {
+public class WishEntity {
 
     @Builder
-    public WishlistEntity(ProductEntity product, UserEntity user, Long quantity) {
+    public WishEntity(ProductEntity product, UserEntity user, Long quantity) {
         this.product = product;
         this.user = user;
         this.quantity = quantity;
