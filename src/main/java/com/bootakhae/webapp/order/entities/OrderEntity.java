@@ -1,0 +1,82 @@
+package com.bootakhae.webapp.order.entities;
+
+import com.bootakhae.webapp.entities.BaseEntity;
+import com.bootakhae.webapp.order.constant.Status;
+import com.bootakhae.webapp.order.dto.OrderDto;
+import com.bootakhae.webapp.product.entities.ProductEntity;
+import com.bootakhae.webapp.user.entities.UserEntity;
+
+import jakarta.persistence.*;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = "orders")
+@Getter
+@NoArgsConstructor
+public class OrderEntity extends BaseEntity {
+
+    @Builder
+    public OrderEntity(String address1,
+                       String address2,
+                       String phone,
+                       Long totalPrice,
+                       UserEntity user){
+        this.orderId = UUID.randomUUID().toString();
+        this.address1 = address1;
+        this.address2 = address2;
+        this.phone = phone;
+        this.totalPrice = totalPrice;
+        this.user = user;
+        this.status = Status.PAYMENT;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long seq; // PK
+
+    @Column(name = "order_id", nullable = false, unique = true, length = 50)
+    private String orderId; // 주문 아이디
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user; // 단방향 매핑
+
+//    public void registerConsumer(UserEntity user){
+//        this.user = user;
+//    }
+//    주문 내 어떤 상품이 들어있는지 조회시 양방향 매핑
+    @OneToMany(mappedBy = "order")
+    private final List<OrderProduct> orderProducts = new ArrayList<>(); // 양방향 매핑
+
+    public void addOrderProduct(OrderProduct orderProduct) {
+        orderProducts.add(orderProduct);
+        orderProduct.registerOrder(this);
+    }
+
+    @Column(name = "order_address1", nullable = false, length = 100)
+    private String address1; // 우편번호
+
+    @Column(name = "order_address2", nullable = false, length = 100)
+    private String address2; // 상세 주소
+
+    @Column(name = "order_phone", nullable = false, length = 50)
+    private String phone; // 연락처
+
+    @Column(name = "order_total_price", nullable = false)
+    private Long totalPrice; // 총 비용
+
+    public void calculateTotalPrice(Long totalPrice){
+        this.totalPrice = totalPrice;
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", nullable = false, length = 50)
+    private Status status;
+}
