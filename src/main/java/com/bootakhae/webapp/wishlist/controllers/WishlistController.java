@@ -4,6 +4,7 @@ import com.bootakhae.webapp.wishlist.dto.request.RequestWishDto;
 import com.bootakhae.webapp.wishlist.dto.response.ResponseWishDto;
 import com.bootakhae.webapp.wishlist.services.WishlistService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,7 @@ public class WishlistController {
      * 위시 리스트 등록
      */
     @PostMapping
-    public ResponseEntity<ResponseWishDto> addWish(@RequestBody RequestWishDto request){
+    public ResponseEntity<ResponseWishDto> addWish(@Valid @RequestBody RequestWishDto request){
         ResponseWishDto response = wishListService.includeWish(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -48,7 +49,7 @@ public class WishlistController {
      * 위시 리스트 수량 변경
      */
     @PutMapping
-    public ResponseEntity<ResponseWishDto> updateQty(@RequestBody RequestWishDto request){
+    public ResponseEntity<ResponseWishDto> updateQty(@Valid @RequestBody RequestWishDto request){
         ResponseWishDto response = wishListService.updateQty(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

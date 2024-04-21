@@ -26,6 +26,9 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendMessage(String to){
         log.debug("이메일 인증 : 메시지 전송");
+
+        if(to.isBlank()) throw new RuntimeException("이메일 인증 : 이메일을 입력 바랍니다.");
+
         try {
             MimeMessage mimeMessage = createMessage(to);
             javaMailSender.send(mimeMessage);
@@ -36,6 +39,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public boolean verifyCode(String email, String code){
+
+        if(email.isBlank() || code.isBlank()) throw new RuntimeException("코드 인증 : 항목을 입력 바랍니다.");
+
         String savedCode = String.valueOf(session.getAttribute(email));
         log.debug("이메일 인증 코드 확인 : {}", savedCode);
         if(Objects.isNull(savedCode)){

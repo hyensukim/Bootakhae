@@ -24,10 +24,10 @@ public class ProductEntity extends BaseEntity {
     private String name;
 
     @Column(name="product_price", nullable = false)
-    private Integer price;
+    private Long price;
 
     @Column(name="product_stock", nullable = false)
-    private Integer stock;
+    private Long stock;
 
     @Column(name="product_producer", nullable = false, length = 30)
     private String producer;

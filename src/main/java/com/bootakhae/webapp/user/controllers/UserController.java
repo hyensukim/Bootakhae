@@ -77,17 +77,4 @@ public class UserController {
         ResponseUser responseUser = UserMapper.INSTANCE.dtoToVo(userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(responseUser);
     }
-
-//    todo: 참고! - 해당 기능은 Controller 없이 UsernamePasswordAuthenticationFilter 상속받아서 구현함
-//    /**
-//     * 로그인
-//     */
-//    @PostMapping("login")
-//    public ResponseEntity<ResponseUser> login(@Valid @RequestBody RequestLogin request){
-//        AuthInfoDto authInfoDto = userService.login(UserMapper.INSTANCE.voToDto(request));
-//        ResponseUser responseUser = UserMapper.INSTANCE.dtoToVo(authInfoDto.getUserDetails());
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .header("token", authInfoDto.getAccessToken())
-//                .body(responseUser);
-//    }
 }
