@@ -85,8 +85,8 @@ public class OrderController {
     @PostMapping("return/{orderId}")
     public ResponseEntity<ResponseOrder> returnDoneOrder(@PathVariable("orderId") String orderId,
                                                          @RequestBody RequestReturnOrder request){
-        orderService.returnOrderedProduct(orderId, request.voToDto());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        OrderDto orderDetails = orderService.returnOrderedProduct(orderId, request.voToDto());
+        return ResponseEntity.status(HttpStatus.OK).body(orderDetails.dtoToVo());
     }
 
     /**
