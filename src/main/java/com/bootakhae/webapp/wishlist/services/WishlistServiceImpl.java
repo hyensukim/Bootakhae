@@ -28,7 +28,7 @@ public class WishlistServiceImpl implements WishlistService {
     private final WishlistRepository wishListRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
-    
+
     @Transactional
     @Override
     public ResponseWishDto includeWish(RequestWishDto requestWishDto) {
@@ -52,9 +52,6 @@ public class WishlistServiceImpl implements WishlistService {
         return wish.entityToDto();
     }
 
-    /**
-     * 수량 수정
-     */
     @Transactional
     @Override
     public ResponseWishDto updateQty(RequestWishDto requestWishDto) {
@@ -75,9 +72,6 @@ public class WishlistServiceImpl implements WishlistService {
         return wish.entityToDto();
     }
 
-    /**
-     * 찜 삭제
-     */
     @Transactional
     @Override
     public void excludeWish(String userId, String productId) {

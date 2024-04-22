@@ -29,6 +29,14 @@ public class ProductEntity extends BaseEntity {
     @Column(name="product_stock", nullable = false)
     private Long stock;
 
+    public void takeStock(long qty){
+        stock += qty;
+    }
+
+    public void deductStock(long qty){
+        stock -= qty;
+    }
+
     @Column(name="product_producer", nullable = false, length = 30)
     private String producer;
 
