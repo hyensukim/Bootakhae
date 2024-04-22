@@ -53,6 +53,7 @@ public class UserServiceImpl implements UserService{
         return userDecrypt(userDto);
     }
 
+    // todo : token 관련 조회와 일반 조회 구분하여 메서드 정의하기
     @Override
     public UserDto getOneByUserId(String userId) {
         log.debug("회원 상세 조회 실행");

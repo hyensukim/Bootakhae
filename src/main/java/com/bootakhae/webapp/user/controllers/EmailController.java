@@ -2,6 +2,7 @@ package com.bootakhae.webapp.user.controllers;
 
 import com.bootakhae.webapp.user.services.EmailService;
 import com.bootakhae.webapp.user.vo.request.RequestEmailCheck;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class EmailController {
      * 인증 코드 확인
      */
     @PostMapping("verify")
-    public ResponseEntity<String> verifyCode(@RequestBody RequestEmailCheck request) {
+    public ResponseEntity<String> verifyCode(@Valid @RequestBody RequestEmailCheck request) {
         boolean isChecked = emailService.verifyCode(request.getEmail(), request.getCode());
 
         if(isChecked) {

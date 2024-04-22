@@ -1,5 +1,7 @@
 package com.bootakhae.webapp.wishlist.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +16,7 @@ public class RequestWishDto {
 
     private String userId;
 
-    private Integer quantity;
+    @NotNull(message = "수량을 입력 바랍니다.")
+    private Long quantity;
 
 }

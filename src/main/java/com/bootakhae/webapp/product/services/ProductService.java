@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ProductService {
 
-    ProductDto registerProduct(ProductDto product);
+    ProductDto registerProduct(ProductDto productDetails);
 
     ProductDto getOneProduct(String productId);
 

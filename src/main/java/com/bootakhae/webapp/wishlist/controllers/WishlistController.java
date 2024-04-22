@@ -2,8 +2,9 @@ package com.bootakhae.webapp.wishlist.controllers;
 
 import com.bootakhae.webapp.wishlist.dto.request.RequestWishDto;
 import com.bootakhae.webapp.wishlist.dto.response.ResponseWishDto;
-import com.bootakhae.webapp.wishlist.services.WishListService;
+import com.bootakhae.webapp.wishlist.services.WishlistService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -15,34 +16,47 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/wishes")
 @RequiredArgsConstructor
-public class WishListController {
+public class WishlistController {
 
-    private final WishListService wishListService;
+    private final WishlistService wishListService;
 
     @GetMapping("health-check")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("service is available");
     }
 
-    @GetMapping
-    public ResponseEntity<List<ResponseWishDto>> wishList(@RequestParam(defaultValue = "0") int nowPage,
+    /**
+     * 위시 리스트 조회
+     */
+    @GetMapping("{userId}")
+    public ResponseEntity<ResponseWishDto> wishList(@PathVariable String userId,
+                                                          @RequestParam(defaultValue = "0") int nowPage,
                                                           @RequestParam(defaultValue = "6") int pageSize){
-        List<ResponseWishDto> responseList = wishListService.getWishList(nowPage, pageSize);
-        return ResponseEntity.status(HttpStatus.OK).body(responseList);
+        ResponseWishDto response = wishListService.getWishList(userId, nowPage, pageSize);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    /**
+     * 위시 리스트 등록
+     */
     @PostMapping
-    public ResponseEntity<ResponseWishDto> addWish(@RequestBody RequestWishDto request){
+    public ResponseEntity<ResponseWishDto> addWish(@Valid @RequestBody RequestWishDto request){
         ResponseWishDto response = wishListService.includeWish(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    /**
+     * 위시 리스트 수량 변경
+     */
     @PutMapping
-    public ResponseEntity<ResponseWishDto> updateQty(@RequestBody RequestWishDto request){
+    public ResponseEntity<ResponseWishDto> updateQty(@Valid @RequestBody RequestWishDto request){
         ResponseWishDto response = wishListService.updateQty(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    /**
+     * 위시 리스트 삭제
+     */
     @DeleteMapping("{userId}/{productId}")
     public ResponseEntity<Void> removeWish(@PathVariable String userId, @PathVariable String productId){
         wishListService.excludeWish(userId, productId);

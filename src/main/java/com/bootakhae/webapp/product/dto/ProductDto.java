@@ -16,9 +16,9 @@ public class ProductDto {
 
     private String name;
 
-    private Integer price;
+    private Long price;
 
-    private Integer stock;
+    private Long stock;
 
     private String producer;
 

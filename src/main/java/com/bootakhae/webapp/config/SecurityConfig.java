@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -41,9 +42,11 @@ public class SecurityConfig {
 //                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
 
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(new AntPathRequestMatcher("/api/v1/users/**", "POST"),
-                new AntPathRequestMatcher("/auth/sign-in")).permitAll()
-            .anyRequest().authenticated()).authenticationManager(authenticationManager);
+                .requestMatchers(new AntPathRequestMatcher("/**"))
+                    .access(new WebExpressionAuthorizationManager("hasIpAddress('222.99.81.232') or hasIpAddress('127.0.0.1')"))
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/users/**", "POST"),
+                        new AntPathRequestMatcher("/auth/sign-in")).permitAll()
+                .anyRequest().authenticated()).authenticationManager(authenticationManager);
 
         http.addFilter(getAuthenticationFilter(authenticationManager))
             .addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class);
