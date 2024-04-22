@@ -1,6 +1,6 @@
 package com.bootakhae.webapp.order.entities;
 
-import com.bootakhae.webapp.entities.BaseEntity;
+import com.bootakhae.webapp.common.entities.BaseEntity;
 import com.bootakhae.webapp.order.constant.Status;
 import com.bootakhae.webapp.order.dto.OrderDto;
 import com.bootakhae.webapp.order.dto.OrderProductDto;
@@ -80,6 +80,10 @@ public class OrderEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false, length = 50)
     private Status status;
+
+    public void startShipping(){ this.status = Status.SHIPPING; }
+
+    public void completeShipping(){ this.status = Status.DONE; }
 
     public void cancelTheOrder(){
         this.status = Status.CANCEL;

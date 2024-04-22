@@ -1,6 +1,6 @@
 package com.bootakhae.webapp.product.entities;
 
-import com.bootakhae.webapp.entities.BaseEntity;
+import com.bootakhae.webapp.common.entities.BaseEntity;
 import com.bootakhae.webapp.product.dto.ProductDto;
 import jakarta.persistence.*;
 import lombok.*;

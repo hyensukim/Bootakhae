@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -253,6 +254,34 @@ public class OrderServiceImpl implements OrderService{
         order.returnOrder(returnOrder);
 
         return order.entityToDto();
+    }
+
+    @Scheduled(cron = "${schedule.cron}")
+    @Transactional
+    @Override
+    public void changeOrderStatus() {
+        log.info("주문 상태 업데이트 실행");
+
+        List<OrderEntity> orderList = orderRepository.findAll();
+        for(OrderEntity order : orderList){
+            if(order.getStatus() == Status.PAYMENT
+                    && Math.abs(Duration.between(order.getCreatedAt(),LocalDateTime.now()).toDays()) >= 1){
+                order.startShipping();
+            }
+            else if(order.getStatus() == Status.SHIPPING
+                    && Math.abs(Duration.between(order.getUpdatedAt(),LocalDateTime.now()).toDays()) >= 1){
+                order.completeShipping();
+            }
+            else if(order.getStatus() != Status.RETURN
+                    && order.getReturnOrder() != null
+                    && Math.abs(Duration.between(order.getReturnOrder().getCreatedAt(),LocalDateTime.now())
+                    .toDays()) >= 1){
+                order.returnTheOrder();
+                orderProductRepository.findByOrder(order).ifPresent(
+                        (op) ->{op.getProduct().takeStock(op.getQuantity());}
+                );
+            }
+        }
     }
 
     @Override

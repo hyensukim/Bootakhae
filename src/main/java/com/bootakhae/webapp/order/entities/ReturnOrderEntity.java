@@ -1,6 +1,6 @@
 package com.bootakhae.webapp.order.entities;
 
-import com.bootakhae.webapp.entities.BaseEntity;
+import com.bootakhae.webapp.common.entities.BaseEntity;
 import com.bootakhae.webapp.order.constant.Reason;
 import com.bootakhae.webapp.order.dto.ReturnOrderDto;
 import jakarta.persistence.*;

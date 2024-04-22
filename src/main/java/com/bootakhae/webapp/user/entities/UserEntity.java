@@ -1,8 +1,7 @@
 package com.bootakhae.webapp.user.entities;
 
-import com.bootakhae.webapp.entities.BaseEntity;
+import com.bootakhae.webapp.common.entities.BaseEntity;
 import com.bootakhae.webapp.user.constant.Role;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.*;
 
@@ -10,9 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import org.springframework.data.annotation.LastModifiedDate;
-
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity

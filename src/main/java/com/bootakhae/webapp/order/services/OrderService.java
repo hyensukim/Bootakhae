@@ -19,6 +19,8 @@ public interface OrderService {
 
     OrderDto returnOrderedProduct(String orderId, ReturnOrderDto returnOrderDetails);
 
+    void changeOrderStatus();
+
     OrderDto updateOrder(String orderId, OrderDto orderDetails);
 
 }
