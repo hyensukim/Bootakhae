@@ -1,7 +1,9 @@
 package com.bootakhae.webapp.order.vo.response;
 
 import com.bootakhae.webapp.order.constant.Status;
-import com.bootakhae.webapp.order.entities.OrderProduct;
+import com.bootakhae.webapp.order.dto.OrderProductDto;
+import com.bootakhae.webapp.order.dto.ReturnOrderDto;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,5 +25,10 @@ public class ResponseOrder {
     private String phone;
     private LocalDateTime createdAt;
     private Status orderStatus;
-    private List<OrderProduct> orderedProducts;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private ReturnOrderDto returnOrder;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private OrderProductDto orderedProduct;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<OrderProductDto> orderedProducts;
 }

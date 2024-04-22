@@ -1,12 +1,8 @@
 package com.bootakhae.webapp.order.dto;
 
 import com.bootakhae.webapp.order.constant.Status;
-import com.bootakhae.webapp.order.entities.OrderEntity;
 
-import com.bootakhae.webapp.order.entities.OrderProduct;
 import com.bootakhae.webapp.order.vo.response.ResponseOrder;
-import com.bootakhae.webapp.product.entities.ProductEntity;
-import com.bootakhae.webapp.user.entities.UserEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,15 +33,9 @@ public class OrderDto {
     private Status orderStatus;
     private LocalDateTime createdAt;
 
-    private List<OrderProduct> orderedProducts;
-
-//    public OrderEntity dtoToEntity(){
-//        return OrderEntity.builder()
-//                .address1(this.address1)
-//                .address2(this.address2)
-//                .phone(this.phone)
-//                .build();
-//    }
+    private ReturnOrderDto returnOrder;
+    private OrderProductDto orderProduct;
+    private List<OrderProductDto> orderedProducts;
 
     public ResponseOrder dtoToVo(){
         return ResponseOrder.builder()
@@ -56,7 +46,9 @@ public class OrderDto {
                 .address2(this.address2)
                 .phone(this.phone) // 연락처
                 .createdAt(this.createdAt) // 주문일자
-                .orderStatus(this.orderStatus) // 주문 상태
+                .orderStatus(this.orderStatus)
+                .returnOrder(this.returnOrder)
+                .orderedProduct(this.orderProduct)// 주문 상태
                 .orderedProducts(this.orderedProducts) // 주문 상품
                 .build();
     }

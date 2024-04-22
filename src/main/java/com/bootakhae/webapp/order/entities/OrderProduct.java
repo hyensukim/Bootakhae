@@ -1,5 +1,6 @@
 package com.bootakhae.webapp.order.entities;
 
+import com.bootakhae.webapp.order.dto.OrderProductDto;
 import com.bootakhae.webapp.product.entities.ProductEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -29,7 +30,7 @@ public class OrderProduct {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;
 
-    @ManyToOne()
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private OrderEntity order;
@@ -49,4 +50,12 @@ public class OrderProduct {
     @Column(name = "order_product_price", nullable = false)
     private Long price;
 
+    public OrderProductDto entityToDto() {
+        return OrderProductDto.builder()
+                .productId(this.product.getProductId())
+                .stock(this.product.getStock())
+                .quantity(this.quantity)
+                .price(this.price)
+                .build();
+    }
 }

@@ -3,7 +3,8 @@ package com.bootakhae.webapp.order.entities;
 import com.bootakhae.webapp.entities.BaseEntity;
 import com.bootakhae.webapp.order.constant.Status;
 import com.bootakhae.webapp.order.dto.OrderDto;
-import com.bootakhae.webapp.product.entities.ProductEntity;
+import com.bootakhae.webapp.order.dto.OrderProductDto;
+import com.bootakhae.webapp.order.dto.ReturnOrderDto;
 import com.bootakhae.webapp.user.entities.UserEntity;
 
 import jakarta.persistence.*;
@@ -79,4 +80,47 @@ public class OrderEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false, length = 50)
     private Status status;
+
+    public void cancelTheOrder(){
+        this.status = Status.CANCEL;
+    }
+
+    public void returnTheOrder(){
+        this.status = Status.RETURN;
+    }
+
+    @OneToOne
+    @JoinColumn(name = "return_order_id")
+    private ReturnOrderEntity returnOrder;
+
+    public void returnOrder(ReturnOrderEntity returnOrder){
+        this.returnOrder = returnOrder;
+    }
+
+    public OrderDto entityToDto(){
+        List<OrderProductDto> orderedProducts = new ArrayList<>();
+        ReturnOrderDto returnOrderDto = null;
+
+        if(!orderProducts.isEmpty()){
+            orderedProducts = this.orderProducts.stream().map(OrderProduct::entityToDto).toList();
+        }
+
+        // todo 수정 - 이 로직말고는 답이 없을까?
+        if(returnOrder != null){
+            returnOrderDto = returnOrder.entityToDto();
+        }
+
+        return OrderDto.builder()
+                .orderId(this.orderId)
+                .userId(this.user.getUserId())
+                .totalPrice(this.totalPrice)
+                .address1(this.address1)
+                .address2(this.address2)
+                .phone(this.phone)
+                .createdAt(this.getCreatedAt())
+                .orderStatus(this.status)
+                .returnOrder(returnOrderDto)
+                .orderedProducts(orderedProducts)
+                .build();
+    }
 }

@@ -1,6 +1,9 @@
 package com.bootakhae.webapp.order.services;
 
 import com.bootakhae.webapp.order.dto.OrderDto;
+import com.bootakhae.webapp.order.dto.ReturnOrderDto;
+
+import java.util.List;
 
 public interface OrderService {
 
@@ -8,11 +11,14 @@ public interface OrderService {
 
     OrderDto registerOrders(OrderDto orderDetails);
 
-    String deleteOrder(String orderId);
+    OrderDto removeOrder(String orderId);
 
-    String getOrderDetails(String orderId);
+    OrderDto getOrderDetails(String orderId);
 
-    String updateOrder(String orderId, OrderDto orderDetails);
+    List<OrderDto> getOrderListByUserId(String userId, int nowPage, int pageSize);
 
-    String getOrderListByUserId(String userId);
+    OrderDto returnOrderedProduct(String orderId, ReturnOrderDto returnOrderDetails);
+
+    OrderDto updateOrder(String orderId, OrderDto orderDetails);
+
 }
