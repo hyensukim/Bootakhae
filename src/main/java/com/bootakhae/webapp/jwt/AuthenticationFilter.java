@@ -1,22 +1,19 @@
 package com.bootakhae.webapp.jwt;
 
 import com.bootakhae.webapp.user.dto.UserDto;
-import com.bootakhae.webapp.user.services.UserService;
+import com.bootakhae.webapp.user.services.TokenService;
 import com.bootakhae.webapp.user.vo.request.RequestLogin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,27 +21,21 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.crypto.SecretKey;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
 
 @Slf4j
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private AuthenticationManager authenticationManager;
-
-    private final UserService userService;
-    private final Environment env;
+    private final TokenProvider tokenProvider;
+    private final TokenService tokenService;
 
     public AuthenticationFilter(AuthenticationManager authenticationManager,
-                                UserService userService,
-                                Environment env) {
+                                TokenService tokenService,
+                                TokenProvider tokenProvider) {
         super(authenticationManager);
-        this.userService = userService;
-        this.env = env;
+        this.tokenProvider = tokenProvider;
+        this.tokenService = tokenService;
     }
 
     @Override
@@ -79,21 +70,19 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         log.debug("로그인 성공 후 처리");
 
         String userName = ((User) authResult.getPrincipal()).getUsername();
-        UserDto userDetails = userService.getUserDetailsByEmail(userName);
+        UserDto userDetails = tokenProvider.getUserDetailsByEmail(userName);
+        String accessToken = tokenProvider.createAccessToken(userDetails);
+        String refreshToken = tokenProvider.createRefreshToken();
 
-        String token = Jwts.builder()
-                .subject(userDetails.getUserId())
-                .expiration(new Date(System.currentTimeMillis() +
-                        Long.parseLong(Objects.requireNonNull(env.getProperty("token.expiration_time")))))
-                .signWith(getSigningKey())
-                .compact();
+        tokenService.saveRefreshToken(userDetails.getUserId(), refreshToken);
 
-        response.addHeader("token",token);
+        Cookie cookie = new Cookie("refresh-token", refreshToken);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 24);
+        cookie.setHttpOnly(true);
+
+        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        response.addCookie(cookie);
         response.addHeader("userId",userDetails.getUserId());
-    }
-
-    private SecretKey getSigningKey(){
-        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("token.secret"));
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

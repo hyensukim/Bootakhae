@@ -1,9 +1,12 @@
 package com.bootakhae.webapp.jwt;
 
+import com.bootakhae.webapp.user.dto.TokenDto;
 import com.bootakhae.webapp.user.dto.UserDto;
+import com.bootakhae.webapp.user.services.TokenService;
 import com.bootakhae.webapp.user.services.UserService;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -20,17 +23,34 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class TokenProvider{
 
-    private  final Environment env;
-    private  final UserService userService;
+    private final Environment env;
+    private final UserService userService;
+
+    private static final Long REFRESH_EXPIRED_TIME = 30 * 60 * 1000L; // 1sec -> 24hrs
+
+
+    public String createAccessToken(UserDto userDetails){
+        return Jwts.builder()
+                .subject(userDetails.getUserId())
+                .expiration(new Date(System.currentTimeMillis() +
+                        Long.parseLong(Objects.requireNonNull(env.getProperty("token.expiration_time")))))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    public String createRefreshToken(){
+        return Jwts.builder()
+                .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRED_TIME))
+                .signWith(getSigningKey())
+                .compact();
+    }
 
     /**
      * Username 을 기반으로 UserEntity 조회 후 있으면, UsernamePasswordAuthenticationToken 을 생성
@@ -62,13 +82,28 @@ public class TokenProvider{
 
     public boolean validateToken(String token){
         try{
-            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
+            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
             return true;
         }
         catch(Exception e){
             log.error(e.getMessage());
+            return false;
         }
-        return false;
+    }
+
+    public boolean isExpired(String token){
+        try{
+            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
+            return false;
+        }
+        catch(ExpiredJwtException e){
+            log.debug("Access token 만료됐습니다.",e);
+            return true;
+        }
+    }
+
+    public UserDto getUserDetailsByEmail(String email){
+        return userService.getUserDetailsByEmail(email);
     }
 
     private SecretKey getSigningKey(){

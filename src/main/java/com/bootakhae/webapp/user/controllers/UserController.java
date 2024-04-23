@@ -1,16 +1,23 @@
 package com.bootakhae.webapp.user.controllers;
 
+import com.bootakhae.webapp.jwt.TokenProvider;
+import com.bootakhae.webapp.user.dto.TokenDto;
 import com.bootakhae.webapp.user.dto.UserDto;
 import com.bootakhae.webapp.user.mapper.UserMapper;
+import com.bootakhae.webapp.user.services.TokenService;
 import com.bootakhae.webapp.user.services.UserService;
 
 import com.bootakhae.webapp.user.vo.request.RequestPassword;
 import com.bootakhae.webapp.user.vo.request.RequestUser;
 import com.bootakhae.webapp.user.vo.response.ResponseUser;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +29,10 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final TokenService tokenService;
+    private final TokenProvider tokenProvider;
+    private final HttpServletRequest req;
+    private final HttpServletResponse resp;
 
     /**
      * 헬스 체크 
@@ -29,6 +40,40 @@ public class UserController {
     @GetMapping("health-check")
     public ResponseEntity<String> healthCheck(){
         return ResponseEntity.ok("service is available");
+    }
+
+    /**
+     * 로그아웃
+     */
+    @GetMapping("logout")
+    public ResponseEntity<Void> logout(@CookieValue(name = "refresh-token") String refreshToken){
+        tokenService.removeRefreshToken(refreshToken);
+        Cookie[] cookies = req.getCookies();
+        if(cookies != null){
+            for(Cookie cookie : cookies){
+                if("refresh-token".equals(cookie.getName())){
+                    cookie.setMaxAge(0);
+                    resp.addCookie(cookie);
+                    break;
+                }
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    /**
+     * 토큰 재발급
+     */
+    @GetMapping("reissue")
+    public ResponseEntity<String> reIssueToken(@CookieValue(name = "refresh-token")String refreshToken){
+        TokenDto tokenDetails = tokenService.findTokenByRefreshToken(refreshToken);
+        UserDto userDetails = userService.getOneByUserId(tokenDetails.getUserId());
+        String accessToken = tokenProvider.createAccessToken(userDetails);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .body("토큰 재발급 완료");
     }
 
     /**
