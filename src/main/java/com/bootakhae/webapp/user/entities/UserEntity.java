@@ -1,5 +1,6 @@
 package com.bootakhae.webapp.user.entities;
 
+import com.bootakhae.webapp.common.converter.CryptoStringConverter;
 import com.bootakhae.webapp.common.entities.BaseEntity;
 import com.bootakhae.webapp.user.constant.Role;
 
@@ -41,28 +42,33 @@ public class UserEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;
-    
+
     @Column(name = "user_id", nullable = false, unique = true, length = 50)
     private String userId;
 
+    @Convert(converter = CryptoStringConverter.class)
     @Column(name = "user_email", nullable = false, unique = true, length = 100)
     private String email;
 
     @Column(name = "user_password", nullable = false, length = 100)
     private String password;
 
+    @Convert(converter = CryptoStringConverter.class)
     @Column(name = "user_address1", nullable = false, length = 100)
     private String address1; // 우편 번호
 
+    @Convert(converter = CryptoStringConverter.class)
     @Column(name = "user_address2", nullable = false, length = 100)
     private String address2; // 상세주소
 
+    @Convert(converter = CryptoStringConverter.class)
     @Column(name = "user_name", nullable = false, length = 100)
     private String name;
 
     @Column(name = "user_nickname", nullable = false, length = 50)
     private String nickname;
 
+    @Convert(converter = CryptoStringConverter.class)
     @Column(name = "user_phone", nullable = false, length = 50)
     private String phone;
 

@@ -1,57 +1,55 @@
 package com.bootakhae.webapp.common.utils;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Base64;
+import java.util.Objects;
+
+@Component
+@RequiredArgsConstructor
 public class AesCryptoUtil {
 
-    /**
-     * 키 반환
-     */
-    public static SecretKey getKey() {
-        try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); // 비밀키 생성객체
-            keyGenerator.init(128); // 특정 크기에 대해 KeyGenerator 초기화
-            return keyGenerator.generateKey(); // 비밀키 생성
-        }catch(NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * 초기화 벡터 반환
-     */
-    public static IvParameterSpec getIv() {
-        byte[] iv = new byte[16];
-        new SecureRandom().nextBytes(iv);
-        return new IvParameterSpec(iv); // 초기화 벡터 지정 및 사용자가 지정한 바이트수의 난수 바이트 생성
-    }
+    private final Environment env;
 
     /**
      * 암호화 알고리즘
      */
-    public static String encrypt(String specName, SecretKey key, IvParameterSpec iv,
-                                 String plainText) throws Exception {
-        Cipher cipher = Cipher.getInstance(specName);
-        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-        byte[] encrypted = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
-        return new String(Base64.getEncoder().encode(encrypted));
+    public String encrypt(String plainText) {
+        try{
+            String spec = Objects.requireNonNull(env.getProperty("aes.spec"));
+            String keyString = Objects.requireNonNull(env.getProperty("aes.key"));
+            Key key = new SecretKeySpec(keyString.getBytes(StandardCharsets.UTF_8), spec);
+            Cipher cipher = Cipher.getInstance(spec);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            byte[] encrypted = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(encrypted);
+        }
+        catch(Exception e){
+            throw new RuntimeException("암호화 중 오류 : ",e);
+        }
     }
 
     /**
      * 복호화 알고리즘
      */
-    public static String decrypt(String specName, SecretKey key, IvParameterSpec iv,
-                                 String cipherText) throws Exception {
-        Cipher cipher = Cipher.getInstance(specName);
-        cipher.init(Cipher.DECRYPT_MODE, key, iv);
-        byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(cipherText));
-        return new String(decrypted, StandardCharsets.UTF_8);
+    public String decrypt( String cipherText) {
+        try{
+            String spec = Objects.requireNonNull(env.getProperty("aes.spec"));
+            String keyString = Objects.requireNonNull(env.getProperty("aes.key"));
+            Key key = new SecretKeySpec(keyString.getBytes(StandardCharsets.UTF_8), spec);
+            Cipher cipher = Cipher.getInstance(spec);
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(cipherText));
+            return new String(decrypted, StandardCharsets.UTF_8);
+        }
+        catch(Exception e){
+            throw new RuntimeException("복호화 중 오류 : ",e);
+        }
     }
 }
