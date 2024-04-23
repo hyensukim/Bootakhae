@@ -2,8 +2,11 @@ package com.bootakhae.webapp.jwt;
 
 import com.bootakhae.webapp.common.utils.AuthUtil;
 
+import com.bootakhae.webapp.user.dto.TokenDto;
+import com.bootakhae.webapp.user.dto.UserDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -30,11 +33,30 @@ public class JwtValidationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         log.debug("JWT 검증 필터 방문");
         String accessToken = authUtil.getToken(req);
-        if(accessToken != null && tokenProvider.validateToken(accessToken)) {
-            Authentication authentication = tokenProvider.getAuthentication(accessToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("인증 완료");
+
+        if(accessToken != null){ // access-token 이 있는가
+            if(tokenProvider.validateToken(accessToken)){
+                log.debug("access-token 검증 : 인증 성공");
+                setAuthentication(accessToken);
+            }
+            else{
+                log.debug("access-token 검증 : 인증 실패");
+                if(tokenProvider.isExpired(accessToken)){
+                    log.debug("access-token 검증 : 기한 만료");
+                    resp.setContentType("text/plain; charset=UTF-8");
+                    resp.getWriter().write("access-token 재발급 바랍니다.");
+                }
+
+                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
         }
+
         chain.doFilter(req,resp);
+    }
+
+    private void setAuthentication(String accessToken){
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

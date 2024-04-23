@@ -1,6 +1,5 @@
 package com.bootakhae.webapp.user.services;
 
-import com.bootakhae.webapp.common.utils.AesCryptoUtil;
 import com.bootakhae.webapp.user.dto.UserDto;
 import com.bootakhae.webapp.user.entities.UserEntity;
 import com.bootakhae.webapp.user.mapper.UserMapper;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.core.env.Environment;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,8 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 import java.util.ArrayList;
 
 import java.util.Objects;
@@ -29,19 +25,15 @@ import java.util.Objects;
 @Slf4j
 public class UserServiceImpl implements UserService{
 
-    // todo: 실제 서비스 시에는 해당값을 고정값으로 지정
-    private static final SecretKey SECRETKEY = AesCryptoUtil.getKey();
-    private static final IvParameterSpec IV = AesCryptoUtil.getIv();
-
     private final UserRepository userRepository;
-    private final Environment env;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final Environment env;
 
     @Transactional
     @Override
     public UserDto signup(UserDto userDetails) {
         log.debug("회원 가입 서비스 실행");
-        UserEntity user  = UserMapper.INSTANCE.dtoToEntity(userEncrypt(userDetails));
+        UserEntity user  = UserMapper.INSTANCE.dtoToEntity(userDetails);
 
         if(userRepository.existsByEmail(user.getEmail())){
             throw new RuntimeException("회원 가입 실패 : 중복된 이메일 입니다.");
@@ -49,8 +41,7 @@ public class UserServiceImpl implements UserService{
 
         user.changePw(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
-        UserDto userDto = UserMapper.INSTANCE.entityToDto(user);
-        return userDecrypt(userDto);
+        return UserMapper.INSTANCE.entityToDto(user);
     }
 
     // todo : token 관련 조회와 일반 조회 구분하여 메서드 정의하기
@@ -59,8 +50,7 @@ public class UserServiceImpl implements UserService{
         log.debug("회원 상세 조회 실행");
         UserEntity user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("회원 상세 조회 실패 : 존재하지 않는 회원입니다."));
-        UserDto userDto = UserMapper.INSTANCE.entityToDto(user);
-        return userDecrypt(userDto);
+        return UserMapper.INSTANCE.entityToDto(user);
     }
 
     @Override
@@ -68,8 +58,7 @@ public class UserServiceImpl implements UserService{
         log.debug("JWT 발급 : 이메일로 회원 정보 조회 실행");
         UserEntity user = userRepository.findByEmail(encryptedEmail)
                 .orElseThrow(()-> new RuntimeException("JWT 발급 : 가입되지 않은 회원입니다."));
-        UserDto userDto = UserMapper.INSTANCE.entityToDto(user);
-        return userDecrypt(userDto);
+        return UserMapper.INSTANCE.entityToDto(user);
     }
 
     @Transactional
@@ -80,18 +69,18 @@ public class UserServiceImpl implements UserService{
                 .orElseThrow(() -> new RuntimeException("회원 정보 수정 실패 : 존재하지 않는 회원입니다."));
 
         if(Objects.nonNull(userDetails.getAddress1())){
-            userEntity.updateAddOne(userInfoEncrypt(userDetails.getAddress1()));
+            userEntity.updateAddOne(userDetails.getAddress1());
         }
         if(Objects.nonNull(userDetails.getAddress2())){
-            userEntity.updateAddTwo(userInfoEncrypt(userDetails.getAddress2()));
+            userEntity.updateAddTwo(userDetails.getAddress2());
         }
         if(Objects.nonNull(userDetails.getPhone())){
-            userEntity.updatePh(userInfoEncrypt(userDetails.getPhone()));
+            userEntity.updatePh(userDetails.getPhone());
         }
 
         userDetails = UserMapper.INSTANCE.entityToDto(userEntity);
 
-        return userDecrypt(userDetails);
+        return userDetails;
     }
 
     @Transactional
@@ -116,79 +105,11 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        String EncryptedEmail = userInfoEncrypt(username);
-
-        UserEntity userEntity = userRepository.findByEmail(EncryptedEmail)
+        UserEntity userEntity = userRepository.findByEmail(username)
                 .orElseThrow(()->new UsernameNotFoundException(username));
-
-//        String authorities = userEntity.getRole().name();
-//
-//        List<SimpleGrantedAuthority> authorityList = Arrays.stream(authorities.split(","))
-//                .map(SimpleGrantedAuthority::new).toList();
 
         return new User(userEntity.getEmail(), userEntity.getPassword(),
                 true,true,true,true,
                 new ArrayList<>());
-    }
-
-
-    private UserDto userEncrypt(UserDto userDetails){ // 전체 정보 암호화
-        try{
-            String specName = env.getProperty("aes.spec");
-
-            userDetails.setAddress1(AesCryptoUtil.encrypt(specName,SECRETKEY,IV,userDetails.getAddress1()));
-            userDetails.setAddress2(AesCryptoUtil.encrypt(specName,SECRETKEY,IV,userDetails.getAddress2()));
-            userDetails.setEmail(AesCryptoUtil.encrypt(specName,SECRETKEY,IV,userDetails.getEmail()));
-            userDetails.setName(AesCryptoUtil.encrypt(specName,SECRETKEY,IV,userDetails.getName()));
-            userDetails.setPhone(AesCryptoUtil.encrypt(specName,SECRETKEY,IV,userDetails.getPhone()));
-
-            return userDetails;
-        }
-        catch(Exception e){
-            log.error("전체 암호화 실패");
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String userInfoEncrypt(String info){ // 단일 정보 암호화
-        try{
-            String specName = env.getProperty("aes.spec");
-
-            return AesCryptoUtil.encrypt(specName,SECRETKEY,IV,info);
-        }
-        catch(Exception e){
-            log.error("일부 암호화 실패");
-            throw new RuntimeException(e);
-        }
-    }
-
-    private UserDto userDecrypt(UserDto userDetails){
-        try{
-            String specName = env.getProperty("aes.spec");
-
-            userDetails.setAddress1(AesCryptoUtil.decrypt(specName,SECRETKEY,IV,userDetails.getAddress1()));
-            userDetails.setAddress2(AesCryptoUtil.decrypt(specName,SECRETKEY,IV,userDetails.getAddress2()));
-            userDetails.setEmail(AesCryptoUtil.decrypt(specName,SECRETKEY,IV,userDetails.getEmail()));
-            userDetails.setName(AesCryptoUtil.decrypt(specName,SECRETKEY,IV,userDetails.getName()));
-            userDetails.setPhone(AesCryptoUtil.decrypt(specName,SECRETKEY,IV,userDetails.getPhone()));
-
-            return userDetails;
-        }
-        catch(Exception e){
-            log.error("전체 복호화 실패");
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String userInfoDecrypt(String info){ // 단일 정보 암호화
-        try{
-            String specName = env.getProperty("aes.spec");
-
-            return AesCryptoUtil.decrypt(specName,SECRETKEY,IV,info);
-        }
-        catch(Exception e){
-            log.error("일부 복호화 실패");
-            throw new RuntimeException(e);
-        }
     }
 }
