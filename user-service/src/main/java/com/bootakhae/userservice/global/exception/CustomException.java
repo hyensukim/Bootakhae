@@ -1,11 +1,18 @@
 package com.bootakhae.userservice.global.exception;
 
-import org.springframework.http.HttpStatus;
+import lombok.Getter;
 
+@Getter
 public class CustomException extends RuntimeException{
+    ErrorCode errorCode;
 
-    private HttpStatus status;
-    private String code;
-    private String message;
-    private String timeStamp;
+    public CustomException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
+    }
+
+    public CustomException(ErrorCode errorCode, String detailMessage) {
+        super(detailMessage);
+        this.errorCode = errorCode;
+    }
 }

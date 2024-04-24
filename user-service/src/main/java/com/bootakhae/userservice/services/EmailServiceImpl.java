@@ -1,5 +1,7 @@
 package com.bootakhae.userservice.services;
 
+import com.bootakhae.userservice.global.exception.CustomException;
+import com.bootakhae.userservice.global.exception.ErrorCode;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpSession;
@@ -27,20 +29,20 @@ public class EmailServiceImpl implements EmailService {
     public void sendMessage(String to){
         log.debug("이메일 인증 : 메시지 전송");
 
-        if(to.isBlank()) throw new RuntimeException("이메일 인증 : 이메일을 입력 바랍니다.");
+        if(to.isBlank()) throw new CustomException(ErrorCode.NOT_BLANK);
 
         try {
             MimeMessage mimeMessage = createMessage(to);
             javaMailSender.send(mimeMessage);
         }catch(MessagingException e){
-            throw new RuntimeException("이메일 인증 : 생성 및 전송 중 오류발생");
+            throw new CustomException(ErrorCode.FAIL_TRANSFER_EMAIL);
         }
     }
 
     @Override
     public boolean verifyCode(String email, String code){
 
-        if(email.isBlank() || code.isBlank()) throw new RuntimeException("코드 인증 : 항목을 입력 바랍니다.");
+        if(email.isBlank() || code.isBlank()) throw new CustomException(ErrorCode.NOT_BLANK);
 
         String savedCode = String.valueOf(session.getAttribute(email));
         log.debug("이메일 인증 코드 확인 : {}", savedCode);
