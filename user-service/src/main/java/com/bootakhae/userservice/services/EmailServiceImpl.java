@@ -8,12 +8,15 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -23,7 +26,9 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender emailSender;
     private final JavaMailSender javaMailSender;
     private final Environment env;
-    private final HttpSession session;
+    private final StringRedisTemplate stringRedisTemplate;
+
+    private static final String OTP_PREFIX = "otp:";
 
     @Override
     public void sendMessage(String to){
@@ -41,15 +46,19 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public boolean verifyCode(String email, String code){
-
+        log.debug("이메일 인증 : 인증 코드 검증");
         if(email.isBlank() || code.isBlank()) throw new CustomException(ErrorCode.NOT_BLANK);
 
-        String savedCode = String.valueOf(session.getAttribute(email));
-        log.debug("이메일 인증 코드 확인 : {}", savedCode);
-        if(Objects.isNull(savedCode)){
+        String key = OTP_PREFIX + email;
+
+        if(Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))){
+            String savedCode = stringRedisTemplate.opsForValue().get(OTP_PREFIX + email);
+            log.debug("이메일 인증 코드 확인 : {}", savedCode);
+            return code.equals(savedCode);
+        }
+        else{
             return false;
         }
-        return code.equals(savedCode);
     }
 
     private MimeMessage createMessage(String to) throws MessagingException{
@@ -57,6 +66,7 @@ public class EmailServiceImpl implements EmailService {
 
         String subject = "[BooTakHae] 회원가입 인증 안내";
         String from = env.getProperty("spring.mail.username")+"@gmail.com";
+        long limitTime = Long.parseLong(Objects.requireNonNull(env.getProperty("redis.ttl")));
         String code = makeCode();
 
         MimeMessage message = emailSender.createMimeMessage();
@@ -67,7 +77,7 @@ public class EmailServiceImpl implements EmailService {
         mimeMessageHelper.setFrom(from);
         mimeMessageHelper.setText(setContext(code),true);
 
-        session.setAttribute(to,code);
+        stringRedisTemplate.opsForValue().set(OTP_PREFIX + to, code, limitTime, TimeUnit.SECONDS);
 
         return message;
     }
