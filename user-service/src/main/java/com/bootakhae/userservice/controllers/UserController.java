@@ -1,21 +1,18 @@
 package com.bootakhae.userservice.controllers;
 
+
 import com.bootakhae.userservice.dto.TokenDto;
 import com.bootakhae.userservice.dto.UserDto;
-import com.bootakhae.userservice.global.jwt.TokenProvider;
 import com.bootakhae.userservice.global.mapper.UserMapper;
-import com.bootakhae.userservice.services.TokenService;
+import com.bootakhae.userservice.services.RefreshTokenService;
 import com.bootakhae.userservice.services.UserService;
 import com.bootakhae.userservice.vo.request.RequestPassword;
 import com.bootakhae.userservice.vo.request.RequestUser;
+import com.bootakhae.userservice.vo.response.ResponseToken;
 import com.bootakhae.userservice.vo.response.ResponseUser;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,10 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final TokenService tokenService;
-    private final TokenProvider tokenProvider;
-    private final HttpServletRequest req;
-    private final HttpServletResponse resp;
+    private final RefreshTokenService refreshTokenService;
 
     /**
      * 헬스 체크 
@@ -43,35 +37,23 @@ public class UserController {
     /**
      * 로그아웃
      */
-    @GetMapping("logout")
-    public ResponseEntity<Void> logout(@CookieValue(name = "refresh-token") String refreshToken){
-        tokenService.removeRefreshToken(refreshToken);
-        Cookie[] cookies = req.getCookies();
-        if(cookies != null){
-            for(Cookie cookie : cookies){
-                if("refresh-token".equals(cookie.getName())){
-                    cookie.setMaxAge(0);
-                    resp.addCookie(cookie);
-                    break;
-                }
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @GetMapping("{userId}/logout")
+    public ResponseEntity<Void> logout(@PathVariable("userId") String userId){
+        refreshTokenService.removeTokenInfo(userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     /**
      * 토큰 재발급
      */
-    @GetMapping("reissue")
-    public ResponseEntity<String> reIssueToken(@CookieValue(name = "refresh-token")String refreshToken){
-        TokenDto tokenDetails = tokenService.findTokenByRefreshToken(refreshToken);
-        UserDto userDetails = userService.getOneByUserId(tokenDetails.getUserId());
-        String accessToken = tokenProvider.createAccessToken(userDetails);
-
+    @GetMapping("{userId}/reissue")
+    public ResponseEntity<ResponseToken> reIssueToken(@PathVariable("userId") String userId){
+        TokenDto tokens = refreshTokenService.findAndValidate(userId);
+        refreshTokenService.saveTokenInfo(tokens.getUserId(), tokens.getRefreshToken());
+        ResponseToken responseToken = tokens.dtoToVo();
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                .body("토큰 재발급 완료");
+                .body(responseToken);
     }
 
     /**
@@ -112,7 +94,7 @@ public class UserController {
      */
     @PutMapping("{userId}/password")
     public ResponseEntity<ResponseUser> updateUserPassword(@PathVariable("userId") String userId,
-                                                           @RequestBody RequestPassword request){
+                                                           @Valid @RequestBody RequestPassword request){
         UserDto userDetails = userService.updateUserPassword(userId,
                 request.getPassword(),
                 request.getNewPassword(),

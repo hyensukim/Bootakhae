@@ -1,17 +1,22 @@
 package com.bootakhae.userservice.services;
 
+import com.bootakhae.userservice.global.exception.CustomException;
+import com.bootakhae.userservice.global.exception.ErrorCode;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -21,33 +26,39 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender emailSender;
     private final JavaMailSender javaMailSender;
     private final Environment env;
-    private final HttpSession session;
+    private final StringRedisTemplate stringRedisTemplate;
+
+    private static final String OTP_PREFIX = "otp:";
 
     @Override
     public void sendMessage(String to){
         log.debug("이메일 인증 : 메시지 전송");
 
-        if(to.isBlank()) throw new RuntimeException("이메일 인증 : 이메일을 입력 바랍니다.");
+        if(to.isBlank()) throw new CustomException(ErrorCode.NOT_BLANK);
 
         try {
             MimeMessage mimeMessage = createMessage(to);
             javaMailSender.send(mimeMessage);
         }catch(MessagingException e){
-            throw new RuntimeException("이메일 인증 : 생성 및 전송 중 오류발생");
+            throw new CustomException(ErrorCode.FAIL_TRANSFER_EMAIL);
         }
     }
 
     @Override
     public boolean verifyCode(String email, String code){
+        log.debug("이메일 인증 : 인증 코드 검증");
+        if(email.isBlank() || code.isBlank()) throw new CustomException(ErrorCode.NOT_BLANK);
 
-        if(email.isBlank() || code.isBlank()) throw new RuntimeException("코드 인증 : 항목을 입력 바랍니다.");
+        String key = OTP_PREFIX + email;
 
-        String savedCode = String.valueOf(session.getAttribute(email));
-        log.debug("이메일 인증 코드 확인 : {}", savedCode);
-        if(Objects.isNull(savedCode)){
+        if(Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))){
+            String savedCode = stringRedisTemplate.opsForValue().get(OTP_PREFIX + email);
+            log.debug("이메일 인증 코드 확인 : {}", savedCode);
+            return code.equals(savedCode);
+        }
+        else{
             return false;
         }
-        return code.equals(savedCode);
     }
 
     private MimeMessage createMessage(String to) throws MessagingException{
@@ -55,6 +66,7 @@ public class EmailServiceImpl implements EmailService {
 
         String subject = "[BooTakHae] 회원가입 인증 안내";
         String from = env.getProperty("spring.mail.username")+"@gmail.com";
+        long limitTime = Long.parseLong(Objects.requireNonNull(env.getProperty("redis.ttl")));
         String code = makeCode();
 
         MimeMessage message = emailSender.createMimeMessage();
@@ -65,7 +77,7 @@ public class EmailServiceImpl implements EmailService {
         mimeMessageHelper.setFrom(from);
         mimeMessageHelper.setText(setContext(code),true);
 
-        session.setAttribute(to,code);
+        stringRedisTemplate.opsForValue().set(OTP_PREFIX + to, code, limitTime, TimeUnit.SECONDS);
 
         return message;
     }

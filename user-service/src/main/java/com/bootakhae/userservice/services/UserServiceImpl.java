@@ -2,11 +2,15 @@ package com.bootakhae.userservice.services;
 
 import com.bootakhae.userservice.dto.UserDto;
 import com.bootakhae.userservice.entities.UserEntity;
+import com.bootakhae.userservice.global.exception.CustomException;
+import com.bootakhae.userservice.global.exception.ErrorCode;
 import com.bootakhae.userservice.global.mapper.UserMapper;
 import com.bootakhae.userservice.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 @Service
@@ -32,7 +37,7 @@ public class UserServiceImpl implements UserService{
         UserEntity user  = UserMapper.INSTANCE.dtoToEntity(userDetails);
 
         if(userRepository.existsByEmail(user.getEmail())){
-            throw new RuntimeException("회원 가입 실패 : 중복된 이메일 입니다.");
+            throw new CustomException(ErrorCode.DUPLICATED_EMAIL);
         }
 
         user.changePw(passwordEncoder.encode(user.getPassword()));
@@ -45,7 +50,7 @@ public class UserServiceImpl implements UserService{
     public UserDto getOneByUserId(String userId) {
         log.debug("회원 상세 조회 실행");
         UserEntity user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("회원 상세 조회 실패 : 존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
         return UserMapper.INSTANCE.entityToDto(user);
     }
 
@@ -53,7 +58,7 @@ public class UserServiceImpl implements UserService{
     public UserDto getUserDetailsByEmail(String encryptedEmail) {
         log.debug("JWT 발급 : 이메일로 회원 정보 조회 실행");
         UserEntity user = userRepository.findByEmail(encryptedEmail)
-                .orElseThrow(()-> new RuntimeException("JWT 발급 : 가입되지 않은 회원입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
         return UserMapper.INSTANCE.entityToDto(user);
     }
 
@@ -62,7 +67,7 @@ public class UserServiceImpl implements UserService{
     public UserDto updateUserInfo(UserDto userDetails, String userId) {
         log.debug("회원 정보 수정 실행");
         UserEntity userEntity = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("회원 정보 수정 실패 : 존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
         if(Objects.nonNull(userDetails.getAddress1())){
             userEntity.updateAddOne(userDetails.getAddress1());
@@ -84,13 +89,13 @@ public class UserServiceImpl implements UserService{
     public UserDto updateUserPassword(String userId, String oldPw, String newPw, String confirmPw) {
         log.debug("회원 비밀번호 수정 실행");
         UserEntity userEntity = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("비밀번호 변경 실패 : 존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
         if(!passwordEncoder.matches(oldPw, userEntity.getPassword())){
-            throw new RuntimeException("비밀번호 변경 실패 : 비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.NOT_CORRECT_PASSWORD);
         }
         else if(!newPw.equals(confirmPw)){
-            throw new RuntimeException("비밀번호 변경 실패 : 비밀번호를 다시 확인해주세요");
+            throw new CustomException(ErrorCode.NOT_CORRECT_PASSWORD);
         }
         else{
             userEntity.changePw(passwordEncoder.encode(newPw));
@@ -103,6 +108,9 @@ public class UserServiceImpl implements UserService{
 
         UserEntity userEntity = userRepository.findByEmail(username)
                 .orElseThrow(()->new UsernameNotFoundException(username));
+
+//        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+//        authorities.add(new SimpleGrantedAuthority(userEntity.getRole().name()));
 
         return new User(userEntity.getEmail(), userEntity.getPassword(),
                 true,true,true,true,
