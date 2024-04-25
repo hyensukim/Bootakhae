@@ -80,9 +80,10 @@ public class TokenProvider {
         try{
             Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
             return false;
-        }
-        catch(ExpiredJwtException e){
+        }catch(ExpiredJwtException e){
             return true;
+        }catch(Exception e){
+            return false;
         }
     }
     

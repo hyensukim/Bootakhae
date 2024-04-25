@@ -22,16 +22,13 @@ public class TokenServiceImpl implements TokenService{
     public void saveRefreshToken(String userId, String refreshToken) {
         log.debug("refresh 토큰 저장 실행");
 
-        tokenRepository.findByUserId(userId).ifPresent(
-            token -> {
-                token.changeRefreshToken(refreshToken);
-            }
+        TokenEntity token = tokenRepository.findByUserId(userId).orElse(
+                TokenEntity.builder()
+                        .userId(userId)
+                        .refreshToken(refreshToken)
+                        .build()
         );
 
-        TokenEntity token = TokenEntity.builder()
-                .userId(userId)
-                .refreshToken(refreshToken)
-                .build();
         tokenRepository.save(token);
     }
 

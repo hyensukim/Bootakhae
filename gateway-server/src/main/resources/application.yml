@@ -52,12 +52,10 @@ spring:
           uri: http://localhost:8080/
           predicates:
             - Path=/user-service/**
-            - Method=GET
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
             - name: AuthorizationHeaderFilter
-            - name: LoggingFilter
 
         - id: order-service
           uri: http://localhost:8081/
@@ -65,7 +63,7 @@ spring:
             - Path=/order-service/**
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - RewritePath=/order-service/(?<segment>.*), /$\{segment}
             - name: AuthorizationHeaderFilter
 
         - id: product-service
@@ -74,8 +72,12 @@ spring:
             - Path=/product-service/**
           filters:
             - RemoveRequestHeader=Cookie
-            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - RewritePath=/product-service/(?<segment>.*), /$\{segment}
             - name: AuthorizationHeaderFilter
+
+logging:
+  level:
+    com.bootakhae.gatewayserver: DEBUG
 
 token:
   access-expired-time: ${access-expired-time}

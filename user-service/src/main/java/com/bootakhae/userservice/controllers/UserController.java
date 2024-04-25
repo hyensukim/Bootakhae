@@ -4,6 +4,7 @@ import com.bootakhae.userservice.dto.TokenDto;
 import com.bootakhae.userservice.dto.UserDto;
 import com.bootakhae.userservice.global.security.TokenProvider;
 import com.bootakhae.userservice.global.mapper.UserMapper;
+import com.bootakhae.userservice.global.utils.CookieUtil;
 import com.bootakhae.userservice.services.TokenService;
 import com.bootakhae.userservice.services.UserService;
 import com.bootakhae.userservice.vo.request.RequestPassword;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,9 +30,7 @@ public class UserController {
 
     private final UserService userService;
     private final TokenService tokenService;
-    private final TokenProvider tokenProvider;
-    private final HttpServletRequest req;
-    private final HttpServletResponse resp;
+    private final CookieUtil cookieUtil;
 
     /**
      * 헬스 체크 
@@ -46,28 +46,11 @@ public class UserController {
     @GetMapping("logout")
     public ResponseEntity<Void> logout(@CookieValue(name = "refresh-token") String refreshToken){
         tokenService.removeRefreshToken(refreshToken);
-        Cookie[] cookies = req.getCookies();
-        if(cookies != null){
-            for(Cookie cookie : cookies){
-                if("refresh-token".equals(cookie.getName())){
-                    cookie.setMaxAge(0);
-                    resp.addCookie(cookie);
-                    break;
-                }
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        ResponseCookie deleteRefreshToken  = cookieUtil.removeRefreshTokenCookie();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .header(HttpHeaders.SET_COOKIE,deleteRefreshToken.toString())
+                .build();
     }
-
-    /**
-     * 토큰 검증
-     */
-    @GetMapping("token")
-    public ResponseEntity<String> checkToken(){
-        return ResponseEntity.status(HttpStatus.OK).body("access-token 검증 : 인증 성공");
-    }
-
 
     /**
      * 토큰 재발급

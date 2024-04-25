@@ -42,7 +42,7 @@ public class SecurityConfig {
         http.headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
         http.addFilter(getAuthenticationFilter(authenticationManager));
 
-        http.authorizeHttpRequests(auth -> auth
+        http.authorizeHttpRequests(auth -> auth // 열어놓음;;
                 .requestMatchers(new AntPathRequestMatcher("/**")
 //                        new AntPathRequestMatcher("/api/v1/users/health-check", "GET"),
 //                        new AntPathRequestMatcher("/api/v1/users/reissue", "GET"),
