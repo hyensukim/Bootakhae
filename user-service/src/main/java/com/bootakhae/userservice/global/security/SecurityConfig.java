@@ -1,10 +1,10 @@
 package com.bootakhae.userservice.global.security;
 
-import com.bootakhae.userservice.global.utils.CookieUtil;
-import com.bootakhae.userservice.services.TokenService;
+import com.bootakhae.userservice.services.RefreshTokenService;
 import com.bootakhae.userservice.services.UserService;
-import jakarta.servlet.http.HttpServletResponse;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,9 +22,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
 
     private final UserService userService;
-    private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
     private final TokenProvider tokenProvider;
-    private final CookieUtil cookieUtil;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Bean
@@ -59,7 +58,7 @@ public class SecurityConfig {
 
     private AuthenticationFilter getAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception{
         AuthenticationFilter filter
-                = new AuthenticationFilter(authenticationManager, tokenService, tokenProvider, cookieUtil);
+                = new AuthenticationFilter(authenticationManager, tokenProvider, refreshTokenService);
         filter.setFilterProcessesUrl("/auth/sign-in"); // 로그인에 접근하기 위한 URL
         return filter;
     }

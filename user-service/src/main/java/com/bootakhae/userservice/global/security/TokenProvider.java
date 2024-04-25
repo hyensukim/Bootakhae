@@ -7,31 +7,21 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class TokenProvider{
 
-    private final Environment env;
     private final UserService userService;
 
     @Value("${token.access-expired-time}")
@@ -43,10 +33,9 @@ public class TokenProvider{
     @Value("${token.secret}")
     private String SECRET;
 
-    public String createAccessToken(UserDto userDetails, List<String> roles){
+    public String createAccessToken(String userId){
         return Jwts.builder()
-                .subject(userDetails.getUserId())
-                .claim("roles", roles)
+                .subject(userId)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + Long.parseLong(ACCESS_EXPIRED_TIME)*1000L))
                 .signWith(getSigningKey())
@@ -59,6 +48,16 @@ public class TokenProvider{
                 .expiration(new Date(System.currentTimeMillis() + Long.parseLong(REFRESH_EXPIRED_TIME)*1000L))
                 .signWith(getSigningKey())
                 .compact();
+    }
+
+    public boolean validateRefreshToken(String token){
+        try {
+            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
+            return true;
+        }catch (Exception e){
+            log.info("Refresh Token 검증 : ",e);
+            return false;
+        }
     }
 
     public Date getExpiredTime(String token){

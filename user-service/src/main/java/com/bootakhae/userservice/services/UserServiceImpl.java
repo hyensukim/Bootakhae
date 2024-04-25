@@ -109,11 +109,11 @@ public class UserServiceImpl implements UserService{
         UserEntity userEntity = userRepository.findByEmail(username)
                 .orElseThrow(()->new UsernameNotFoundException(username));
 
-        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(userEntity.getRole().name()));
+//        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+//        authorities.add(new SimpleGrantedAuthority(userEntity.getRole().name()));
 
         return new User(userEntity.getEmail(), userEntity.getPassword(),
                 true,true,true,true,
-                authorities);
+                new ArrayList<>());
     }
 }

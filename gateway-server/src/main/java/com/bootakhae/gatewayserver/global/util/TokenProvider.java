@@ -86,7 +86,22 @@ public class TokenProvider {
             return false;
         }
     }
-    
+
+    public String getUserIdByToken(String token){
+        return getClaimsFromToken(token).getSubject();
+    }
+
+    /**
+     * 토큰 claims 가져오기
+     */
+    private Claims getClaimsFromToken(String token) {
+        try {
+            return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
+    }
+
     private SecretKey getSigningKey(){
         byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("token.secret"));
         return Keys.hmacShaKeyFor(keyBytes);

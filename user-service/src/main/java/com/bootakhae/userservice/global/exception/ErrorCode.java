@@ -29,7 +29,8 @@ public enum ErrorCode {
      * Token
      */
     NOT_FOUND_REFRESH_TOKEN(HttpStatus.INTERNAL_SERVER_ERROR, "TKN-ERR-01","토큰이 존재하지 않습니다."),
-    EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "TKN-ERR-02", "토큰이 만료됐습니다.");
+    EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "TKN-ERR-02", "토큰이 만료됐습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "TKN-ERR-03", "다시 로그인 바랍니다.");
 
 
     private final HttpStatus status;

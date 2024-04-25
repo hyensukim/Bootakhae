@@ -1,23 +1,21 @@
 package com.bootakhae.userservice.global.security;
 
 import com.bootakhae.userservice.dto.UserDto;
-import com.bootakhae.userservice.global.utils.CookieUtil;
-import com.bootakhae.userservice.services.TokenService;
+import com.bootakhae.userservice.services.RefreshTokenService;
 import com.bootakhae.userservice.vo.request.RequestLogin;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -25,23 +23,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final TokenProvider tokenProvider;
-    private final CookieUtil cookieUtil;
-    private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthenticationFilter(AuthenticationManager authenticationManager,
-                                TokenService tokenService,
-                                TokenProvider tokenProvider, CookieUtil cookieUtil) {
+                                TokenProvider tokenProvider,
+                                RefreshTokenService refreshTokenService) {
         super(authenticationManager);
+        this.refreshTokenService = refreshTokenService;
         this.tokenProvider = tokenProvider;
-        this.tokenService = tokenService;
-        this.cookieUtil = cookieUtil;
+
     }
 
     @Override
@@ -73,25 +69,21 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         UserDetails user = ((User) authResult.getPrincipal());
 
-        List<String> roles = user.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+//        List<String> roles = user.getAuthorities()
+//                .stream()
+//                .map(GrantedAuthority::getAuthority)
+//                .toList();
 
         String email = user.getUsername();
         UserDto userDetails = tokenProvider.getUserDetailsByEmail(email);
 
-        String accessToken = tokenProvider.createAccessToken(userDetails,roles);
+        String accessToken = tokenProvider.createAccessToken(userDetails.getUserId());
         Date expiredTime = tokenProvider.getExpiredTime(accessToken);
         String refreshToken = tokenProvider.createRefreshToken();
 
-        tokenService.saveRefreshToken(userDetails.getUserId(), refreshToken);
-
-        ResponseCookie responseCookie = cookieUtil.createRefreshTokenCookie(refreshToken);
-        Cookie cookie = cookieUtil.of(responseCookie);
+        refreshTokenService.saveTokenInfo(userDetails.getUserId(), refreshToken);
 
         response.setContentType("application/json");
-        response.addCookie(cookie);
 
         // body 설정
         Map<String, Object> tokens = Map.of(
