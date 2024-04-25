@@ -2,7 +2,7 @@ package com.bootakhae.userservice.controllers;
 
 import com.bootakhae.userservice.dto.TokenDto;
 import com.bootakhae.userservice.dto.UserDto;
-import com.bootakhae.userservice.global.jwt.TokenProvider;
+import com.bootakhae.userservice.global.security.TokenProvider;
 import com.bootakhae.userservice.global.mapper.UserMapper;
 import com.bootakhae.userservice.services.TokenService;
 import com.bootakhae.userservice.services.UserService;
@@ -61,16 +61,25 @@ public class UserController {
     }
 
     /**
+     * 토큰 검증
+     */
+    @GetMapping("token")
+    public ResponseEntity<String> checkToken(){
+        return ResponseEntity.status(HttpStatus.OK).body("access-token 검증 : 인증 성공");
+    }
+
+
+    /**
      * 토큰 재발급
      */
     @GetMapping("reissue")
     public ResponseEntity<String> reIssueToken(@CookieValue(name = "refresh-token")String refreshToken){
         TokenDto tokenDetails = tokenService.findTokenByRefreshToken(refreshToken);
         UserDto userDetails = userService.getOneByUserId(tokenDetails.getUserId());
-        String accessToken = tokenProvider.createAccessToken(userDetails);
+//        String accessToken = tokenProvider.createAccessToken(userDetails);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+//                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .body("토큰 재발급 완료");
     }
 
@@ -112,7 +121,7 @@ public class UserController {
      */
     @PutMapping("{userId}/password")
     public ResponseEntity<ResponseUser> updateUserPassword(@PathVariable("userId") String userId,
-                                                           @RequestBody RequestPassword request){
+                                                           @Valid @RequestBody RequestPassword request){
         UserDto userDetails = userService.updateUserPassword(userId,
                 request.getPassword(),
                 request.getNewPassword(),

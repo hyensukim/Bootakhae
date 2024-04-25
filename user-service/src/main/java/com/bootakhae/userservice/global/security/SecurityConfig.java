@@ -1,9 +1,6 @@
-package com.bootakhae.userservice.global.config;
+package com.bootakhae.userservice.global.security;
 
-
-import com.bootakhae.userservice.global.jwt.AuthenticationFilter;
-import com.bootakhae.userservice.global.jwt.JwtValidationFilter;
-import com.bootakhae.userservice.global.jwt.TokenProvider;
+import com.bootakhae.userservice.global.utils.CookieUtil;
 import com.bootakhae.userservice.services.TokenService;
 import com.bootakhae.userservice.services.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,10 +21,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtValidationFilter jwtValidationFilter;
     private final UserService userService;
     private final TokenService tokenService;
     private final TokenProvider tokenProvider;
+    private final CookieUtil cookieUtil;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Bean
@@ -41,29 +38,28 @@ public class SecurityConfig {
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.logout(AbstractHttpConfigurer::disable);
+        http.headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+        http.addFilter(getAuthenticationFilter(authenticationManager));
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(
+                .requestMatchers(new AntPathRequestMatcher("/**")
 //                        new AntPathRequestMatcher("/api/v1/users/health-check", "GET"),
-                        new AntPathRequestMatcher("/api/v1/users/reissue", "GET"),
-                        new AntPathRequestMatcher("/api/v1/users/**", "POST"),
-                        new AntPathRequestMatcher("/auth/sign-in")).permitAll()
-                .anyRequest().authenticated()).authenticationManager(authenticationManager);
-
-        http.addFilterBefore(jwtValidationFilter, AuthenticationFilter.class)
-                .addFilter(getAuthenticationFilter(authenticationManager));
-
-        http.headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
-
-        http.exceptionHandling(c ->
-                c.authenticationEntryPoint((req, res, e) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-                        .accessDeniedHandler((req, res, e) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED)));
+//                        new AntPathRequestMatcher("/api/v1/users/reissue", "GET"),
+//                        new AntPathRequestMatcher("/api/v1/users/**", "POST"),
+                                ).permitAll())
+                .authenticationManager(authenticationManager);
+//                .anyRequest().authenticated()).authenticationManager(authenticationManager);
+//        http.exceptionHandling(c ->
+//                c.authenticationEntryPoint((req, res, e) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+//                        .accessDeniedHandler((req, res, e) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED)));
 
         return http.build();
     }
 
     private AuthenticationFilter getAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception{
-        AuthenticationFilter filter = new AuthenticationFilter(authenticationManager, tokenService, tokenProvider);
+        AuthenticationFilter filter
+                = new AuthenticationFilter(authenticationManager, tokenService, tokenProvider, cookieUtil);
         filter.setFilterProcessesUrl("/auth/sign-in"); // 로그인에 접근하기 위한 URL
         return filter;
     }

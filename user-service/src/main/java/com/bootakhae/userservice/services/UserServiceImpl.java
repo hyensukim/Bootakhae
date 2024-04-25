@@ -9,6 +9,8 @@ import com.bootakhae.userservice.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 @Service
@@ -106,8 +109,11 @@ public class UserServiceImpl implements UserService{
         UserEntity userEntity = userRepository.findByEmail(username)
                 .orElseThrow(()->new UsernameNotFoundException(username));
 
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(userEntity.getRole().name()));
+
         return new User(userEntity.getEmail(), userEntity.getPassword(),
                 true,true,true,true,
-                new ArrayList<>());
+                authorities);
     }
 }

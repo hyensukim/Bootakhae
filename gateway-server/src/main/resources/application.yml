@@ -1,13 +1,83 @@
 server:
   port: 8083
 
-spring:
-  application:
-    name: gateway-server
-
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: gateway-server
+  profiles:
+    active: local
+  cloud:
+    gateway:
+      default-filters:
+        - name: GlobalFilter
+          args:
+            baseMessage: Spring Cloud Gateway Global Filter
+            preLogger: true
+            postLogger: true
+      routes:
+        - id: user-service
+          uri: http://localhost:8080/
+          predicates:
+            - Path=/user-service/auth/sign-in
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+
+        - id: user-service
+          uri: http://localhost:8080/
+          predicates:
+            - Path=/user-service/api/v1/users/**
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+
+        - id: user-service
+          uri: http://localhost:8080/
+          predicates:
+            - Path=/user-service/api/v1/users/reissue
+            - Method=GET
+          filters:
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+
+        - id: user-service
+          uri: http://localhost:8080/
+          predicates:
+            - Path=/user-service/**
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - name: AuthorizationHeaderFilter
+            - name: LoggingFilter
+
+        - id: order-service
+          uri: http://localhost:8081/
+          predicates:
+            - Path=/order-service/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - name: AuthorizationHeaderFilter
+
+        - id: product-service
+          uri: http://localhost:8082/
+          predicates:
+            - Path=/product-service/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - name: AuthorizationHeaderFilter
+
+token:
+  access-expired-time: ${access-expired-time}
+  refresh-expired-time: ${refresh-expired-time}
+  secret: ${token-secret}
