@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService{
     public UserDto getOneByUserId(String userId) {
         log.debug("회원 상세 조회 실행");
         UserEntity user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_JOIN_USER));
         return UserMapper.INSTANCE.entityToDto(user);
     }
 
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService{
     public UserDto getUserDetailsByEmail(String encryptedEmail) {
         log.debug("JWT 발급 : 이메일로 회원 정보 조회 실행");
         UserEntity user = userRepository.findByEmail(encryptedEmail)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_JOIN_USER));
         return UserMapper.INSTANCE.entityToDto(user);
     }
 
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService{
     public UserDto updateUserInfo(UserDto userDetails, String userId) {
         log.debug("회원 정보 수정 실행");
         UserEntity userEntity = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_JOIN_USER));
 
         if(Objects.nonNull(userDetails.getAddress1())){
             userEntity.updateAddOne(userDetails.getAddress1());
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService{
     public UserDto updateUserPassword(String userId, String oldPw, String newPw, String confirmPw) {
         log.debug("회원 비밀번호 수정 실행");
         UserEntity userEntity = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_JOIN_USER));
 
         if(!passwordEncoder.matches(oldPw, userEntity.getPassword())){
             throw new CustomException(ErrorCode.NOT_CORRECT_PASSWORD);

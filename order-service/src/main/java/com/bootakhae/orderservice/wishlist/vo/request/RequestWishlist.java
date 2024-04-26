@@ -1,6 +1,6 @@
-package com.bootakhae.orderservice.vo.request;
+package com.bootakhae.orderservice.wishlist.vo.request;
 
-import com.bootakhae.orderservice.dto.OrderDto;
+import com.bootakhae.orderservice.order.dto.OrderDto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
