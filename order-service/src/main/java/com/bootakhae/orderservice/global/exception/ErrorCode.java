@@ -1,4 +1,4 @@
-package com.bootakhae.userservice.global.exception;
+package com.bootakhae.orderservice.global.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -10,6 +10,11 @@ import java.time.LocalDateTime;
 public enum ErrorCode {
 
     NOT_BLANK(HttpStatus.BAD_REQUEST, "EML-ERR-01", "입력사항을 기입 바랍니다."),
+
+    /**
+     * Feign
+     */
+    FEIGN_CLIENT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FCT-ERR-01", "서버 간 통신 중 오류 발생했습니다."),
 
     /**
      * User
@@ -36,7 +41,20 @@ public enum ErrorCode {
     /**
      * product
      */
-    NOT_REGISTERED_PRODUCT(HttpStatus.BAD_REQUEST, "PDT-ERR-01", "등록되지 않은 상품입니다.");
+    NOT_REGISTERED_PRODUCT(HttpStatus.BAD_REQUEST, "PDT-ERR-01", "등록되지 않은 상품입니다."),
+
+    /**
+     * wishlist
+     */
+    NOT_EXISTS_WISHLIST(HttpStatus.BAD_REQUEST, "WSH-ERR-01", "위시 리스트에 등록된 상품이 없습니다."),
+    NOT_EXISTS_WISH(HttpStatus.BAD_REQUEST,"WSH-ERR-02","위시 리스트에 등록되어 있지 않습니다."),
+    DUPLICATE_WISHLIST(HttpStatus.BAD_REQUEST, "WSH-ERR-03", "이미 등록된 상품입니다."),
+
+    /**
+     * order
+     */
+    DUPLICATED_ORDER(HttpStatus.BAD_REQUEST, "ORD-ERR-01","이미 주문한 상품입니다."),
+    LACK_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "ORD-ERR_02", "상품 재고가 부족합니다.");
 
 
     private final HttpStatus status;

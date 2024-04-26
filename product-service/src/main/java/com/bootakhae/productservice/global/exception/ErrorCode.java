@@ -1,4 +1,4 @@
-package com.bootakhae.userservice.global.exception;
+package com.bootakhae.productservice.global.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -36,7 +36,19 @@ public enum ErrorCode {
     /**
      * product
      */
-    NOT_REGISTERED_PRODUCT(HttpStatus.BAD_REQUEST, "PDT-ERR-01", "등록되지 않은 상품입니다.");
+    NOT_REGISTERED_PRODUCT(HttpStatus.BAD_REQUEST, "PDT-ERR-01", "등록되지 않은 상품입니다."),
+    DUPLICATED_PRODUCT(HttpStatus.BAD_REQUEST, "PDT-ERR-02", "이미 등록된 제품입니다."),
+
+    /**
+     * wishlist
+     */
+    NOT_EXISTS_WISHLIST(HttpStatus.BAD_REQUEST, "WSH-ERR-01", "위시 리스트에 등록된 상품이 없습니다."),
+    NOT_EXISTS_WISH(HttpStatus.BAD_REQUEST,"WSH-ERR-02","위시 리스트에 등록되어 있지 않습니다."),
+
+    /**
+     * order
+     */
+    DUPLICATED_ORDER(HttpStatus.BAD_REQUEST, "ORD-ERR-01","이미 주문한 상품입니다.");
 
 
     private final HttpStatus status;
