@@ -41,7 +41,6 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            log.debug("Authorization header filter started");
             ServerHttpRequest request= exchange.getRequest();
             
             // 1. 헤더에 포함된 JWT 정보 확인

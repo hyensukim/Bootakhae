@@ -27,7 +27,7 @@ public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Conf
             log.info("Global Filter baseMessage : {}", config.getBaseMessage());
 
             if(config.isPreLogger()){
-                log.info("Global Filter Start : request uri -> {}",request.getURI().getPath());
+                log.info("Global Filter Start : request uri -> {} : {}",request.getMethod(),request.getURI().getPath());
             }
 
             //Global Post Filter
@@ -35,6 +35,8 @@ public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Conf
                 if(config.isPostLogger()){
                     log.info("Global Filter End : response code -> {}",response.getStatusCode());
                 }
+
+                log.info("Global Filter endMessage : {}", config.getEndMessage());
             }));
         };
     }
@@ -44,6 +46,7 @@ public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Conf
         private String baseMessage;
         private boolean preLogger;
         private boolean postLogger;
+        private String endMessage;
 
     }
 }

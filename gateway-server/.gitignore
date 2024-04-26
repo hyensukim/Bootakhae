@@ -37,4 +37,5 @@ out/
 .vscode/
 
 ### Custom ignore ###
-/src/main/resources/application-local.yml
+application.yml
+application-local.yml
