@@ -1,0 +1,308 @@
+package com.bootakhae.orderservice.order.services;
+
+import com.bootakhae.orderservice.global.clients.ProductClient;
+import com.bootakhae.orderservice.global.clients.UserClient;
+import com.bootakhae.orderservice.global.constant.Status;
+import com.bootakhae.orderservice.order.dto.OrderDto;
+import com.bootakhae.orderservice.order.dto.OrderProductDto;
+import com.bootakhae.orderservice.order.dto.ReturnOrderDto;
+import com.bootakhae.orderservice.order.entities.OrderEntity;
+import com.bootakhae.orderservice.order.entities.OrderProduct;
+import com.bootakhae.orderservice.order.entities.ReturnOrderEntity;
+import com.bootakhae.orderservice.global.exception.CustomException;
+import com.bootakhae.orderservice.global.exception.ErrorCode;
+import com.bootakhae.orderservice.order.repositories.OrderProductRepository;
+import com.bootakhae.orderservice.order.repositories.OrderRepository;
+import com.bootakhae.orderservice.order.repositories.ReturnOrderRepository;
+import com.bootakhae.orderservice.wishlist.entities.Wishlist;
+import com.bootakhae.orderservice.wishlist.repositories.WishlistRepository;
+import com.bootakhae.orderservice.wishlist.vo.response.ResponseProduct;
+import com.bootakhae.orderservice.wishlist.vo.response.ResponseUser;
+import feign.FeignException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class OrderServiceImpl implements OrderService{
+
+    private final OrderRepository orderRepository;
+    private final OrderProductRepository orderProductRepository;
+    private final ReturnOrderRepository returnOrderRepository;
+    private final WishlistRepository wishListRepository;
+    private final UserClient userClient;
+    private final ProductClient productClient;
+
+    @Transactional
+    @Override
+    public OrderDto registerOrder(OrderDto orderDetails) {
+        log.debug("주문 등록 실행");
+
+        ResponseUser user;
+        ResponseProduct product;
+
+        try {
+            user = userClient.getUser(orderDetails.getUserId());
+
+            product = productClient.getOneProduct(orderDetails.getProductId());
+
+        }catch(FeignException e) {
+            throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
+        }
+
+        orderProductRepository.findByOrderUserIdAndProductId(user.getResUserId(), product.getProductId())
+                .ifPresent(op -> {throw new CustomException(ErrorCode.DUPLICATED_ORDER);});
+
+        OrderEntity order = orderDetails.dtoToEntity(user.getResUserId(), product.getPrice());
+        orderRepository.save(order);
+
+        OrderProduct orderProduct = createOrderedProduct(order, product, orderDetails.getQty());
+        orderProductRepository.save(orderProduct);
+
+        return order.entityToDto(orderProduct.entityToDto());
+    }
+
+    @Transactional
+    @Override
+    public OrderDto registerOrders(OrderDto orderDetails) {
+        log.debug("위시리스트 주문 등록 실행");
+
+        ResponseUser user;
+        try{
+            user = userClient.getUser(orderDetails.getUserId());
+        }catch(FeignException.FeignClientException e){
+            throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
+        }
+
+        List<Wishlist> wishList = wishListRepository.findAllByUserId(user.getResUserId()); // 위시 리스트 조회
+
+        if(wishList.isEmpty()) {
+            throw new CustomException(ErrorCode.NOT_EXISTS_WISHLIST);
+        }
+
+        // 주문 객체 생성
+        OrderEntity order = orderDetails.dtoToEntity(user.getResUserId());
+
+        // 상품 조회용 List
+        List<String> productIds = wishList.stream().map(Wishlist::getProductId).toList();
+
+        Map<String, ResponseProduct> productsMap = getProductsMap(productIds);
+
+        List<OrderProduct> orderedProductsToSave = new ArrayList<>();
+
+        // todo Feign Client 가 비례해서 호출됨 - 수정 필요!!
+        long sum = 0L;
+        for (Wishlist wish : wishList) {
+            ResponseProduct product = productsMap.get(wish.getProductId());
+            if (product != null) {
+                sum += wish.getQty() * product.getPrice();
+                OrderProduct orderProduct = createOrderedProduct(order, product, wish.getQty());
+                orderedProductsToSave.add(orderProduct);
+            }
+        }
+//        for(Wishlist wish : wishList){
+//            ResponseProduct product;
+//            try{
+//                product = productClient.getOneProduct(wish.getProductId());
+//            }catch(FeignException e){
+//                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
+//            }
+//            sum += wish.getQty() * product.getPrice();
+//
+//            // 주문 상품 생성, 각 상품의 실제 수량 반영
+//            OrderProduct orderProduct = createOrderedProduct(order, product, wish.getQty());
+//            orderedProductsToSave.add(orderProduct);
+//        }
+
+        // 전체 주문 가격 계산
+        order.calculateTotalPrice(sum);
+
+        // 주문 정보 저장
+        order = orderRepository.save(order);
+
+        // 주문 상품 정보 일괄 저장
+        orderProductRepository.saveAll(orderedProductsToSave);
+
+        // 주문 상품 Dto 에 담기
+        List<OrderProductDto> orderedProducts = orderedProductsToSave.stream().map(OrderProduct::entityToDto).toList();
+
+        return order.entityToDto(orderedProducts);
+    }
+
+    private OrderProduct createOrderedProduct(OrderEntity order, ResponseProduct product, Long qty) {
+
+        OrderProduct orderProduct = OrderProduct.builder()
+                .order(order)
+                .productId(product.getProductId())
+                .productName(product.getName())
+                .productStock(product.getStock())
+                .qty(qty)
+                .price(product.getPrice())
+                .build();
+
+        // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
+        if( orderProduct.getProductStock() >= qty){
+            long stock = orderProduct.deductStock(qty);
+            try {
+                ResponseProduct response = productClient.updateStock(product.getProductId(), stock);
+                log.debug("상품 재고 감소 요청 결과 : {}", response);
+            }catch (Exception e){
+                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
+            }
+        }
+        else{
+            throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
+        }
+
+        return orderProduct;
+    }
+
+    private Map<String, ResponseProduct> getProductsMap(List<String> productIds) {
+        final int SIZE = 10;
+
+        Map<String, ResponseProduct> productsMap = new HashMap<>();
+
+        for (int i = 0; i < productIds.size(); i += SIZE) {
+            List<String> subList = productIds.subList(i, Math.min(productIds.size(), i + SIZE));
+            try {
+                List<ResponseProduct> products = productClient.getProducts(subList);
+                products.forEach(product -> productsMap.put(product.getProductId(), product));
+            } catch (FeignException e) {
+                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
+            }
+        }
+
+        return productsMap;
+    }
+
+    /**
+     * 주문 취소
+     * - Status_SHIPPING 되기 전
+     * - 주문 후 주문 내역 삭제하지 않고 상태만 CANCEL 로 변경
+     */
+    @Transactional
+    @Override
+    public OrderDto removeOrder(String orderId) {
+        log.debug("주문 삭제 실행");
+
+        OrderEntity order = orderRepository.findByOrderId(orderId).orElseThrow(
+                ()->new RuntimeException("주문 취소 : 존재하지 않는 주문입니다.")
+        );
+
+        OrderProduct orderProduct = orderProductRepository.findByOrder(order).orElseThrow(
+                ()->new RuntimeException("주문 취소 : 주문하지 않은 상품입니다.")
+        );
+
+        if(order.getStatus() == Status.PAYMENT){
+            long stock = orderProduct.takeStock(orderProduct.getQty());
+            // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
+            try {
+                ResponseProduct response = productClient.updateStock(orderProduct.getProductId(), stock);
+                log.debug("상품 재고 복구 요청 결과 : {}", response);
+            }catch (Exception e){
+                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
+            }
+
+            order.cancelTheOrder();
+        }
+
+        return order.entityToDto(orderProduct.entityToDto());
+    }
+
+    @Override
+    public OrderDto getOrderDetails(String orderId) {
+        log.debug("주문 상세 조회 실행");
+
+        OrderEntity order = orderRepository.findByOrderId(orderId).orElseThrow(
+                ()->new RuntimeException("주문 상세 조회 : 존재하지 않는 주문입니다.")
+        );
+
+        return order.entityToDto();
+    }
+
+    @Override
+    public List<OrderDto> getOrderListByUserId(String userId, int nowPage, int pageSize) {
+        log.debug("회원의 주문 목록 조회 실행");
+        PageRequest pageRequest = PageRequest.of(nowPage,pageSize, Sort.by("createdAt").descending());
+        Page<OrderEntity> myOrderList = orderRepository.findByUserId(userId, pageRequest);
+        return myOrderList.getContent().stream().map(OrderEntity::entityToDto).toList();
+    }
+
+    /**
+     * 주문 반품
+     * - 현재 주문상태 : 배송 완료
+     * - 배송 완료로 바뀐 시점에서 1일 이내
+     */
+    @Transactional
+    @Override
+    public OrderDto returnOrderedProduct(ReturnOrderDto returnOrderDetails) {
+        log.debug("주문에 포함된 모든 상품 반품 실행");
+
+        OrderEntity order = orderRepository.findByOrderId(returnOrderDetails.getOrderId()).orElseThrow(
+                () -> new RuntimeException("주문 반품 : 주문되지 않은 내역입니다.")
+        );
+
+        if(order.getStatus() != Status.DONE){
+            throw new RuntimeException("주문 반품 : 현재 배송이 완료되지 않았습니다. 배송 완료 후 반품 요청 바랍니다.");
+        }
+
+        if(Math.abs(Duration.between(order.getUpdatedAt(),LocalDateTime.now()).toDays()) > 1){
+            throw new RuntimeException("주문 반품 : 배송 완료 후 1일이 지나 반품이 불가합니다.");
+        }
+
+        ReturnOrderEntity returnOrder = new ReturnOrderEntity();
+        returnOrder.writeReason(returnOrderDetails.getReason());
+        returnOrder = returnOrderRepository.save(returnOrder);
+
+        order.returnOrder(returnOrder);
+
+        return order.entityToDto();
+    }
+
+    @Scheduled(cron = "${schedule.cron}")
+    @Transactional
+    @Override
+    public void changeOrderStatus() {
+        log.info("주문 상태 업데이트 실행");
+
+        List<OrderEntity> orderList = orderRepository.findAll();
+        for(OrderEntity order : orderList){
+            if(order.getStatus() == Status.PAYMENT
+                    && Math.abs(Duration.between(order.getCreatedAt(),LocalDateTime.now()).toMinutes()) >= 1){
+                order.startShipping();
+            }
+            else if(order.getStatus() == Status.SHIPPING
+                    && Math.abs(Duration.between(order.getUpdatedAt(),LocalDateTime.now()).toMinutes()) >= 1){
+                order.completeShipping();
+            }
+            else if(order.getStatus() != Status.RETURN
+                    && order.getReturnOrder() != null
+                    && Math.abs(Duration.between(order.getReturnOrder().getCreatedAt(),LocalDateTime.now())
+                    .toMinutes()) >= 1){
+                order.returnTheOrder();
+                orderProductRepository.findByOrder(order).ifPresent(
+                        (op) ->{op.takeStock(op.getQty());}
+                );
+            }
+        }
+    }
+
+    @Override
+    public OrderDto updateOrder(String orderId, OrderDto orderDetails) {
+        return null;
+    }
+}

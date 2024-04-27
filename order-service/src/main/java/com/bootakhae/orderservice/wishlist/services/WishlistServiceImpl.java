@@ -1,7 +1,7 @@
 package com.bootakhae.orderservice.wishlist.services;
 
-import com.bootakhae.orderservice.clients.ProductClient;
-import com.bootakhae.orderservice.clients.UserClient;
+import com.bootakhae.orderservice.global.clients.ProductClient;
+import com.bootakhae.orderservice.global.clients.UserClient;
 import com.bootakhae.orderservice.global.exception.CustomException;
 import com.bootakhae.orderservice.global.exception.ErrorCode;
 import com.bootakhae.orderservice.order.vo.ProductInfo;

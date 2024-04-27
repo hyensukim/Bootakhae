@@ -2,9 +2,11 @@ package com.bootakhae.productservice.controllers;
 
 
 import com.bootakhae.productservice.dto.ProductDto;
+import com.bootakhae.productservice.dto.ProductListDto;
 import com.bootakhae.productservice.services.ProductService;
 import com.bootakhae.productservice.vo.request.RequestProduct;
 import com.bootakhae.productservice.vo.response.ResponseProduct;
+import com.bootakhae.productservice.vo.response.ResponseProductList;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -50,10 +52,10 @@ public class ProductController {
      * 상품 전체 조회
      */
     @GetMapping
-    public ResponseEntity<List<ResponseProduct>> getAllProducts(@RequestParam(defaultValue = "0") int nowPage,
+    public ResponseEntity<ResponseProductList> getAllProducts(@RequestParam(defaultValue = "0") int nowPage,
                                                                 @RequestParam(defaultValue = "5") int pageSize){
-        List<ProductDto> dtoList = productService.getAllProducts(nowPage, pageSize);
-        List<ResponseProduct> response = dtoList.stream().map(ProductDto::dtoToVo).toList();
+        ProductListDto productList = productService.getAllProducts(nowPage, pageSize);
+        ResponseProductList response = productList.dtoToVo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

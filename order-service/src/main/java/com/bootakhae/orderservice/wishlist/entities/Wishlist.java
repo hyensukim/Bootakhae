@@ -56,7 +56,7 @@ public class Wishlist {
     public ProductInfo entityToVo(){
         return ProductInfo.builder()
                 .productId(this.productId)
-                .quantity(this.qty)
+                .qty(this.qty)
                 .build();
     }
 }
