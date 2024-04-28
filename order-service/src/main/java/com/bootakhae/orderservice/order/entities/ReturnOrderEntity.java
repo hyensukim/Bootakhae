@@ -35,6 +35,7 @@ public class ReturnOrderEntity extends BaseEntity {
 
     public ReturnOrderDto entityToDto(){
         return ReturnOrderDto.builder()
+                .orderId(order.getOrderId())
                 .reason(this.reason)
                 .build();
     }

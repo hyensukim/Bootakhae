@@ -71,7 +71,7 @@ public class OrderController {
     /**
      * 회원 주문 목록 조회
      */
-    @GetMapping("user/{userId}")
+    @GetMapping("users/{userId}")
     public ResponseEntity<List<ResponseOrder>> getUsersOrder(@PathVariable String userId,
                                                              @RequestParam(defaultValue = "0") int nowPage,
                                                              @RequestParam(defaultValue = "5") int pageSize
@@ -84,7 +84,7 @@ public class OrderController {
     /**
      * 반품하기
      */
-    @PostMapping("return")
+    @PostMapping("returns")
     public ResponseEntity<ResponseOrder> returnDoneOrder(@RequestBody RequestReturnOrder request){
         OrderDto orderDetails = orderService.returnOrderedProduct(request.voToDto());
         return ResponseEntity.status(HttpStatus.OK).body(orderDetails.dtoToVo());
@@ -93,7 +93,7 @@ public class OrderController {
     /**
      * 반품 목록 조회
      */
-    @GetMapping("return")
+    @GetMapping("returns")
     public ResponseEntity<List<ResponseReturn>> getReturnOrders(
             @RequestParam(defaultValue = "0") int nowPage,
             @RequestParam(defaultValue = "5") int pageSize

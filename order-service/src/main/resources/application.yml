@@ -11,6 +11,8 @@ eureka:
 spring:
   application:
     name: order-service
+  profiles:
+    active: local
   datasource:
     url: ${url}
     driver-class-name: ${driver-class-name}
@@ -25,3 +27,5 @@ spring:
         format_sql: true
         use_sql_comments: true
 
+schedule:
+  cron: ${cron}

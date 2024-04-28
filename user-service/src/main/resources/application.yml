@@ -55,9 +55,6 @@ aes:
   spec: ${aes-spec}
   key: ${aes-key}
 
-schedule:
-  cron: ${cron}
-
 token:
   secret: ${token-secret}
   access-expired-time: ${access-exp-time}

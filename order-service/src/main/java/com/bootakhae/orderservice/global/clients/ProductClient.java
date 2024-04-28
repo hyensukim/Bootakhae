@@ -12,8 +12,8 @@ public interface ProductClient {
     @GetMapping("/api/v1/internal/products/{productId}")
     ResponseProduct getOneProduct(@PathVariable("productId") String productId);
 
-    @GetMapping("/api/v1/internal/products")
-    List<ResponseProduct> getProducts(@RequestParam("productList") List<String> productList);
+    @PostMapping("/api/v1/internal/products")
+    List<ResponseProduct> getProducts(@RequestBody List<String> productIds);
 
     @PutMapping("/api/v1/internal/products/{productId}")
     ResponseProduct updateStock(@PathVariable("productId") String productId, @RequestBody Long stock);

@@ -87,6 +87,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         // body 설정
         Map<String, Object> tokens = Map.of(
+                "userId", userDetails.getUserId(),
                 "accessToken", accessToken,
                 "expiredTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(expiredTime)
         );

@@ -2,7 +2,6 @@ package com.bootakhae.gatewayserver.filters;
 
 import com.bootakhae.gatewayserver.global.exception.ErrorCode;
 import com.bootakhae.gatewayserver.global.exception.ErrorResponse;
-import com.bootakhae.gatewayserver.global.util.RedisUtil;
 import com.bootakhae.gatewayserver.global.util.TokenProvider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

@@ -30,10 +30,11 @@ public class ProductFeignController {
 
     /**
      * 위시 리스트 상품 목록 조회
+     * - 한번에 여러 아이디 값의 상품들을 조회하기 위해 PostMapping
      */
-    @GetMapping
-    public ResponseEntity<List<ResponseProduct>> getProducts(@RequestParam("productList") List<String> productList){
-        List<ProductDto> productDetailsList = productService.getAllByProductIds(productList);
+    @PostMapping
+    public ResponseEntity<List<ResponseProduct>> getProducts(@RequestBody List<String> productIds){
+        List<ProductDto> productDetailsList = productService.getAllByProductIds(productIds);
         List<ResponseProduct> responseList = productDetailsList.stream().map(ProductDto::dtoToVo).toList();
         return ResponseEntity.status(HttpStatus.OK).body(responseList);
     }
@@ -43,7 +44,7 @@ public class ProductFeignController {
      * @from order-service
      */
     @PutMapping("{productId}")
-    public ResponseEntity<ResponseProduct> deductStock(@PathVariable("productId") String productId, Long stock){
+    public ResponseEntity<ResponseProduct> deductStock(@PathVariable("productId") String productId,@RequestBody Long stock){
         ProductDto dto = productService.updateStock(productId, stock);
         ResponseProduct response = dto.dtoToVo();
         return ResponseEntity.status(HttpStatus.OK).body(response);

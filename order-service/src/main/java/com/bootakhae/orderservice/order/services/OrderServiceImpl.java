@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -54,7 +55,6 @@ public class OrderServiceImpl implements OrderService{
 
         ResponseUser user;
         ResponseProduct product;
-
         try {
             user = userClient.getUser(orderDetails.getUserId());
 
@@ -65,7 +65,10 @@ public class OrderServiceImpl implements OrderService{
         }
 
         orderProductRepository.findByOrderUserIdAndProductId(user.getResUserId(), product.getProductId())
-                .ifPresent(op -> {throw new CustomException(ErrorCode.DUPLICATED_ORDER);});
+                .ifPresent(op -> {
+                    throw new CustomException(ErrorCode.DUPLICATED_ORDER);
+                }
+        );
 
         OrderEntity order = orderDetails.dtoToEntity(user.getResUserId(), product.getPrice());
         orderRepository.save(order);
@@ -84,7 +87,7 @@ public class OrderServiceImpl implements OrderService{
         ResponseUser user;
         try{
             user = userClient.getUser(orderDetails.getUserId());
-        }catch(FeignException.FeignClientException e){
+        }catch(FeignException e){
             throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
         }
 
@@ -98,35 +101,29 @@ public class OrderServiceImpl implements OrderService{
         OrderEntity order = orderDetails.dtoToEntity(user.getResUserId());
 
         // 상품 조회용 List
-        List<String> productIds = wishList.stream().map(Wishlist::getProductId).toList();
+        List<String> productIds = wishList.stream().map(Wishlist::getProductId).collect(Collectors.toList());
 
-        Map<String, ResponseProduct> productsMap = getProductsMap(productIds);
-
-        List<OrderProduct> orderedProductsToSave = new ArrayList<>();
-
-        // todo Feign Client 가 비례해서 호출됨 - 수정 필요!!
         long sum = 0L;
-        for (Wishlist wish : wishList) {
-            ResponseProduct product = productsMap.get(wish.getProductId());
-            if (product != null) {
-                sum += wish.getQty() * product.getPrice();
-                OrderProduct orderProduct = createOrderedProduct(order, product, wish.getQty());
-                orderedProductsToSave.add(orderProduct);
+        Map<String, ResponseProduct> productsMap = new HashMap<>();
+        List<OrderProduct> orderedProductsToSave = new ArrayList<>();
+        try {
+            List<ResponseProduct> productList = productClient.getProducts(productIds);
+            for (ResponseProduct product : productList) {
+                productsMap.put(product.getProductId(), product);
             }
+
+            // 위시리스트 항목에 대한 주문 상품 생성 및 가격 계산
+            for (Wishlist wish : wishList) {
+                ResponseProduct product = productsMap.get(wish.getProductId());
+                if (product != null) {
+                    sum += wish.getQty() * product.getPrice();
+                    OrderProduct orderProduct = createOrderedProduct(order, product, wish.getQty());
+                    orderedProductsToSave.add(orderProduct);
+                }
+            }
+        } catch (FeignException e) {
+            throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
         }
-//        for(Wishlist wish : wishList){
-//            ResponseProduct product;
-//            try{
-//                product = productClient.getOneProduct(wish.getProductId());
-//            }catch(FeignException e){
-//                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-//            }
-//            sum += wish.getQty() * product.getPrice();
-//
-//            // 주문 상품 생성, 각 상품의 실제 수량 반영
-//            OrderProduct orderProduct = createOrderedProduct(order, product, wish.getQty());
-//            orderedProductsToSave.add(orderProduct);
-//        }
 
         // 전체 주문 가격 계산
         order.calculateTotalPrice(sum);
@@ -138,7 +135,10 @@ public class OrderServiceImpl implements OrderService{
         orderProductRepository.saveAll(orderedProductsToSave);
 
         // 주문 상품 Dto 에 담기
-        List<OrderProductDto> orderedProducts = orderedProductsToSave.stream().map(OrderProduct::entityToDto).toList();
+        List<OrderProductDto> orderedProducts = orderedProductsToSave
+                .stream()
+                .map(OrderProduct::entityToDto)
+                .collect(Collectors.toList());
 
         return order.entityToDto(orderedProducts);
     }
@@ -154,7 +154,7 @@ public class OrderServiceImpl implements OrderService{
                 .price(product.getPrice())
                 .build();
 
-        // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
+        // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - Redis pub/sub + Lua Script
         if( orderProduct.getProductStock() >= qty){
             long stock = orderProduct.deductStock(qty);
             try {
@@ -169,24 +169,6 @@ public class OrderServiceImpl implements OrderService{
         }
 
         return orderProduct;
-    }
-
-    private Map<String, ResponseProduct> getProductsMap(List<String> productIds) {
-        final int SIZE = 10;
-
-        Map<String, ResponseProduct> productsMap = new HashMap<>();
-
-        for (int i = 0; i < productIds.size(); i += SIZE) {
-            List<String> subList = productIds.subList(i, Math.min(productIds.size(), i + SIZE));
-            try {
-                List<ResponseProduct> products = productClient.getProducts(subList);
-                products.forEach(product -> productsMap.put(product.getProductId(), product));
-            } catch (FeignException e) {
-                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-            }
-        }
-
-        return productsMap;
     }
 
     /**
@@ -239,7 +221,10 @@ public class OrderServiceImpl implements OrderService{
         log.debug("회원의 주문 목록 조회 실행");
         PageRequest pageRequest = PageRequest.of(nowPage,pageSize, Sort.by("createdAt").descending());
         Page<OrderEntity> myOrderList = orderRepository.findByUserId(userId, pageRequest);
-        return myOrderList.getContent().stream().map(OrderEntity::entityToDto).toList();
+        return myOrderList.getContent()
+                .stream()
+                .map(OrderEntity::entityToDto)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -295,6 +280,7 @@ public class OrderServiceImpl implements OrderService{
                     .toMinutes()) >= 1){
                 order.returnTheOrder();
                 orderProductRepository.findByOrder(order).ifPresent(
+                        // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
                         (op) ->{op.takeStock(op.getQty());}
                 );
             }

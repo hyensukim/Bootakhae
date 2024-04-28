@@ -11,6 +11,8 @@ eureka:
 spring:
   application:
     name: product-service
+  profiles:
+    active: local
   datasource:
     url: ${url}
     driver-class-name: ${driver-class-name}

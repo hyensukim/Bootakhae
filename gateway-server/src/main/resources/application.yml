@@ -13,10 +13,6 @@ spring:
     name: gateway-server
   profiles:
     active: local
-#  data:
-#    redis:
-#      host: localhost
-#      port: 6379
   cloud:
     gateway:
       default-filters:
