@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "products")
+@Table(name = "products", indexes = {
+        @Index(name= "idx_name_producer", columnList = "product_name, product_producer")
+})
 @Getter
 @Builder
 @NoArgsConstructor
@@ -23,7 +25,7 @@ public class ProductEntity extends BaseEntity {
     @Column(name="product_id", nullable = false, unique=true, length = 50)
     private String productId;
 
-    @Column(name="product_name", nullable = false, unique=true, length = 50)
+    @Column(name="product_name", nullable = false, length = 50)
     private String name;
 
     @Column(name="product_price", nullable = false)
@@ -31,13 +33,8 @@ public class ProductEntity extends BaseEntity {
 
     @Column(name="product_stock", nullable = false)
     private Long stock;
-
-    public void takeStock(long qty){
-        stock += qty;
-    }
-
-    public void deductStock(long qty){
-        stock -= qty;
+    public void updateStock(Long stock){
+        this.stock = stock;
     }
 
     @Column(name="product_producer", nullable = false, length = 30)

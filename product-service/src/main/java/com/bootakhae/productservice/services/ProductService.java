@@ -1,6 +1,7 @@
 package com.bootakhae.productservice.services;
 
 import com.bootakhae.productservice.dto.ProductDto;
+import com.bootakhae.productservice.dto.ProductListDto;
 
 import java.util.List;
 
@@ -8,7 +9,11 @@ public interface ProductService {
 
     ProductDto registerProduct(ProductDto productDetails);
 
+    ProductDto updateStock(String productId, Long stock);
+
     ProductDto getOneProduct(String productId);
 
-    List<ProductDto> getAllProducts(int nowPage, int pageSize);
+    ProductListDto getAllProducts(int nowPage, int pageSize);
+
+    List<ProductDto> getAllByProductIds(List<String> productIds);
 }
