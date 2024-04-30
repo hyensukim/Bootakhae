@@ -75,10 +75,12 @@ resilience4j.retry:
   instances:
     rt-case:
       base-config: default
+    default-RT:
+      base-config: default
   configs:
     default:
-      max-attempts: 4
-      wait-duration: 2000ms
+      max-attempts: 3
+      wait-duration: 500ms
 
 
 schedule:
