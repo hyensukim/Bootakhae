@@ -102,12 +102,4 @@ public class OrderController {
         List<ResponseReturn> responseReturns = returnOrderList.stream().map(ReturnOrderDto::dtoToVo).toList();
         return ResponseEntity.status(HttpStatus.OK).body(responseReturns);
     }
-
-    /**
-     * 주문 수정
-     */
-//    @PutMapping("{orderId}")
-//    public ResponseEntity<ResponseOrder> updateOrder(@PathVariable String orderId, @RequestBody RequestOrder request) {
-//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//    }
 }

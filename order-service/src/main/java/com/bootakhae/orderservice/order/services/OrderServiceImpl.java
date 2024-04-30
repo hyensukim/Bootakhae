@@ -19,6 +19,7 @@ import com.bootakhae.orderservice.wishlist.repositories.WishlistRepository;
 import com.bootakhae.orderservice.wishlist.vo.response.ResponseProduct;
 import com.bootakhae.orderservice.wishlist.vo.response.ResponseUser;
 import feign.FeignException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -137,34 +138,6 @@ public class OrderServiceImpl implements OrderService{
         return order.entityToDto(orderedProducts);
     }
 
-    private OrderProduct createOrderedProduct(OrderEntity order, ResponseProduct product, Long qty) {
-
-        OrderProduct orderProduct = OrderProduct.builder()
-                .order(order)
-                .productId(product.getProductId())
-                .productName(product.getName())
-                .productStock(product.getStock())
-                .qty(qty)
-                .price(product.getPrice())
-                .build();
-
-        // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - Redis pub/sub + Lua Script
-        if( orderProduct.getProductStock() >= qty){
-            long stock = orderProduct.deductStock(qty);
-            try {
-                ResponseProduct response = productClient.updateStock(product.getProductId(), stock);
-                log.debug("상품 재고 감소 요청 결과 : {}", response);
-            }catch (Exception e){
-                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-            }
-        }
-        else{
-            throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
-        }
-
-        return orderProduct;
-    }
-
     /**
      * 주문 취소
      * - Status_SHIPPING 되기 전
@@ -261,28 +234,79 @@ public class OrderServiceImpl implements OrderService{
         List<OrderEntity> orderList = orderRepository.findAll();
         for(OrderEntity order : orderList){
             if(order.getStatus() == Status.PAYMENT
-                    && Math.abs(Duration.between(order.getCreatedAt(),LocalDateTime.now()).toMinutes()) >= 1){
+                    && Math.abs(Duration.between(order.getCreatedAt(),LocalDateTime.now()).toDays()) >= 1){
                 order.startShipping();
             }
             else if(order.getStatus() == Status.SHIPPING
-                    && Math.abs(Duration.between(order.getUpdatedAt(),LocalDateTime.now()).toMinutes()) >= 1){
+                    && Math.abs(Duration.between(order.getUpdatedAt(),LocalDateTime.now()).toDays()) >= 1){
                 order.completeShipping();
             }
             else if(order.getStatus() != Status.RETURN
                     && order.getReturnOrder() != null
                     && Math.abs(Duration.between(order.getReturnOrder().getCreatedAt(),LocalDateTime.now())
-                    .toMinutes()) >= 1){
+                    .toDays()) >= 1){
                 order.returnTheOrder();
                 orderProductRepository.findByOrder(order).ifPresent(
                         // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
-                        (op) ->{op.takeStock(op.getQty());}
+                        (op) ->{
+                            try {
+                                ResponseProduct response = productClient.updateStock(op.getProductId(),
+                                        op.getProductStock());
+                                log.debug(String.valueOf(response));
+                            }catch (Exception e){
+                                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
+                            }
+                            op.takeStock(op.getQty());
+                        }
                 );
             }
         }
     }
 
-    @Override
-    public OrderDto updateOrder(String orderId, OrderDto orderDetails) {
-        return null;
+    /**
+     * 주문된 상품 엔티티 생성
+     */
+    private OrderProduct createOrderedProduct(OrderEntity order, ResponseProduct product, Long qty) {
+
+        OrderProduct orderProduct = OrderProduct.builder()
+                .order(order)
+                .productId(product.getProductId())
+                .productName(product.getName())
+                .productStock(product.getStock())
+                .qty(qty)
+                .price(product.getPrice())
+                .build();
+
+        // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - Redis pub/sub + Lua Script
+        if( orderProduct.getProductStock() >= qty){
+            long stock = orderProduct.deductStock(qty);
+            try {
+                ResponseProduct response = productClient.updateStock(product.getProductId(), stock);
+                log.debug("상품 재고 감소 요청 결과 : {}", response);
+            }catch (Exception e){
+                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
+            }
+        }
+        else{
+            throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
+        }
+
+        return orderProduct;
+    }
+
+    /**
+     * 회원 정보 조회
+     */
+    @CircuitBreaker(name = "findUserCB", fallbackMethod = "")
+    private ResponseUser findUserByUserId(String userId) {
+        return userClient.getUser(userId);
+    }
+
+    /**
+     * 상품 정보 조회
+     */
+    @CircuitBreaker(name = "", fallbackMethod = "")
+    private ResponseProduct findProductByProductId(String productId) {
+        return productClient.getOneProduct(productId);
     }
 }
