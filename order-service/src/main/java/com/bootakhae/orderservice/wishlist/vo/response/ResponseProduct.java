@@ -1,12 +1,10 @@
 package com.bootakhae.orderservice.wishlist.vo.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class ResponseProduct {

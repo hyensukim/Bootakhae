@@ -20,7 +20,4 @@ public interface OrderService {
     OrderDto returnOrderedProduct(ReturnOrderDto returnOrderDetails);
 
     void changeOrderStatus();
-
-    OrderDto updateOrder(String orderId, OrderDto orderDetails);
-
 }

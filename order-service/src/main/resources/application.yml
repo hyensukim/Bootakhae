@@ -27,5 +27,61 @@ spring:
         format_sql: true
         use_sql_comments: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, beans, busrefresh, circuitbreakers
+
+# CircuitBreaker 설정
+resilience4j.circuitbreaker:
+    instances:
+      cb-case:
+        base-config: default
+    configs:
+      default:
+        # sliding window
+        sliding-window-type: time_based # Sliding Window 타입 : 횟수 or 시간
+        sliding-window-size: 10 # Sliding Window Size : 총 10개를 기준으로 집계 수행
+
+        # fail
+        failure-rate-threshold: 20 # 임계치 : sliding window size 가 10인 경우, 10개 중 1갬만 fail 이 발생해도, 임계치 이상 fail 발생으로 인해 CircuitBreaker 가 open 됩니다.
+        minimum-number-of-calls: 5 # 10개를 굳이 채우지 않더라도, 최소 5회 요청 집계 후 임계치 이상일 경우, CircuitBreaker 를 Open 해주는 설정.
+
+        # delay
+        slow-call-rate-threshold: 10 # Circuit Open 지연 비율 설정, 지연수 / 슬라이딩 윈도우 크기, 10% 임계치 설정
+        slow-call-duration-threshold: 3000ms #3초 이상 지연 시, 지연 요청
+
+        # half open
+        permitted-number-of-calls-in-half-open-state: 10 # open 된 상태에서 최소 10회 요청을 수행, 성공 시 close 실패 시 open
+
+        # half open 유지 시간
+        max-wait-duration-in-half-open-state: 0 # 0인 경우, 설정한 값만큼 수행 후 바로 다음 상태로 전환
+
+        wait-duration-in-open-state: 6000ms # open 상태 유지 시간, 해당 시간 지연 후 half-open 으로 전환
+        automatic-transition-from-open-to-half-open-enabled: true # half open 전환 시 자동으로 전환할 지 여부를 체크
+
+        # actuator 설정
+        register-health-indicator: true # open / close 여부를 체크
+
+        # 예외 처리 설정
+#        record-exceptions:
+#          - java.io.IOException
+#          - java.util.concurrent.TimeoutException
+#          - org.springframework.web.client.HttpServerErrorException
+
+# Retry 설정
+resilience4j.retry:
+  instances:
+    rt-case:
+      base-config: default
+    default-RT:
+      base-config: default
+  configs:
+    default:
+      max-attempts: 3
+      wait-duration: 500ms
+
+
 schedule:
   cron: ${cron}

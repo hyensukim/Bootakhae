@@ -23,6 +23,16 @@ spring:
             postLogger: true
             endMessage: ====================================================================
       routes:
+          # actuator
+        - id: user-service
+          uri: http://localhost:8080/
+          predicates:
+            - Path=/user-service/actuator/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+
+          # 로그인
         - id: user-service
           uri: http://localhost:8080/
           predicates:
@@ -32,6 +42,7 @@ spring:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
 
+          # 회원가입
         - id: user-service
           uri: http://localhost:8080/
           predicates:
@@ -41,6 +52,7 @@ spring:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
 
+          # 토큰 재발급
         - id: user-service
           uri: http://localhost:8080/
           predicates:
@@ -49,6 +61,7 @@ spring:
           filters:
             - RewritePath=/user-service/api/v1/users/(?<userId>.*)/reissue, /api/v1/users/$\{userId}/reissue
 
+          # user-service 공통
         - id: user-service
           uri: http://localhost:8080/
           predicates:
@@ -58,6 +71,16 @@ spring:
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
             - name: AuthorizationHeaderFilter
 
+          # actuator
+        - id: order-service
+          uri: http://localhost:8081/
+          predicates:
+            - Path=/order-service/actuator/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/order-service/(?<segment>.*), /$\{segment}
+
+          # order-service 공통
         - id: order-service
           uri: http://localhost:8081/
           predicates:
@@ -67,6 +90,16 @@ spring:
             - RewritePath=/order-service/(?<segment>.*), /$\{segment}
             - name: AuthorizationHeaderFilter
 
+          # actuator
+        - id: product-service
+          uri: http://localhost:8082/
+          predicates:
+            - Path=/product-service/actuator/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/product-service/(?<segment>.*), /$\{segment}
+
+        # product-service 공통
         - id: product-service
           uri: http://localhost:8082/
           predicates:
