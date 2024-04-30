@@ -10,4 +10,16 @@ public interface UserClient {
 
     @GetMapping("api/v1/internal/users/{userId}")
     ResponseUser getUser(@PathVariable("userId") String userId);
+
+    /* TEST */
+    @GetMapping("test/internal/errorful/case1")
+    String case1();
+
+    /* TEST */
+    @GetMapping("test/internal/errorful/case2")
+    String case2();
+
+    /* TEST */
+    @GetMapping("test/internal/errorful/case3")
+    String case3();
 }
