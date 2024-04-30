@@ -64,12 +64,6 @@ public class OrderServiceImpl implements OrderService{
             throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
         }
 
-        orderProductRepository.findByOrderUserIdAndProductId(user.getResUserId(), product.getProductId())
-                .ifPresent(op -> {
-                    throw new CustomException(ErrorCode.DUPLICATED_ORDER);
-                }
-        );
-
         OrderEntity order = orderDetails.dtoToEntity(user.getResUserId(), product.getPrice());
         orderRepository.save(order);
 
