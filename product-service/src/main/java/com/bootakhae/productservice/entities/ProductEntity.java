@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "products", indexes = {
         @Index(name= "idx_name_producer", columnList = "product_name, product_producer")
@@ -36,12 +38,30 @@ public class ProductEntity extends BaseEntity {
     public void updateStock(Long stock){
         this.stock = stock;
     }
+    public void decreaseStock(Long qty){
+        this.stock -= qty;
+    }
+    public void restoreStock(Long qty){
+        this.stock += qty;
+    }
 
     @Column(name="product_producer", nullable = false, length = 30)
     private String producer;
 
     @Column(name="product_nutrition_facts", nullable = false)
     private String nutritionFacts;
+
+    @Column(name="prodcut_is_event_opend", nullable = false)
+    private boolean isEventOpened;
+    public void openThisEvent(){
+        isEventOpened = true;
+    }
+
+    @Column(name="product_event_time")
+    private LocalDateTime eventTime;
+    public void registerEventTime(LocalDateTime eventTime){
+        this.eventTime = eventTime;
+    }
 
     public ProductDto entityToDto(){
         return ProductDto.builder()
@@ -51,6 +71,7 @@ public class ProductEntity extends BaseEntity {
                 .stock(this.stock)
                 .producer(this.producer)
                 .nutritionFacts(this.nutritionFacts)
+                .eventTime(this.eventTime)
                 .build();
     }
 }

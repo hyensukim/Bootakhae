@@ -9,6 +9,8 @@ public interface ProductService {
 
     ProductDto registerProduct(ProductDto productDetails);
 
+    ProductListDto registerEventProduct(List<ProductDto> productDetailsList);
+
     ProductDto updateStock(String productId, Long stock);
 
     ProductDto getOneProduct(String productId);

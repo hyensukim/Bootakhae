@@ -18,8 +18,6 @@ import com.bootakhae.orderservice.wishlist.entities.Wishlist;
 import com.bootakhae.orderservice.wishlist.repositories.WishlistRepository;
 import com.bootakhae.orderservice.wishlist.vo.response.ResponseProduct;
 import com.bootakhae.orderservice.wishlist.vo.response.ResponseUser;
-import feign.FeignException;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -104,7 +102,6 @@ public class OrderServiceImpl implements OrderService{
             }
         }
 
-
         // 전체 주문 가격 계산
         order.calculateTotalPrice(sum);
 
@@ -142,7 +139,7 @@ public class OrderServiceImpl implements OrderService{
         );
 
         if(order.getStatus() == Status.PAYMENT){
-            long stock = orderProduct.takeStock(orderProduct.getQty());
+            long stock = orderProduct.restoreStock(orderProduct.getQty());
             // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
             try {
                 ResponseProduct response = productClient.updateStock(orderProduct.getProductId(), stock);
@@ -212,7 +209,6 @@ public class OrderServiceImpl implements OrderService{
 
     @Scheduled(cron = "${schedule.cron}")
     @Transactional
-    @Override
     public void changeOrderStatus() {
         log.info("주문 상태 업데이트 실행");
 
@@ -241,7 +237,7 @@ public class OrderServiceImpl implements OrderService{
                             }catch (Exception e){
                                 throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
                             }
-                            op.takeStock(op.getQty());
+                            op.restoreStock(op.getQty());
                         }
                 );
             }

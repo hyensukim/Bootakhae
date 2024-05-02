@@ -26,3 +26,13 @@ spring:
         show_sql: true
         format_sql: true
         use_sql_comments: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, beans, busrefresh, circuitbreakers
+
+schedule:
+  start-time: ${start-time}
+  cron: ${cron}
