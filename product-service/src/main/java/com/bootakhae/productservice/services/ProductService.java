@@ -13,6 +13,14 @@ public interface ProductService {
 
     ProductDto updateStock(String productId, Long stock);
 
+    ProductDto decreaseStock(String productId, Long qty);
+
+    ProductDto decreaseStockPessimistic(String productId, Long qty);
+
+    ProductDto decreaseStockOptimistic(String productId, Long qty);
+
+    ProductDto restoreStock(String productId, Long qty);
+
     ProductDto getOneProduct(String productId);
 
     ProductListDto getAllProducts(int nowPage, int pageSize);

@@ -15,14 +15,14 @@ public class OrderProduct {
     @Builder
     public OrderProduct(OrderEntity order,
                         String productId,
-                        String productName,
-                        Long productStock,
+//                        String productName,
+//                        Long productStock,
                         Long qty,
                         Long price) {
         this.order = order;
         this.productId = productId;
-        this.productName = productName;
-        this.productStock = productStock;
+//        this.productName = productName;
+//        this.productStock = productStock;
         this.qty = qty;
         this.price = price;
     }
@@ -42,22 +42,21 @@ public class OrderProduct {
     @Column(name = "product_id", nullable = false, length = 50)
     private String productId;
 
-    @Column(name = "order_product_name", nullable = false, length = 50)
-    private String productName;
-
-    @Column(name = "order_product_stock", nullable = false)
-    private Long productStock; // todo Product-Service 와 동기화 처리 필수!
-
-    public long restoreStock(long qty){
-        productStock += qty;
-        return productStock;
-    } // 수량 증가
-
-    public long decreaseStock(long qty){
-//    public synchronized long decreaseStock(long qty){
-        productStock -= qty;
-        return productStock;
-    } // 수량 감소
+    // todo : 재고 관련 로직 변경 후 삭제 예정
+//    @Column(name = "order_product_name", nullable = false, length = 50)
+//    private String productName;
+//    @Column(name = "order_product_stock", nullable = false)
+//    private Long productStock;
+//    public long restoreStock(long qty){
+//        productStock += qty;
+//        return productStock;
+//    } // 수량 증가
+//
+//    public long decreaseStock(long qty){
+////    public synchronized long decreaseStock(long qty){
+//        productStock -= qty;
+//        return productStock;
+//    } // 수량 감소
 
     @Column(name = "order_product_qty", nullable = false)
     private Long qty;
@@ -68,7 +67,7 @@ public class OrderProduct {
     public OrderProductDto entityToDto() {
         return OrderProductDto.builder()
                 .productId(this.productId)
-                .stock(this.productStock)
+//                .stock(this.productStock)
                 .qty(this.qty)
                 .price(this.price)
                 .build();

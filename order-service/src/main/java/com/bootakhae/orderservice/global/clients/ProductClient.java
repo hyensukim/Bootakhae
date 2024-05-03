@@ -17,4 +17,10 @@ public interface ProductClient {
 
     @PutMapping("/api/v1/internal/products/{productId}")
     ResponseProduct updateStock(@PathVariable("productId") String productId, @RequestBody Long stock);
+
+    @PutMapping("/api/v1/internal/products/{productId}/decrease")
+    ResponseProduct decreaseStock(@PathVariable("productId") String productId, @RequestBody Long qty);
+
+    @PutMapping("/api/v1/internal/products/{productId}/restore")
+    ResponseProduct restoreStock(@PathVariable("productId") String productId, @RequestBody Long qty);
 }

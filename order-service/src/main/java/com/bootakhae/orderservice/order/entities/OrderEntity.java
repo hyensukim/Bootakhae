@@ -52,10 +52,10 @@ public class OrderEntity extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private final List<OrderProduct> orderProducts = new ArrayList<>(); // 양방향 매핑
 
-    public void addOrderProduct(OrderProduct orderProduct) {
-        orderProducts.add(orderProduct);
-        orderProduct.registerOrder(this);
-    }
+//    public void addOrderProduct(OrderProduct orderProduct) {
+//        orderProducts.add(orderProduct);
+//        orderProduct.registerOrder(this);
+//    }
 
     @Column(name = "order_address1", nullable = false, length = 100)
     private String address1; // 우편번호

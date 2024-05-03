@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService{
 
     private final ProductRepository productRepository;
@@ -120,8 +121,51 @@ public class ProductServiceImpl implements ProductService{
         return product.entityToDto();
     }
 
-    @Scheduled(cron = "${schedule.cron}")
     @Transactional
+    @Override
+//    public synchronized ProductDto decreaseStock(String productId, Long qty) {
+    public ProductDto decreaseStock(String productId, Long qty) {
+        log.debug("상품 재고 감소 실행");
+        ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
+        );
+
+        product.decreaseStock(qty);
+
+        return productRepository.saveAndFlush(product).entityToDto();
+    }
+
+    @Transactional
+    @Override
+    public ProductDto decreaseStockPessimistic(String productId, Long qty){
+        ProductEntity product = productRepository.findByProductIdPessimistic(productId).orElseThrow();
+        product.decreaseStock(qty);
+        return productRepository.saveAndFlush(product).entityToDto();
+    }
+
+    @Transactional
+    @Override
+    public ProductDto decreaseStockOptimistic(String productId, Long qty) {
+        ProductEntity product = productRepository.findByProductIdOptimistic(productId).orElseThrow();
+        product.decreaseStock(qty);
+        return productRepository.saveAndFlush(product).entityToDto();
+    }
+
+    @Transactional
+    @Override
+    public ProductDto restoreStock(String productId, Long qty) {
+        log.debug("상품 재고 복구 실행");
+        ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
+        );
+
+        product.restoreStock(qty);
+
+        return productRepository.saveAndFlush(product).entityToDto();
+    }
+
+    @Transactional
+    @Scheduled(cron = "${schedule.cron}")
     public void changeEventOpenFlag() {
         log.info("상품 이벤트 상태 업데이트 실행");
 

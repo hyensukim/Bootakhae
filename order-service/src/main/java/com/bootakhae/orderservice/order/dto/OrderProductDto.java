@@ -13,5 +13,4 @@ public class OrderProductDto {
     private String productId;
     private Long qty; // 주문수량
     private Long price;
-    private Long stock; // 현재 상품 재고
 }

@@ -31,6 +31,7 @@ public class ProductFeignController {
     /**
      * 위시 리스트 상품 목록 조회
      * - 한번에 여러 아이디 값의 상품들을 조회하기 위해 PostMapping
+     * @from order-service
      */
     @PostMapping
     public ResponseEntity<List<ResponseProduct>> getProducts(@RequestBody List<String> productIds){
@@ -40,12 +41,23 @@ public class ProductFeignController {
     }
 
     /**
-     * 상품 재고 변경
+     * 상품 재고 감소
      * @from order-service
      */
-    @PutMapping("{productId}")
-    public ResponseEntity<ResponseProduct> deductStock(@PathVariable("productId") String productId,@RequestBody Long stock){
-        ProductDto dto = productService.updateStock(productId, stock);
+    @PutMapping("{productId}/decrease")
+    public ResponseEntity<ResponseProduct> decreaseStock(@PathVariable("productId") String productId,@RequestBody Long qty){
+        ProductDto dto = productService.decreaseStock(productId, qty);
+        ResponseProduct response = dto.dtoToVo();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * 상품 재고 복구
+     * @from order-service
+     */
+    @PutMapping("{productId}/restore")
+    public ResponseEntity<ResponseProduct> restoreStock(@PathVariable("productId") String productId,@RequestBody Long qty){
+        ProductDto dto = productService.restoreStock(productId, qty);
         ResponseProduct response = dto.dtoToVo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

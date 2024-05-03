@@ -31,7 +31,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, beans, busrefresh, circuitbreakers
+        include: info, refresh, health, beans, busrefresh, circuitbreakers
 
 schedule:
   start-time: ${start-time}

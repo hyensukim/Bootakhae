@@ -31,12 +31,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, beans, busrefresh, circuitbreakers
+        include: info, refresh, health, beans, busrefresh, circuitbreakers
 
 # CircuitBreaker 설정
 resilience4j.circuitbreaker:
     instances:
       cb-case:
+        base-config: default
+      default-CB:
         base-config: default
     configs:
       default:
@@ -64,7 +66,6 @@ resilience4j.circuitbreaker:
         # actuator 설정
         register-health-indicator: true # open / close 여부를 체크
 
-        # 예외 처리 설정
 #        record-exceptions:
 #          - java.io.IOException
 #          - java.util.concurrent.TimeoutException

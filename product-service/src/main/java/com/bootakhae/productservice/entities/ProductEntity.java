@@ -20,6 +20,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ProductEntity extends BaseEntity {
 
+    @Version
+    private Long version; // 낙관적 락 - 버전 관리
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;
