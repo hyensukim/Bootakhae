@@ -32,7 +32,6 @@ public class OrderDto {
     private Status orderStatus;
     private LocalDateTime createdAt;
 
-    private ReturnOrderDto returnOrder;
     private OrderProductDto orderProduct;
     private List<OrderProductDto> orderedProducts;
 
@@ -46,7 +45,6 @@ public class OrderDto {
                 .phone(this.phone) // 연락처
                 .createdAt(this.createdAt) // 주문일자
                 .orderStatus(this.orderStatus)
-                .returnOrder(this.returnOrder)
                 .orderedProduct(this.orderProduct)// 주문 상태
                 .orderedProducts(this.orderedProducts) // 주문 상품
                 .build();

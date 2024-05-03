@@ -46,6 +46,7 @@ public class ProductServiceImpl implements ProductService{
     @Transactional
     @Override
     public ProductListDto registerEventProduct(List<ProductDto> productDetailsList) {
+        log.debug("이벤트 상품으로 등록 실행");
         List<String> productIds = productDetailsList
                 .stream()
                 .map(ProductDto::getProductId)

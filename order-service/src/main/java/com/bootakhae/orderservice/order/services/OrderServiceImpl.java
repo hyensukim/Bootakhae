@@ -4,7 +4,6 @@ import com.bootakhae.orderservice.global.clients.ProductClient;
 import com.bootakhae.orderservice.global.clients.UserClient;
 import com.bootakhae.orderservice.global.constant.Status;
 import com.bootakhae.orderservice.order.dto.OrderDto;
-import com.bootakhae.orderservice.order.dto.OrderProductDto;
 import com.bootakhae.orderservice.order.dto.ReturnOrderDto;
 import com.bootakhae.orderservice.order.entities.OrderEntity;
 import com.bootakhae.orderservice.order.entities.OrderProduct;
@@ -30,10 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,75 +45,87 @@ public class OrderServiceImpl implements OrderService{
     private final ProductClient productClient;
 
     @Transactional
-    @Retry(name = "default-RT")
     @Override
     public OrderDto registerOrder(OrderDto orderDetails) {
         log.debug("주문 등록 실행");
 
         ResponseUser user = findUserByUserId(orderDetails.getUserId());
         ResponseProduct product = findProductByProductId(orderDetails.getProductId());
+
         OrderEntity order = orderDetails.dtoToEntity(user.getResUserId(), product.getPrice());
-        orderRepository.save(order);
 
         OrderProduct orderProduct = createOrderedProduct(order, product, orderDetails.getQty());
-        orderProductRepository.save(orderProduct);
 
-        return order.entityToDto(orderProduct.entityToDto());
+        order.getOrderProducts().add(orderProduct);
+
+        orderRepository.save(order);
+
+        return order.entityToDto();
     }
 
     @Transactional
     @Override
-    public OrderDto registerOrders(OrderDto orderDetails) {
+    public OrderDto registerWishlist(OrderDto orderDetails) {
         log.debug("위시리스트 주문 등록 실행");
 
         ResponseUser user = findUserByUserId(orderDetails.getUserId());
 
-        List<Wishlist> wishList = wishListRepository.findAllByUserId(user.getResUserId()); // 위시 리스트 조회
-
-        if(wishList.isEmpty()) {
+        List<Wishlist> wishlist = wishListRepository.findAllByUserId(user.getResUserId());
+        if(wishlist.isEmpty()) {
             throw new CustomException(ErrorCode.NOT_EXISTS_WISHLIST);
         }
 
-        // 주문 객체 생성
-        OrderEntity order = orderDetails.dtoToEntity(user.getResUserId());
-
-        // 상품 조회용 List
-        List<String> productIds = wishList.stream().map(Wishlist::getProductId).collect(Collectors.toList());
-
-        long sum = 0L;
+        // 상품 map
         Map<String, ResponseProduct> productsMap = new HashMap<>();
-        List<OrderProduct> orderedProductsToSave = new ArrayList<>();
+        List<String> productIds = wishlist.stream().map(Wishlist::getProductId).collect(Collectors.toList());
         List<ResponseProduct> productList = findProductsByProductIds(productIds);
         for (ResponseProduct product : productList) {
             productsMap.put(product.getProductId(), product);
         }
 
+        // 주문 생성
+        OrderEntity order = orderDetails.dtoToEntity(user.getResUserId());
+        List<OrderProduct> orderProductList = order.getOrderProducts();
+
         // 위시리스트 항목에 대한 주문 상품 생성 및 가격 계산
-        for (Wishlist wish : wishList) {
+        for (Wishlist wish : wishlist) {
             ResponseProduct product = productsMap.get(wish.getProductId());
-            if (product != null) {
-                sum += wish.getQty() * product.getPrice();
-                OrderProduct orderProduct = createOrderedProduct(order, product, wish.getQty());
-                orderedProductsToSave.add(orderProduct);
-            }
+
+            order.calculateTotalPrice(product.getPrice() * wish.getQty());
+
+            OrderProduct orderProduct = createOrderedProduct(order, product, wish.getQty());
+            orderProductList.add(orderProduct);
         }
 
-        // 전체 주문 가격 계산
-        order.calculateTotalPrice(sum);
-
-        // 주문 정보 저장
         order = orderRepository.save(order);
 
-        // 주문 상품 정보 일괄 저장
-        orderProductRepository.saveAll(orderedProductsToSave);
+        return order.entityToDto();
+    }
 
-        // 주문 상품 Dto 에 담기
-        List<OrderProductDto> orderedProducts = orderedProductsToSave
-                .stream()
-                .map(OrderProduct::entityToDto)
-                .collect(Collectors.toList());
+    /**
+     * 주문된 상품 엔티티 생성
+     */
+    private OrderProduct createOrderedProduct(OrderEntity order, ResponseProduct product, Long qty) {
 
-        return order.entityToDto(orderedProducts);
+        OrderProduct orderProduct = OrderProduct.builder()
+                .order(order)
+                .productId(product.getProductId())
+                .productName(product.getName()) // 결합력을 낮추기 위해 저장
+                .productStock(product.getStock()) // 결합력을 낮추기 위해 저장
+                .price(product.getPrice())
+                .qty(qty)
+                .build();
+
+        // 재고 반영 + 재고 동기화
+        if( orderProduct.getProductStock() >= qty){
+            long stock = orderProduct.decreaseStock(qty);
+            updateStock(orderProduct.getProductId(), stock);
+        }
+        else{
+            throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
+        }
+
+        return orderProduct;
     }
 
     /**
@@ -131,27 +139,19 @@ public class OrderServiceImpl implements OrderService{
         log.debug("주문 삭제 실행");
 
         OrderEntity order = orderRepository.findByOrderId(orderId).orElseThrow(
-                ()->new RuntimeException("주문 취소 : 존재하지 않는 주문입니다.")
-        );
-
-        OrderProduct orderProduct = orderProductRepository.findByOrder(order).orElseThrow(
-                ()->new RuntimeException("주문 취소 : 주문하지 않은 상품입니다.")
+                ()->new CustomException(ErrorCode.NOT_EXISTS_ORDER)
         );
 
         if(order.getStatus() == Status.PAYMENT){
-            long stock = orderProduct.restoreStock(orderProduct.getQty());
-            // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
-            try {
-                ResponseProduct response = productClient.updateStock(orderProduct.getProductId(), stock);
-                log.debug("상품 재고 복구 요청 결과 : {}", response);
-            }catch (Exception e){
-                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
+            List<OrderProduct> orderProducts = order.getOrderProducts();
+            for(OrderProduct orderProduct : orderProducts){
+                long stock = orderProduct.restoreStock(orderProduct.getQty());
+                updateStock(orderProduct.getProductId(), stock);
             }
-
             order.cancelTheOrder();
         }
 
-        return order.entityToDto(orderProduct.entityToDto());
+        return order.entityToDto();
     }
 
     @Override
@@ -228,51 +228,14 @@ public class OrderServiceImpl implements OrderService{
                     .toDays()) >= 1){
                 order.returnTheOrder();
                 orderProductRepository.findByOrder(order).ifPresent(
-                        // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
-                        (op) ->{
-                            try {
-                                ResponseProduct response = productClient.updateStock(op.getProductId(),
-                                        op.getProductStock());
-                                log.debug(String.valueOf(response));
-                            }catch (Exception e){
-                                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-                            }
-                            op.restoreStock(op.getQty());
-                        }
+                    // fixme 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
+                    (op) ->{
+                        Long stock = op.restoreStock(op.getQty());
+                        updateStock(op.getProductId(), stock);
+                    }
                 );
             }
         }
-    }
-
-    /**
-     * 주문된 상품 엔티티 생성
-     */
-    private OrderProduct createOrderedProduct(OrderEntity order, ResponseProduct product, Long qty) {
-
-        OrderProduct orderProduct = OrderProduct.builder()
-                .order(order)
-                .productId(product.getProductId())
-                .productName(product.getName())
-                .productStock(product.getStock())
-                .qty(qty)
-                .price(product.getPrice())
-                .build();
-
-        // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - Redis pub/sub + Lua Script
-        if( orderProduct.getProductStock() >= qty){
-            long stock = orderProduct.deductStock(qty);
-            try {
-                ResponseProduct response = productClient.updateStock(product.getProductId(), stock);
-                log.debug("상품 재고 감소 요청 결과 : {}", response);
-            }catch (Exception e){
-                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-            }
-        }
-        else{
-            throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
-        }
-
-        return orderProduct;
     }
 
     /**
@@ -297,5 +260,15 @@ public class OrderServiceImpl implements OrderService{
     @Retry(name = "default-RT")
     private List<ResponseProduct> findProductsByProductIds(List<String> productIds) {
         return productClient.getProducts(productIds);
+    }
+
+    /**
+     * 재고 업데이트
+     */
+    // fixme 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
+    @Retry(name = "default-RT")
+    private void updateStock(String productId, Long stock) {
+        ResponseProduct response = productClient.updateStock(productId, stock);
+        log.debug("{} 재고 : {}", response.getName(), response.getStock());
     }
 }

@@ -9,7 +9,7 @@ public interface OrderService {
 
     OrderDto registerOrder(OrderDto orderDetails);
 
-    OrderDto registerOrders(OrderDto orderDetails);
+    OrderDto registerWishlist(OrderDto orderDetails);
 
     OrderDto removeOrder(String orderId);
 

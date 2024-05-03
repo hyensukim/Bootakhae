@@ -31,7 +31,7 @@ public class OrderProduct {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "order_id")
     private OrderEntity order;
 
@@ -42,18 +42,19 @@ public class OrderProduct {
     @Column(name = "product_id", nullable = false, length = 50)
     private String productId;
 
-    @Column(name = "product_name", nullable = false, length = 50)
+    @Column(name = "order_product_name", nullable = false, length = 50)
     private String productName;
 
-    @Column(name = "product_stock", nullable = false)
+    @Column(name = "order_product_stock", nullable = false)
     private Long productStock; // todo Product-Service 와 동기화 처리 필수!
 
-    public long takeStock(long qty){
+    public long restoreStock(long qty){
         productStock += qty;
         return productStock;
     } // 수량 증가
 
-    public long deductStock(long qty){
+    public long decreaseStock(long qty){
+//    public synchronized long decreaseStock(long qty){
         productStock -= qty;
         return productStock;
     } // 수량 감소

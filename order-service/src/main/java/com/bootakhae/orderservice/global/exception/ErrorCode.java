@@ -60,10 +60,11 @@ public enum ErrorCode {
      * Order
      */
     NOT_EXISTS_ORDER(HttpStatus.BAD_REQUEST, "ORD-ERR-01","주문 내역이 없습니다."),
-    LACK_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "ORD-ERR-02", "상품 재고가 부족합니다."),
+    NOT_EXISTS_PRODUCT_IN_ORDER(HttpStatus.BAD_REQUEST, "ORD-ERR-02","주문 내역에 해당 상품이 없습니다."),
+    LACK_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "ORD-ERR-03", "상품 재고가 부족합니다."),
 
-    NOT_DONE_STATUS(HttpStatus.BAD_REQUEST, "ORD_ERR-03", "현재 배송이 완료되지 않았습니다. 배송 완료 후 반품 요청 바랍니다."),
-    NOT_RETURN_DURATION(HttpStatus.BAD_REQUEST, "ORD-ERR-04", "배송 완료 후 1일이 지나 반품이 불가합니다.");
+    NOT_DONE_STATUS(HttpStatus.BAD_REQUEST, "ORD_ERR-04", "현재 배송이 완료되지 않았습니다. 배송 완료 후 반품 요청 바랍니다."),
+    NOT_RETURN_DURATION(HttpStatus.BAD_REQUEST, "ORD-ERR-05", "배송 완료 후 1일이 지나 반품이 불가합니다.");
 
 
     private final HttpStatus status;
