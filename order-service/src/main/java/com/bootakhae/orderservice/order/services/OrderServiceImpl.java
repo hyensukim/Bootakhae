@@ -116,7 +116,7 @@ public class OrderServiceImpl implements OrderService{
 
         // todo : 결제 서비스로 이전 예정
         ResponseProduct response = feignTemplate.updateStock(StockProcess.DECREASE, orderProduct.getProductId(), qty);
-        log.debug("{} 재고 : {}", response.getName(), response.getStock());
+        log.debug("재고 감소 [{} 재고 : {}]", response.getName(), response.getStock());
         // fixme : 재고 관리 관련 로직 변경 후 제거 예정
 //        if( orderProduct.getProductStock() >= qty){
 //            feignTemplate.updateStock(orderProduct.getProductId(), stock);
@@ -149,7 +149,7 @@ public class OrderServiceImpl implements OrderService{
                 ResponseProduct response = feignTemplate.updateStock(StockProcess.RESTORE
                         , orderProduct.getProductId()
                         , orderProduct.getQty());
-                log.debug("{} 재고 : {}", response.getName(), response.getStock());
+                log.debug("재고_복구[{} 재고 : {}]", response.getName(), response.getStock());
             }
 
             order.cancelTheOrder();
@@ -239,7 +239,7 @@ public class OrderServiceImpl implements OrderService{
                     (op) ->{
                         ResponseProduct response =
                                 feignTemplate.updateStock(StockProcess.RESTORE, op.getProductId(), op.getQty());
-                        log.debug("{} 재고 : {}", response.getName(), response.getStock());
+                        log.debug("재고_복구[{} 재고 : {}]", response.getName(), response.getStock());
                     }
                 );
 

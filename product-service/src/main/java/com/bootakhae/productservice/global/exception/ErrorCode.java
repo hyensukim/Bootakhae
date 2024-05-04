@@ -9,7 +9,11 @@ import java.time.LocalDateTime;
 @Getter
 public enum ErrorCode {
 
-    NOT_BLANK(HttpStatus.BAD_REQUEST, "EML-ERR-01", "입력사항을 기입 바랍니다."),
+    /**
+     * Common
+     */
+    NOT_BLANK(HttpStatus.BAD_REQUEST, "COM-ERR-01", "입력사항을 기입 바랍니다."),
+    LOCK_NOT_AVAILABLE(HttpStatus.INTERNAL_SERVER_ERROR, "COM-ERR-02","락을 얻지 못했습니다."),
 
     /**
      * User
@@ -38,6 +42,7 @@ public enum ErrorCode {
      */
     NOT_REGISTERED_PRODUCT(HttpStatus.BAD_REQUEST, "PDT-ERR-01", "등록되지 않은 상품입니다."),
     DUPLICATED_PRODUCT(HttpStatus.BAD_REQUEST, "PDT-ERR-02", "이미 등록된 제품입니다."),
+    LACK_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "PDT-ERR-03", "상품 재고가 부족합니다."),
 
     /**
      * wishlist

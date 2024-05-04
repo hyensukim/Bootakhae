@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final Environment env;
@@ -36,7 +36,9 @@ public class ProductServiceImpl implements ProductService{
         ProductEntity product = productDetails.dtoToEntity();
 
         productRepository.findByNameAndProducer(product.getName(), product.getProducer()).ifPresent(
-                p -> {throw new CustomException(ErrorCode.DUPLICATED_PRODUCT);}
+                p -> {
+                    throw new CustomException(ErrorCode.DUPLICATED_PRODUCT);
+                }
         );
 
         product = productRepository.save(product);
@@ -56,16 +58,16 @@ public class ProductServiceImpl implements ProductService{
         List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
 
         Map<String, ProductEntity> productMap = new HashMap<>();
-        for(ProductEntity productEntity : productList) {
+        for (ProductEntity productEntity : productList) {
             productMap.put(productEntity.getProductId(), productEntity);
         }
-        
+
         // trouble-shooting : NullPointerException
         /*
          * 복수개의 요청사항이 들어올 때, 일부 DB 내 없는 데이터인 경우, null을 반환하기 때문에 해당 값이 null이 아닌 경우에만
          * eventTime 을 수정하도록 로직 변경. - Optional 활용
          */
-        for(ProductDto productDetails : productDetailsList) {
+        for (ProductDto productDetails : productDetailsList) {
             Optional.ofNullable(productMap.get(productDetails.getProductId()))
                     .ifPresent(p -> p.registerEventTime(productDetails.getEventTime()));
         }
@@ -137,7 +139,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Transactional
     @Override
-    public ProductDto decreaseStockPessimistic(String productId, Long qty){
+    public ProductDto decreaseStockPessimistic(String productId, Long qty) {
         ProductEntity product = productRepository.findByProductIdPessimistic(productId).orElseThrow();
         product.decreaseStock(qty);
         return productRepository.saveAndFlush(product).entityToDto();

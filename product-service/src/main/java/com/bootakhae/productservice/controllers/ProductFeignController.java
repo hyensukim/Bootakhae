@@ -1,6 +1,7 @@
 package com.bootakhae.productservice.controllers;
 
 import com.bootakhae.productservice.dto.ProductDto;
+import com.bootakhae.productservice.facade.RedissonInventoryFacade;
 import com.bootakhae.productservice.services.ProductService;
 import com.bootakhae.productservice.vo.response.ResponseProduct;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.List;
 public class ProductFeignController {
 
     private final ProductService productService;
+    private final RedissonInventoryFacade redissonInventoryFacade;
 
     /**
      * 상품 조회
@@ -46,7 +48,7 @@ public class ProductFeignController {
      */
     @PutMapping("{productId}/decrease")
     public ResponseEntity<ResponseProduct> decreaseStock(@PathVariable("productId") String productId,@RequestBody Long qty){
-        ProductDto dto = productService.decreaseStock(productId, qty);
+        ProductDto dto = redissonInventoryFacade.decrease(productId, qty);
         ResponseProduct response = dto.dtoToVo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -57,7 +59,7 @@ public class ProductFeignController {
      */
     @PutMapping("{productId}/restore")
     public ResponseEntity<ResponseProduct> restoreStock(@PathVariable("productId") String productId,@RequestBody Long qty){
-        ProductDto dto = productService.restoreStock(productId, qty);
+        ProductDto dto = redissonInventoryFacade.restore(productId, qty);
         ResponseProduct response = dto.dtoToVo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
