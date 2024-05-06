@@ -50,15 +50,37 @@ public class OrderServiceImpl implements OrderService{
         ResponseUser user = feignTemplate.findUserByUserId(orderDetails.getUserId());
         ResponseProduct product =  feignTemplate.findProductByProductId(orderDetails.getProductId());
 
-        OrderEntity order = orderDetails.dtoToEntity(user.getResUserId(), product.getPrice());
+        // 재고 반영
+        ResponseProduct response = feignTemplate.updateStock(
+                StockProcess.DECREASE,
+                product.getProductId(),
+                orderDetails.getQty()
+        );
 
-        OrderProduct orderProduct = createOrderedProduct(order, product, orderDetails.getQty());
+        log.debug("재고 감소 [{} 재고 : {}]", response.getName(), response.getStock());
 
-        order.getOrderProducts().add(orderProduct);
+        try {
+            // 주문 생성
+            OrderEntity order = orderDetails.dtoToEntity(user.getResUserId(), product.getPrice());
 
-        orderRepository.save(order);
+            // 결제 진행
 
-        return order.entityToDto();
+            // 주문 상품 등록
+            OrderProduct orderProduct = createOrderedProduct(order, product, orderDetails.getQty());
+
+            order.getOrderProducts().add(orderProduct);
+
+            orderRepository.save(order);
+
+            return order.entityToDto();
+        }catch(Exception e){
+            feignTemplate.updateStock(
+                    StockProcess.RESTORE,
+                    product.getProductId(),
+                    orderDetails.getQty()
+            );
+            throw new CustomException(ErrorCode.FAILURE_ORDER);
+        }
     }
 
     @Transactional
@@ -104,28 +126,12 @@ public class OrderServiceImpl implements OrderService{
      * 주문된 상품 엔티티 생성
      */
     private OrderProduct createOrderedProduct(OrderEntity order, ResponseProduct product, Long qty) {
-
-        OrderProduct orderProduct = OrderProduct.builder()
+        return OrderProduct.builder()
                 .order(order)
                 .productId(product.getProductId())
-//                .productName(product.getName()) // 결합력을 낮추기 위해 저장
-//                .productStock(product.getStock()) // 결합력을 낮추기 위해 저장
                 .price(product.getPrice())
                 .qty(qty)
                 .build();
-
-        // todo : 결제 서비스로 이전 예정
-        ResponseProduct response = feignTemplate.updateStock(StockProcess.DECREASE, orderProduct.getProductId(), qty);
-        log.debug("재고 감소 [{} 재고 : {}]", response.getName(), response.getStock());
-        // fixme : 재고 관리 관련 로직 변경 후 제거 예정
-//        if( orderProduct.getProductStock() >= qty){
-//            feignTemplate.updateStock(orderProduct.getProductId(), stock);
-//        }
-//        else{
-//            throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
-//        }
-
-        return orderProduct;
     }
 
     /**

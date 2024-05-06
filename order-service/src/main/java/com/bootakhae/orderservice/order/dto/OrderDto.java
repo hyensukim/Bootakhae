@@ -51,12 +51,7 @@ public class OrderDto {
     }
 
     public OrderEntity dtoToEntity(String userId){
-        return OrderEntity.builder()
-                .userId(this.userId)
-                .address1(this.address1)
-                .address2(this.address2)
-                .phone(this.phone)
-                .build();
+        return dtoToEntity(userId, 0L);
     }
 
     public OrderEntity dtoToEntity(String userId, Long price){

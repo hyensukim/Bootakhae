@@ -18,9 +18,7 @@ public enum ErrorCode {
      * Feign
      */
     FEIGN_CLIENT_ERROR(HttpStatus.BAD_REQUEST, "FCT-ERR-01", "잘못된 요청입니다."),
-    FEIGN_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FCT-ERR-02", "해당 서버 내부에 문제가 발생했습니다. 잠시 후 다시 이용 바랍니다."),
-
-
+    FEIGN_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FCT-ERR-02", "서버 내부에 문제가 발생했습니다. 잠시 후 다시 이용 바랍니다."),
 
     /**
      * User
@@ -65,7 +63,9 @@ public enum ErrorCode {
 
     NOT_DONE_STATUS(HttpStatus.BAD_REQUEST, "ORD_ERR-04", "현재 배송이 완료되지 않았습니다. 배송 완료 후 반품 요청 바랍니다."),
     NOT_RETURN_DURATION(HttpStatus.BAD_REQUEST, "ORD-ERR-05", "배송 완료 후 1일이 지나 반품이 불가합니다."),
-    ALREADY_CANCEL_ORDER(HttpStatus.BAD_REQUEST, "ORD-ERR-06","이미 취소된 주문입니다.");
+    ALREADY_CANCEL_ORDER(HttpStatus.BAD_REQUEST, "ORD-ERR-06","이미 취소된 주문입니다."),
+
+    FAILURE_ORDER(HttpStatus.BAD_REQUEST, "ORD-ERR-07","주문에 실패했습니다.");
 
 
     private final HttpStatus status;
