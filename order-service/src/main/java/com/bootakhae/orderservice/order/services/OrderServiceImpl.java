@@ -1,10 +1,12 @@
 package com.bootakhae.orderservice.order.services;
 
-import com.bootakhae.orderservice.global.clients.ProductClient;
-import com.bootakhae.orderservice.global.clients.UserClient;
+import com.bootakhae.orderservice.global.clients.FeignTemplate;
+import com.bootakhae.orderservice.global.clients.vo.request.RequestPay;
+import com.bootakhae.orderservice.global.clients.vo.request.RequestStock;
+import com.bootakhae.orderservice.global.clients.vo.response.ResponsePay;
 import com.bootakhae.orderservice.global.constant.Status;
+import com.bootakhae.orderservice.global.constant.StockProcess;
 import com.bootakhae.orderservice.order.dto.OrderDto;
-import com.bootakhae.orderservice.order.dto.OrderProductDto;
 import com.bootakhae.orderservice.order.dto.ReturnOrderDto;
 import com.bootakhae.orderservice.order.entities.OrderEntity;
 import com.bootakhae.orderservice.order.entities.OrderProduct;
@@ -14,13 +16,11 @@ import com.bootakhae.orderservice.global.exception.ErrorCode;
 import com.bootakhae.orderservice.order.repositories.OrderProductRepository;
 import com.bootakhae.orderservice.order.repositories.OrderRepository;
 import com.bootakhae.orderservice.order.repositories.ReturnOrderRepository;
+import com.bootakhae.orderservice.order.vo.ProductInfo;
 import com.bootakhae.orderservice.wishlist.entities.Wishlist;
 import com.bootakhae.orderservice.wishlist.repositories.WishlistRepository;
-import com.bootakhae.orderservice.wishlist.vo.response.ResponseProduct;
-import com.bootakhae.orderservice.wishlist.vo.response.ResponseUser;
-import feign.FeignException;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
+import com.bootakhae.orderservice.global.clients.vo.response.ResponseProduct;
+import com.bootakhae.orderservice.global.clients.vo.response.ResponseUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,81 +44,138 @@ public class OrderServiceImpl implements OrderService{
     private final OrderProductRepository orderProductRepository;
     private final ReturnOrderRepository returnOrderRepository;
     private final WishlistRepository wishListRepository;
-    private final UserClient userClient;
-    private final ProductClient productClient;
+    private final FeignTemplate feignTemplate;
 
     @Transactional
-    @Retry(name = "default-RT")
     @Override
     public OrderDto registerOrder(OrderDto orderDetails) {
         log.debug("주문 등록 실행");
 
-        ResponseUser user = findUserByUserId(orderDetails.getUserId());
-        ResponseProduct product = findProductByProductId(orderDetails.getProductId());
+        ResponseUser user = feignTemplate.findUserByUserId(orderDetails.getUserId());
+
+        log.debug("재고 감소 실행");
+        ResponseProduct product = updateStock(
+                StockProcess.DECREASE,
+                orderDetails.getProductId(),
+                orderDetails.getQty()
+        );
         OrderEntity order = orderDetails.dtoToEntity(user.getResUserId(), product.getPrice());
-        orderRepository.save(order);
+        try {
+            OrderProduct orderProduct = OrderProduct.createOrderedProduct(order, product, orderDetails.getQty());
+            order.getOrderProducts().add(orderProduct);
 
-        OrderProduct orderProduct = createOrderedProduct(order, product, orderDetails.getQty());
-        orderProductRepository.save(orderProduct);
+            log.debug("결제 등록 실행");
+            ResponsePay pay = feignTemplate.registerPay(RequestPay.builder()
+                            .orderId(order.getOrderId())
+                            .payMethod(orderDetails.getPayMethod())
+                            .totalPrice(product.getPrice() * orderProduct.getQty())
+                            .build()
+            );
+            order.registerPay(pay.getPayId());
+            orderRepository.save(order);
+            return order.entityToDto(pay.getTotalPrice(), pay.getPayMethod());
+        }catch(Exception e){
+            ResponseProduct response = updateStock(
+                    StockProcess.RESTORE,
+                    orderDetails.getProductId(),
+                    orderDetails.getQty()
+            );
 
-        return order.entityToDto(orderProduct.entityToDto());
+            log.debug("재고 수량 복구 성공");
+            log.debug("{}의 재고 : {}", response.getName(), response.getStock());
+
+            throw new CustomException(ErrorCode.FAILURE_ORDER);
+        }
     }
 
     @Transactional
     @Override
-    public OrderDto registerOrders(OrderDto orderDetails) {
+    public OrderDto registerWishlist(OrderDto orderDetails) {
         log.debug("위시리스트 주문 등록 실행");
 
-        ResponseUser user = findUserByUserId(orderDetails.getUserId());
-
-        List<Wishlist> wishList = wishListRepository.findAllByUserId(user.getResUserId()); // 위시 리스트 조회
-
-        if(wishList.isEmpty()) {
+        ResponseUser user =  feignTemplate.findUserByUserId(orderDetails.getUserId());
+        List<Wishlist> wishlist = wishListRepository.findAllByUserId(user.getResUserId());
+        if(wishlist.isEmpty()) {
             throw new CustomException(ErrorCode.NOT_EXISTS_WISHLIST);
         }
 
-        // 주문 객체 생성
-        OrderEntity order = orderDetails.dtoToEntity(user.getResUserId());
-
-        // 상품 조회용 List
-        List<String> productIds = wishList.stream().map(Wishlist::getProductId).collect(Collectors.toList());
-
-        long sum = 0L;
         Map<String, ResponseProduct> productsMap = new HashMap<>();
-        List<OrderProduct> orderedProductsToSave = new ArrayList<>();
-        List<ResponseProduct> productList = findProductsByProductIds(productIds);
+        List<ProductInfo> productInfoList = wishlist.stream()
+                .map(wish -> ProductInfo.builder()
+                        .productId(wish.getProductId())
+                        .qty(wish.getQty())
+                        .build())
+                .collect(Collectors.toList());
+        log.debug("위시리스트 관련 재고 감소 실행");
+        List<ResponseProduct> productList =  feignTemplate.updateStock(
+                RequestStock.builder()
+                        .stockProcess(StockProcess.DECREASE.name())
+                        .productInfoList(productInfoList)
+                        .build()
+        );
+
         for (ResponseProduct product : productList) {
             productsMap.put(product.getProductId(), product);
         }
 
-        // 위시리스트 항목에 대한 주문 상품 생성 및 가격 계산
-        for (Wishlist wish : wishList) {
-            ResponseProduct product = productsMap.get(wish.getProductId());
-            if (product != null) {
-                sum += wish.getQty() * product.getPrice();
-                OrderProduct orderProduct = createOrderedProduct(order, product, wish.getQty());
-                orderedProductsToSave.add(orderProduct);
+        OrderEntity order = orderDetails.dtoToEntity(user.getResUserId());
+        try{
+
+            List<OrderProduct> orderProductList = order.getOrderProducts();
+
+            long sum = 0L;
+
+            for (Wishlist wish : wishlist) {
+                ResponseProduct product = productsMap.get(wish.getProductId());
+
+                OrderProduct orderProduct = OrderProduct.createOrderedProduct(order, product, wish.getQty());
+
+                sum += product.getPrice() * orderProduct.getQty();
+
+                orderProductList.add(orderProduct);
             }
+
+            // 결제 생성
+            ResponsePay pay = feignTemplate.registerPay(RequestPay.builder()
+                    .orderId(order.getOrderId())
+                    .payMethod(orderDetails.getPayMethod())
+                    .totalPrice(sum)
+                    .build()
+            );
+
+            order.registerPay(pay.getPayId());
+
+            order = orderRepository.save(order);
+
+            return order.entityToDto(pay.getTotalPrice(), pay.getPayMethod());
+
+        }catch(Exception e){
+            log.error(e.getMessage());
+            List<ResponseProduct> responseList = feignTemplate.updateStock(
+                    RequestStock.builder()
+                            .stockProcess(StockProcess.RESTORE.name())
+                            .productInfoList(productInfoList)
+                            .build()
+            );
+            log.debug("위시리스트 재고 수량 복구 성공");
+            log.debug("재고 수량 복구 성공 갯수 : {}", responseList.size());
+
+            throw new CustomException(ErrorCode.FAILURE_ORDER);
         }
-
-
-        // 전체 주문 가격 계산
-        order.calculateTotalPrice(sum);
-
-        // 주문 정보 저장
-        order = orderRepository.save(order);
-
-        // 주문 상품 정보 일괄 저장
-        orderProductRepository.saveAll(orderedProductsToSave);
-
-        // 주문 상품 Dto 에 담기
-        List<OrderProductDto> orderedProducts = orderedProductsToSave
-                .stream()
-                .map(OrderProduct::entityToDto)
-                .collect(Collectors.toList());
-
-        return order.entityToDto(orderedProducts);
     }
+
+    @Transactional
+    @Override
+    public OrderDto completePayment(String payId) {
+        OrderEntity order = orderRepository.findByPayId(payId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_EXISTS_ORDER)
+        );
+
+        order.completePayment();
+
+        return order.entityToDto();
+    }
+
 
     /**
      * 주문 취소
@@ -134,27 +188,32 @@ public class OrderServiceImpl implements OrderService{
         log.debug("주문 삭제 실행");
 
         OrderEntity order = orderRepository.findByOrderId(orderId).orElseThrow(
-                ()->new RuntimeException("주문 취소 : 존재하지 않는 주문입니다.")
+                () -> new CustomException(ErrorCode.NOT_EXISTS_ORDER)
         );
 
-        OrderProduct orderProduct = orderProductRepository.findByOrder(order).orElseThrow(
-                ()->new RuntimeException("주문 취소 : 주문하지 않은 상품입니다.")
-        );
+        List<OrderProduct> orderProducts = order.getOrderProducts();
 
-        if(order.getStatus() == Status.PAYMENT){
-            long stock = orderProduct.takeStock(orderProduct.getQty());
-            // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
-            try {
-                ResponseProduct response = productClient.updateStock(orderProduct.getProductId(), stock);
-                log.debug("상품 재고 복구 요청 결과 : {}", response);
-            }catch (Exception e){
-                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-            }
+        List<ProductInfo> productInfoList = orderProducts.stream()
+                .map(wish -> ProductInfo.builder()
+                        .productId(wish.getProductId())
+                        .qty(wish.getQty())
+                        .build())
+                .collect(Collectors.toList());
 
+        if(!orderProducts.isEmpty() && order.getStatus() == Status.PAYMENT){
+            feignTemplate.updateStock(
+                    RequestStock.builder()
+                            .stockProcess(StockProcess.RESTORE.name())
+                            .productInfoList(productInfoList)
+                            .build()
+                    );
             order.cancelTheOrder();
         }
+        else if(order.getStatus() == Status.CANCEL){
+            throw new CustomException(ErrorCode.ALREADY_CANCEL_ORDER);
+        }
 
-        return order.entityToDto(orderProduct.entityToDto());
+        return order.entityToDto();
     }
 
     @Override
@@ -165,7 +224,9 @@ public class OrderServiceImpl implements OrderService{
                 ()->new CustomException(ErrorCode.NOT_EXISTS_ORDER)
         );
 
-        return order.entityToDto();
+        ResponsePay payDetails = feignTemplate.getOnePay(order.getPayId());
+
+        return order.entityToDto(payDetails.getTotalPrice(), payDetails.getPayMethod());
     }
 
     @Override
@@ -210,9 +271,11 @@ public class OrderServiceImpl implements OrderService{
         return order.entityToDto();
     }
 
+    /**
+     * 매일 낮 12시에 확인
+     */
     @Scheduled(cron = "${schedule.cron}")
     @Transactional
-    @Override
     public void changeOrderStatus() {
         log.info("주문 상태 업데이트 실행");
 
@@ -230,76 +293,37 @@ public class OrderServiceImpl implements OrderService{
                     && order.getReturnOrder() != null
                     && Math.abs(Duration.between(order.getReturnOrder().getCreatedAt(),LocalDateTime.now())
                     .toDays()) >= 1){
-                order.returnTheOrder();
+
                 orderProductRepository.findByOrder(order).ifPresent(
-                        // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
-                        (op) ->{
-                            try {
-                                ResponseProduct response = productClient.updateStock(op.getProductId(),
-                                        op.getProductStock());
-                                log.debug(String.valueOf(response));
-                            }catch (Exception e){
-                                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-                            }
-                            op.takeStock(op.getQty());
-                        }
+                    // fixme 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
+                    (op) ->{
+                        ResponseProduct response = updateStock(
+                                StockProcess.RESTORE,
+                                op.getProductId(),
+                                op.getQty()
+                        );
+                        log.debug("재고_복구[{} 재고 : {}]", response.getName(), response.getStock());
+                    }
                 );
+
+                order.returnTheOrder();
             }
         }
     }
 
-    /**
-     * 주문된 상품 엔티티 생성
-     */
-    private OrderProduct createOrderedProduct(OrderEntity order, ResponseProduct product, Long qty) {
+    private ResponseProduct updateStock(StockProcess stockProcess, String productId, Long qty) {
+        List<ResponseProduct> productList =  feignTemplate.updateStock(
+                RequestStock.builder()
+                        .productInfoList(List.of(ProductInfo.builder()
+                                .productId(productId)
+                                .qty(qty)
+                                .build()))
+                        .stockProcess(stockProcess.name())
+                        .build()
+        );
 
-        OrderProduct orderProduct = OrderProduct.builder()
-                .order(order)
-                .productId(product.getProductId())
-                .productName(product.getName())
-                .productStock(product.getStock())
-                .qty(qty)
-                .price(product.getPrice())
-                .build();
-
-        // todo 이벤트 발생하여 재고 일치화 해주도록 개선!! - Redis pub/sub + Lua Script
-        if( orderProduct.getProductStock() >= qty){
-            long stock = orderProduct.deductStock(qty);
-            try {
-                ResponseProduct response = productClient.updateStock(product.getProductId(), stock);
-                log.debug("상품 재고 감소 요청 결과 : {}", response);
-            }catch (Exception e){
-                throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-            }
-        }
-        else{
-            throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
-        }
-
-        return orderProduct;
-    }
-
-    /**
-     * 회원 정보 조회
-     */
-    @Retry(name = "default-RT")
-    private ResponseUser findUserByUserId(String userId) {
-        return userClient.getUser(userId);
-    }
-
-    /**
-     * 상품 정보 조회
-     */
-    @Retry(name = "default-RT")
-    private ResponseProduct findProductByProductId(String productId) {
-        return productClient.getOneProduct(productId);
-    }
-
-    /**
-     * 상품 정보 일괄 조회
-     */
-    @Retry(name = "default-RT")
-    private List<ResponseProduct> findProductsByProductIds(List<String> productIds) {
-        return productClient.getProducts(productIds);
+        return productList.stream().findFirst().orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
+        );
     }
 }

@@ -45,7 +45,7 @@ public class OrderController {
      */
     @PostMapping("wishlist")
     public ResponseEntity<ResponseOrder> createOrderByWishlist(@Valid @RequestBody RequestWishlist request) {
-        ResponseOrder response = orderService.registerOrders(request.voToDto()).dtoToVo();
+        ResponseOrder response = orderService.registerWishlist(request.voToDto()).dtoToVo();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

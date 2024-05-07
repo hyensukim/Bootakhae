@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "products", indexes = {
         @Index(name= "idx_name_producer", columnList = "product_name, product_producer")
@@ -17,6 +19,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductEntity extends BaseEntity {
+
+//    @Version
+//    private Long version; // 낙관적 락 - 버전 관리
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +38,11 @@ public class ProductEntity extends BaseEntity {
 
     @Column(name="product_stock", nullable = false)
     private Long stock;
-    public void updateStock(Long stock){
-        this.stock = stock;
+    public void decreaseStock(Long qty){
+        this.stock -= qty;
+    }
+    public void restoreStock(Long qty){
+        this.stock += qty;
     }
 
     @Column(name="product_producer", nullable = false, length = 30)
@@ -42,6 +50,18 @@ public class ProductEntity extends BaseEntity {
 
     @Column(name="product_nutrition_facts", nullable = false)
     private String nutritionFacts;
+
+    @Column(name="prodcut_is_event_opend", nullable = false)
+    private boolean isEventOpened;
+    public void openThisEvent(){
+        isEventOpened = true;
+    }
+
+    @Column(name="product_event_time")
+    private LocalDateTime eventTime;
+    public void registerEventTime(LocalDateTime eventTime){
+        this.eventTime = eventTime;
+    }
 
     public ProductDto entityToDto(){
         return ProductDto.builder()
@@ -51,6 +71,7 @@ public class ProductEntity extends BaseEntity {
                 .stock(this.stock)
                 .producer(this.producer)
                 .nutritionFacts(this.nutritionFacts)
+                .eventTime(this.eventTime)
                 .build();
     }
 }

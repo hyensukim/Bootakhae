@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 //    OrderEntity findByUserAndProduct(UserEntity user, ProductEntity product); - 이미 주문한 상품에 대한 처리
     Optional<OrderEntity> findByOrderId(String orderId);
+    Optional<OrderEntity> findByPayId(String payId);
     Page<OrderEntity> findByUserId(String userId, Pageable pageable);
 }

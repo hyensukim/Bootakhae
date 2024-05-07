@@ -1,4 +1,4 @@
-package com.bootakhae.orderservice.wishlist.vo.response;
+package com.bootakhae.orderservice.global.clients.vo.response;
 
 import lombok.Data;
 

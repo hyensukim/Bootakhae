@@ -26,22 +26,28 @@ spring:
         show_sql: true
         format_sql: true
         use_sql_comments: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, beans, busrefresh, circuitbreakers
+        include: info, refresh, health, beans, busrefresh, circuitbreakers
 
 # CircuitBreaker 설정
 resilience4j.circuitbreaker:
     instances:
       cb-case:
         base-config: default
+      default-CB:
+        base-config: default
     configs:
       default:
         # sliding window
-        sliding-window-type: time_based # Sliding Window 타입 : 횟수 or 시간
+        sliding-window-type: count_based # Sliding Window 타입 : 횟수 or 시간
         sliding-window-size: 10 # Sliding Window Size : 총 10개를 기준으로 집계 수행
 
         # fail
@@ -64,7 +70,6 @@ resilience4j.circuitbreaker:
         # actuator 설정
         register-health-indicator: true # open / close 여부를 체크
 
-        # 예외 처리 설정
 #        record-exceptions:
 #          - java.io.IOException
 #          - java.util.concurrent.TimeoutException
@@ -85,3 +90,7 @@ resilience4j.retry:
 
 schedule:
   cron: ${cron}
+
+logging:
+  level:
+    com.bootakhae.orderservice: DEBUG

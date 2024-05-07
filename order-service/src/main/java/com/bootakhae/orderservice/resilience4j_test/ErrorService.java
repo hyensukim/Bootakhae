@@ -1,4 +1,4 @@
-package com.bootakhae.orderservice.errorTest;
+package com.bootakhae.orderservice.resilience4j_test;
 
 import com.bootakhae.orderservice.global.clients.UserClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -6,6 +6,11 @@ import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+/**
+ * Resilience4j 테스트를 위한 코드입니다.
+ */
+
 
 @Slf4j
 @Service

@@ -4,6 +4,7 @@ package com.bootakhae.productservice.controllers;
 import com.bootakhae.productservice.dto.ProductDto;
 import com.bootakhae.productservice.dto.ProductListDto;
 import com.bootakhae.productservice.services.ProductService;
+import com.bootakhae.productservice.vo.request.RequestEventProduct;
 import com.bootakhae.productservice.vo.request.RequestProduct;
 import com.bootakhae.productservice.vo.response.ResponseProduct;
 import com.bootakhae.productservice.vo.response.ResponseProductList;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/products")
@@ -39,6 +41,18 @@ public class ProductController {
     }
 
     /**
+     * 특정 상품 이벤트 항목으로 등록 - 상품 수정
+     */
+    @PutMapping
+    public ResponseEntity<ResponseProductList> registerEventProduct(@RequestBody List<RequestEventProduct> request){
+        ProductListDto productList = productService.registerEventProduct(request
+                .stream()
+                .map(RequestEventProduct::voToDto).collect(Collectors.toList()));
+        ResponseProductList response = productList.dtoToVo();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
      * 상품 상세 조회
      */
     @GetMapping("{productId}")
@@ -58,5 +72,4 @@ public class ProductController {
         ResponseProductList response = productList.dtoToVo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
 }

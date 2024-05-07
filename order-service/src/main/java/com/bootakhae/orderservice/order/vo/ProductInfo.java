@@ -13,4 +13,3 @@ public class ProductInfo {
     private String productId;
     private Long qty;
 }
-

@@ -18,7 +18,7 @@ public class RequestOrder {
     @NotBlank(message = "상품을 선택 바랍니다.")
     private String productId;
     @NotNull(message = "수량을 입력 바랍니다.")
-    private Long quantity;
+    private Long qty;
     @NotBlank(message = "연락처를 입력 바랍니다.")
     private String phone;
     /**
@@ -32,15 +32,18 @@ public class RequestOrder {
     private String address1;
     @NotBlank(message = "상세주소를 입력 바랍니다.")
     private String address2;
+    @NotBlank(message = "결제수단을 입력 바랍니다.")
+    private String payMethod;
 
     public OrderDto voToDto(){
         return OrderDto.builder()
                 .userId(this.userId)
                 .productId(this.productId)
-                .qty(this.quantity)
+                .qty(this.qty)
                 .address1(this.address1)
                 .address2(this.address2)
                 .phone(this.phone)
+                .payMethod(this.payMethod)
 //                .chooseBasicAddress(this.chooseBasicAddress)
                 .build();
     }

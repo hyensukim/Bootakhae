@@ -109,6 +109,25 @@ spring:
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
             - name: AuthorizationHeaderFilter
 
+        # actuator
+        - id: pay-service
+          uri: http://localhost:8084/
+          predicates:
+            - Path=/pay-service/actuator/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/pay-service/(?<segment>.*), /$\{segment}
+
+        # product-service 공통
+        - id: pay-service
+          uri: http://localhost:8084/
+          predicates:
+            - Path=/pay-service/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/pay-service/(?<segment>.*), /$\{segment}
+            - name: AuthorizationHeaderFilter
+
 logging:
   level:
     com.bootakhae.gatewayserver: DEBUG

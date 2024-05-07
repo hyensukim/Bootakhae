@@ -26,3 +26,21 @@ spring:
         show_sql: true
         format_sql: true
         use_sql_comments: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, refresh, health, beans, busrefresh, circuitbreakers
+
+schedule:
+  start-time: ${start-time}
+  cron: ${cron}
+
+logging:
+  level:
+    com.bootakhae.productservice: DEBUG

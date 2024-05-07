@@ -9,7 +9,9 @@ public interface OrderService {
 
     OrderDto registerOrder(OrderDto orderDetails);
 
-    OrderDto registerOrders(OrderDto orderDetails);
+    OrderDto registerWishlist(OrderDto orderDetails);
+
+    OrderDto completePayment(String payId);
 
     OrderDto removeOrder(String orderId);
 
@@ -18,6 +20,4 @@ public interface OrderService {
     List<OrderDto> getOrderListByUserId(String userId, int nowPage, int pageSize);
 
     OrderDto returnOrderedProduct(ReturnOrderDto returnOrderDetails);
-
-    void changeOrderStatus();
 }

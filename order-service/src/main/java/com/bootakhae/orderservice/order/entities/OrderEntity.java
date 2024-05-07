@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "orders")
@@ -21,18 +23,20 @@ import java.util.UUID;
 public class OrderEntity extends BaseEntity {
 
     @Builder
-    public OrderEntity(String address1,
+    public OrderEntity(String orderId,
+                       String userId,
+                       String address1,
                        String address2,
-                       String phone,
-                       Long totalPrice,
-                       String userId){
-        this.orderId = UUID.randomUUID().toString();
+                       String phone
+//                       ,Long totalPrice
+    ){
+        this.orderId = Objects.requireNonNullElse(orderId, UUID.randomUUID().toString());
+        this.userId = userId;
         this.address1 = address1;
         this.address2 = address2;
         this.phone = phone;
-        this.totalPrice = totalPrice;
-        this.userId = userId;
-        this.status = Status.PAYMENT;
+//        this.totalPrice = Objects.requireNonNullElse(totalPrice, 0L);
+        this.status = Status.PAYING;
     }
 
     @Id
@@ -45,14 +49,20 @@ public class OrderEntity extends BaseEntity {
     @Column(name = "user_id", nullable = false, length = 50)
     private String userId;
 
+    @Column(name = "pay_id", length = 50)
+    private String payId;
+    public void registerPay(String payId){
+        this.payId = payId;
+    }
+
 //    주문 내 어떤 상품이 들어있는지 조회시 양방향 매핑
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private final List<OrderProduct> orderProducts = new ArrayList<>(); // 양방향 매핑
 
-    public void addOrderProduct(OrderProduct orderProduct) {
-        orderProducts.add(orderProduct);
-        orderProduct.registerOrder(this);
-    }
+//    public void addOrderProduct(OrderProduct orderProduct) {
+//        orderProducts.add(orderProduct);
+//        orderProduct.registerOrder(this);
+//    }
 
     @Column(name = "order_address1", nullable = false, length = 100)
     private String address1; // 우편번호
@@ -63,20 +73,21 @@ public class OrderEntity extends BaseEntity {
     @Column(name = "order_phone", nullable = false, length = 50)
     private String phone; // 연락처
 
-    @Column(name = "order_total_price", nullable = false)
-    private Long totalPrice; // 총 비용
-
-    public void calculateTotalPrice(Long totalPrice){
-        this.totalPrice = totalPrice;
-    }
-
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false, length = 50)
     private Status status;
 
-    public void startShipping(){ this.status = Status.SHIPPING; }
+    public void completePayment(){
+        this.status = Status.PAYMENT;
+    }
 
-    public void completeShipping(){ this.status = Status.DONE; }
+    public void startShipping(){
+        this.status = Status.SHIPPING;
+    }
+
+    public void completeShipping(){
+        this.status = Status.DONE;
+    }
 
     public void cancelTheOrder(){
         this.status = Status.CANCEL;
@@ -89,62 +100,31 @@ public class OrderEntity extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "return_order_id")
     private ReturnOrderEntity returnOrder;
-
     public void returnOrder(ReturnOrderEntity returnOrder){
         this.returnOrder = returnOrder;
     }
 
     public OrderDto entityToDto(){
-        List<OrderProductDto> orderedProducts = new ArrayList<>();
-        ReturnOrderDto returnOrderDto = null;
+        return entityToDto(null, null);
+    }
 
-        if(!orderProducts.isEmpty()){
-            orderedProducts = this.orderProducts.stream().map(OrderProduct::entityToDto).toList();
-        }
-
-        // todo 수정 - 이 로직말고는 답이 없을까?
-        if(returnOrder != null){
-            returnOrderDto = returnOrder.entityToDto();
-        }
+    public OrderDto entityToDto(Long totalPrice, String payMethod){
+        List<OrderProductDto> orderedProducts = this.orderProducts
+                .stream()
+                .map(OrderProduct::entityToDto)
+                .collect(Collectors.toList());
 
         return OrderDto.builder()
                 .orderId(this.orderId)
                 .userId(this.userId)
-                .totalPrice(this.totalPrice)
+                .payId(this.payId)
+                .payMethod(payMethod)
+                .totalPrice(totalPrice)
                 .address1(this.address1)
                 .address2(this.address2)
                 .phone(this.phone)
                 .createdAt(this.getCreatedAt())
                 .orderStatus(this.status)
-                .returnOrder(returnOrderDto)
-                .orderedProducts(orderedProducts)
-                .build();
-    }
-
-    public OrderDto entityToDto(OrderProductDto orderedProduct){
-        return OrderDto.builder()
-                .orderId(this.getOrderId())
-                .userId(this.getUserId())
-                .totalPrice(this.getTotalPrice())
-                .address1(this.getAddress1())
-                .address2(this.getAddress2())
-                .phone(this.getPhone())
-                .createdAt(this.getCreatedAt())
-                .orderStatus(this.getStatus())
-                .orderProduct(orderedProduct)
-                .build();
-    }
-
-    public OrderDto entityToDto(List<OrderProductDto> orderedProducts){
-        return OrderDto.builder()
-                .orderId(this.getOrderId())
-                .userId(this.getUserId())
-                .totalPrice(this.getTotalPrice())
-                .address1(this.getAddress1())
-                .address2(this.getAddress2())
-                .phone(this.getPhone())
-                .createdAt(this.getCreatedAt())
-                .orderStatus(this.getStatus())
                 .orderedProducts(orderedProducts)
                 .build();
     }

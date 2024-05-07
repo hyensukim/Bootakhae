@@ -27,6 +27,8 @@ public class RequestWishlist {
     private String address1;
     @NotBlank(message = "상세주소를 입력 바랍니다.")
     private String address2;
+    @NotBlank(message = "결제수단을 입력 바랍니다.")
+    private String payMethod;
 
     public OrderDto voToDto(){
         return OrderDto.builder()
@@ -34,6 +36,7 @@ public class RequestWishlist {
                 .address1(this.address1)
                 .address2(this.address2)
                 .phone(this.phone)
+                .payMethod(this.payMethod)
                 .build();
     }
 }

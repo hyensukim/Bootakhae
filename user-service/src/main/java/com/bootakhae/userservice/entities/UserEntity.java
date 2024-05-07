@@ -70,11 +70,6 @@ public class UserEntity extends BaseEntity {
     @Column(name = "user_phone", nullable = false, length = 50)
     private String phone;
 
-//    @LastModifiedDate
-//    @Column(name="updated_at", insertable = false)
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-//    private LocalDateTime updatedAt;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", nullable = false, length = 10)
     private Role role;
