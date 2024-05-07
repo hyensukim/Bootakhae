@@ -1,8 +1,12 @@
 package com.bootakhae.orderservice.global.clients;
 
+import com.bootakhae.orderservice.global.clients.vo.request.RequestPay;
+import com.bootakhae.orderservice.global.clients.vo.request.RequestStock;
+import com.bootakhae.orderservice.global.clients.vo.response.ResponsePay;
 import com.bootakhae.orderservice.global.constant.StockProcess;
-import com.bootakhae.orderservice.wishlist.vo.response.ResponseProduct;
-import com.bootakhae.orderservice.wishlist.vo.response.ResponseUser;
+import com.bootakhae.orderservice.global.clients.vo.response.ResponseProduct;
+import com.bootakhae.orderservice.global.clients.vo.response.ResponseUser;
+import com.bootakhae.orderservice.order.vo.ProductInfo;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,7 @@ public class FeignTemplate {
 
     private final UserClient userClient;
     private final ProductClient productClient;
+    private final PayClient payClient;
 
     /**
      * 회원 정보 조회
@@ -28,32 +33,26 @@ public class FeignTemplate {
     }
 
     /**
-     * 상품 정보 조회
+     * 결제 정보 조회
      */
     @Retry(name = "default-RT")
-    public ResponseProduct findProductByProductId(String productId) {
-        return productClient.getOneProduct(productId);
+    public ResponsePay getOnePay(String payId){
+        return payClient.getOnePay(payId);
     }
 
     /**
-     * 상품 정보 일괄 조회
+     * 상품 정보 일괄 조회 + 재고 반영
      */
-    @Retry(name = "default-RT")
-    public List<ResponseProduct> findProductsByProductIds(List<String> productIds) {
-        return productClient.getProducts(productIds);
-    }
-
-    /**
-     * 재고 업데이트
-     */
-    // fixme 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
     @CircuitBreaker(name = "default-CB")
-    public ResponseProduct updateStock(StockProcess process, String productId, Long qty) {
-        if("DECREASE".equals(process.name())){
-            return productClient.decreaseStock(productId, qty);
-        }
-        else {
-            return productClient.restoreStock(productId, qty);
-        }
+    public List<ResponseProduct> updateStock(RequestStock request) {
+        return productClient.updateStock(request);
+    }
+
+    /**
+     * 결제 생성
+     */
+    @CircuitBreaker(name = "default-CB")
+    public ResponsePay registerPay(RequestPay request){
+        return payClient.payment(request);
     }
 }

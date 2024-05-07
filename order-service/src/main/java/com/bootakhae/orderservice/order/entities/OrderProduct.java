@@ -1,5 +1,6 @@
 package com.bootakhae.orderservice.order.entities;
 
+import com.bootakhae.orderservice.global.clients.vo.response.ResponseProduct;
 import com.bootakhae.orderservice.order.dto.OrderProductDto;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -17,14 +18,15 @@ public class OrderProduct {
                         String productId,
 //                        String productName,
 //                        Long productStock,
-                        Long qty,
-                        Long price) {
+//                        Long price
+                        Long qty
+    ) {
         this.order = order;
         this.productId = productId;
 //        this.productName = productName;
 //        this.productStock = productStock;
+//        this.price = price;
         this.qty = qty;
-        this.price = price;
     }
 
     @Id
@@ -35,9 +37,9 @@ public class OrderProduct {
     @JoinColumn(name = "order_id")
     private OrderEntity order;
 
-    public void registerOrder(OrderEntity order) { //    양방향 시, order 를 등록하기 위한 코드
-        this.order = order;
-    }
+//    public void registerOrder(OrderEntity order) { //    양방향 시, order 를 등록하기 위한 코드
+//        this.order = order;
+//    }
 
     @Column(name = "product_id", nullable = false, length = 50)
     private String productId;
@@ -58,18 +60,28 @@ public class OrderProduct {
 //        return productStock;
 //    } // 수량 감소
 
+    // todo : 필요 없는 데이터 추후 삭제 예정
+//    @Column(name = "order_product_price", nullable = false)
+//    private Long price;
+
     @Column(name = "order_product_qty", nullable = false)
     private Long qty;
 
-    @Column(name = "order_product_price", nullable = false)
-    private Long price;
+    public static OrderProduct createOrderedProduct(OrderEntity order, ResponseProduct product, Long qty) {
+        return OrderProduct.builder()
+                .order(order)
+                .productId(product.getProductId())
+//                .price(product.getPrice())
+                .qty(qty)
+                .build();
+    }
 
     public OrderProductDto entityToDto() {
         return OrderProductDto.builder()
                 .productId(this.productId)
 //                .stock(this.productStock)
                 .qty(this.qty)
-                .price(this.price)
+//                .price(this.price)
                 .build();
     }
 }

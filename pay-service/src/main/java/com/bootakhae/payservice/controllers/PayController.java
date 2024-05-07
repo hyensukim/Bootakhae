@@ -20,9 +20,11 @@ public class PayController {
         return ResponseEntity.ok("service is available");
     }
 
-
-    @PutMapping()
-    public ResponseEntity<ResponsePay> completePayment(@RequestBody String payId){
+    /**
+     * 결제 완료
+     */
+    @PutMapping("{payId}")
+    public ResponseEntity<ResponsePay> completePayment(@PathVariable("payId") String payId){
         PayDto payDetails = payService.completePay(payId);
         return ResponseEntity.status(HttpStatus.OK).body(payDetails.dtoToVo());
     }

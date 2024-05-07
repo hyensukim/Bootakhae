@@ -18,7 +18,11 @@ public class PayDto {
 
     private String orderId;
 
+    private String orderStatus;
+
     private String payMethod;
+
+    private Long totalPrice;
 
     private String status;
 
@@ -30,14 +34,18 @@ public class PayDto {
         return PayEntity.builder()
                 .orderId(this.orderId)
                 .payMethod(this.payMethod)
+                .totalPrice(this.totalPrice)
                 .build();
     }
 
     public ResponsePay dtoToVo(){
         return ResponsePay.builder()
                 .payId(this.payId)
+                .orderId(this.orderId)
+                .orderStatus(this.orderStatus)
                 .payMethod(this.payMethod)
                 .status(this.status)
+                .totalPrice(this.totalPrice)
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
                 .build();

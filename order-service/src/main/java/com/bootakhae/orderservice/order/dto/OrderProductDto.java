@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class OrderProductDto {
     private String productId;
     private Long qty; // 주문수량
-    private Long price;
 }

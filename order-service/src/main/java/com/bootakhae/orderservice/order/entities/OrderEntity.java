@@ -27,15 +27,16 @@ public class OrderEntity extends BaseEntity {
                        String userId,
                        String address1,
                        String address2,
-                       String phone,
-                       Long totalPrice){
+                       String phone
+//                       ,Long totalPrice
+    ){
         this.orderId = Objects.requireNonNullElse(orderId, UUID.randomUUID().toString());
         this.userId = userId;
         this.address1 = address1;
         this.address2 = address2;
         this.phone = phone;
-        this.totalPrice = Objects.requireNonNullElse(totalPrice, 0L);
-        this.status = Status.PAYMENT;
+//        this.totalPrice = Objects.requireNonNullElse(totalPrice, 0L);
+        this.status = Status.PAYING;
     }
 
     @Id
@@ -47,6 +48,12 @@ public class OrderEntity extends BaseEntity {
 
     @Column(name = "user_id", nullable = false, length = 50)
     private String userId;
+
+    @Column(name = "pay_id", length = 50)
+    private String payId;
+    public void registerPay(String payId){
+        this.payId = payId;
+    }
 
 //    주문 내 어떤 상품이 들어있는지 조회시 양방향 매핑
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
@@ -66,19 +73,21 @@ public class OrderEntity extends BaseEntity {
     @Column(name = "order_phone", nullable = false, length = 50)
     private String phone; // 연락처
 
-    @Column(name = "order_total_price", nullable = false)
-    private Long totalPrice; // 총 비용
-
-    public void calculateTotalPrice(Long sum){
-        this.totalPrice += sum;
-    }
-
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false, length = 50)
     private Status status;
-    public void startShipping(){ this.status = Status.SHIPPING; }
 
-    public void completeShipping(){ this.status = Status.DONE; }
+    public void completePayment(){
+        this.status = Status.PAYMENT;
+    }
+
+    public void startShipping(){
+        this.status = Status.SHIPPING;
+    }
+
+    public void completeShipping(){
+        this.status = Status.DONE;
+    }
 
     public void cancelTheOrder(){
         this.status = Status.CANCEL;
@@ -96,6 +105,10 @@ public class OrderEntity extends BaseEntity {
     }
 
     public OrderDto entityToDto(){
+        return entityToDto(null, null);
+    }
+
+    public OrderDto entityToDto(Long totalPrice, String payMethod){
         List<OrderProductDto> orderedProducts = this.orderProducts
                 .stream()
                 .map(OrderProduct::entityToDto)
@@ -104,7 +117,9 @@ public class OrderEntity extends BaseEntity {
         return OrderDto.builder()
                 .orderId(this.orderId)
                 .userId(this.userId)
-                .totalPrice(this.totalPrice)
+                .payId(this.payId)
+                .payMethod(payMethod)
+                .totalPrice(totalPrice)
                 .address1(this.address1)
                 .address2(this.address2)
                 .phone(this.phone)

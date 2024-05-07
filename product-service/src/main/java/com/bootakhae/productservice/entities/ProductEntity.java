@@ -38,9 +38,6 @@ public class ProductEntity extends BaseEntity {
 
     @Column(name="product_stock", nullable = false)
     private Long stock;
-    public void updateStock(Long stock){
-        this.stock = stock;
-    }
     public void decreaseStock(Long qty){
         this.stock -= qty;
     }

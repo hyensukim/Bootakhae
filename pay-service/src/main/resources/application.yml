@@ -10,7 +10,7 @@ eureka:
 
 spring:
   application:
-    name: product-service
+    name: pay-service
   profiles:
     active: local
   datasource:
@@ -32,3 +32,7 @@ management:
     web:
       exposure:
         include: info, refresh, health, beans, busrefresh, circuitbreakers
+
+logging:
+  level:
+    com.bootakhae.payservice: DEBUG

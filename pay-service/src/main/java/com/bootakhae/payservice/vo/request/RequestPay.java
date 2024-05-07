@@ -14,11 +14,13 @@ import lombok.NoArgsConstructor;
 public class RequestPay {
     private String orderId;
     private String payMethod;
+    private Long totalPrice;
 
     public PayDto voToDto() {
         return PayDto.builder()
                 .orderId(orderId)
                 .payMethod(this.payMethod)
+                .totalPrice(this.totalPrice)
                 .build();
     }
 }

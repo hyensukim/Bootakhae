@@ -11,6 +11,8 @@ public interface OrderService {
 
     OrderDto registerWishlist(OrderDto orderDetails);
 
+    OrderDto completePayment(String payId);
+
     OrderDto removeOrder(String orderId);
 
     OrderDto getOrderDetails(String orderId);

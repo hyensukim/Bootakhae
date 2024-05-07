@@ -6,6 +6,8 @@ import com.bootakhae.productservice.entities.ProductEntity;
 import com.bootakhae.productservice.global.exception.CustomException;
 import com.bootakhae.productservice.global.exception.ErrorCode;
 import com.bootakhae.productservice.repositories.ProductRepository;
+import com.bootakhae.productservice.vo.request.ProductInfo;
+import com.bootakhae.productservice.vo.request.RequestStock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
@@ -113,14 +115,63 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public ProductDto updateStock(String productId, Long stock) {
+    public ProductDto updateStock(String stockProcess, String productId, Long qty) {
         log.debug("상품 재고 수량 변경 실행");
+
         ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
         );
-        product.updateStock(stock);
+
+        stockProcess(stockProcess, product, qty);
 
         return product.entityToDto();
+    }
+
+    @Transactional
+    @Override
+    public List<ProductDto> updateStockList(RequestStock request){
+        log.debug("상품 목록 재고 수량 변경 실행 : {}", request.getStockProcess());
+
+        List<String> productIds = request.getProductInfoList()
+                .stream()
+                .map(ProductInfo::getProductId)
+                .collect(Collectors.toList());
+
+        Map<String, Long> productMap = request.getProductInfoList()
+                .stream()
+                .collect(Collectors.toMap(ProductInfo::getProductId,ProductInfo::getQty));
+
+        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
+
+        if (productList.isEmpty()) {
+            throw new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT);
+        }
+
+        for(ProductEntity product : productList) {
+            Long qty = productMap.get(product.getProductId());
+            stockProcess(request.getStockProcess(), product, qty);
+        }
+
+        return productList
+                .stream()
+                .map(ProductEntity::entityToDto)
+                .collect(Collectors.toList());
+    }
+
+    private void stockProcess(String stockProcess, ProductEntity product, Long qty){
+        switch(stockProcess) {
+            case "DECREASE" ->{
+                if(product.getStock() < qty) {
+                    throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
+                }
+                else{
+                    product.decreaseStock(qty);
+                }
+            }
+            case "RESTORE" ->{
+                product.restoreStock(qty);
+            }
+        }
     }
 
     @Transactional

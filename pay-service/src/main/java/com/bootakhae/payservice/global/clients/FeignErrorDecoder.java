@@ -1,7 +1,7 @@
-package com.bootakhae.orderservice.global.clients;
+package com.bootakhae.payservice.global.clients;
 
-import com.bootakhae.orderservice.global.exception.CustomException;
-import com.bootakhae.orderservice.global.exception.ErrorCode;
+import com.bootakhae.payservice.global.exception.CustomException;
+import com.bootakhae.payservice.global.exception.ErrorCode;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import org.springframework.stereotype.Component;

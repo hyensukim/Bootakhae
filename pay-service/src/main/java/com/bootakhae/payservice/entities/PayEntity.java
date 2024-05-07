@@ -1,31 +1,31 @@
 package com.bootakhae.payservice.entities;
 
 import com.bootakhae.payservice.dto.PayDto;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.bootakhae.payservice.global.entities.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Table(name="pays")
 @Getter
 @NoArgsConstructor
-public class PayEntity {
+public class PayEntity extends BaseEntity {
 
     @Builder
     public PayEntity(
             String orderId,
-            String payMethod
+            String payMethod,
+            Long totalPrice
     ){
         this.payId = UUID.randomUUID().toString();
         this.orderId = orderId;
         this.payMethod = PayMethod.valueOf(payMethod);
-        this.status = Status.PAYING;
+        this.totalPrice = totalPrice;
+        this.status = Status.READY;
     }
 
     @Id
@@ -41,7 +41,6 @@ public class PayEntity {
     @Enumerated(EnumType.STRING)
     @Column(name="pay_method", nullable=false, length = 50)
     private PayMethod payMethod;
-
     enum PayMethod {
         CARD("신용 카드/체크 카드"),
         VIRTUAL_ACCOUNT("가상 계좌"),
@@ -56,6 +55,9 @@ public class PayEntity {
         }
     }
 
+    @Column(name="pay_total_price", nullable=false)
+    private Long totalPrice;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "pay_status", nullable = false, length = 50)
     private Status status;
@@ -63,7 +65,7 @@ public class PayEntity {
     public void completePayment(){this.status = Status.DONE;}
 
     enum Status {
-        PAYING("결제 중"),
+        READY("결제 중"),
         DONE("결제 완료");
 
         final String description;
@@ -73,23 +75,20 @@ public class PayEntity {
         }
     }
 
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at", insertable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updatedAt;
-
     public PayDto entityToDto(){
+        return entityToDto(null, null);
+    }
+
+    public PayDto entityToDto(String orderId, String orderStatus){
         return PayDto.builder()
                 .payId(this.payId)
+                .orderId(orderId)
+                .orderStatus(orderStatus)
                 .payMethod(this.payMethod.name())
                 .status(this.status.name())
-                .createdAt(this.createdAt)
-                .updatedAt(this.updatedAt)
+                .totalPrice(this.totalPrice)
+                .createdAt(this.getCreatedAt())
+                .updatedAt(this.getUpdatedAt())
                 .build();
     }
 }

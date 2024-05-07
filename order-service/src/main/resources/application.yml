@@ -47,7 +47,7 @@ resilience4j.circuitbreaker:
     configs:
       default:
         # sliding window
-        sliding-window-type: time_based # Sliding Window 타입 : 횟수 or 시간
+        sliding-window-type: count_based # Sliding Window 타입 : 횟수 or 시간
         sliding-window-size: 10 # Sliding Window Size : 총 10개를 기준으로 집계 수행
 
         # fail
@@ -90,3 +90,7 @@ resilience4j.retry:
 
 schedule:
   cron: ${cron}
+
+logging:
+  level:
+    com.bootakhae.orderservice: DEBUG

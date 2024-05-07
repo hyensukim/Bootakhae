@@ -1,6 +1,6 @@
 package com.bootakhae.orderservice.global.clients;
 
-import com.bootakhae.orderservice.wishlist.vo.response.ResponseUser;
+import com.bootakhae.orderservice.global.clients.vo.response.ResponseUser;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

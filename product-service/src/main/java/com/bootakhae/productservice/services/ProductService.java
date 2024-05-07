@@ -2,6 +2,8 @@ package com.bootakhae.productservice.services;
 
 import com.bootakhae.productservice.dto.ProductDto;
 import com.bootakhae.productservice.dto.ProductListDto;
+import com.bootakhae.productservice.vo.request.ProductInfo;
+import com.bootakhae.productservice.vo.request.RequestStock;
 
 import java.util.List;
 
@@ -11,7 +13,9 @@ public interface ProductService {
 
     ProductListDto registerEventProduct(List<ProductDto> productDetailsList);
 
-    ProductDto updateStock(String productId, Long stock);
+    ProductDto updateStock(String stockProcess, String productId, Long stock);
+
+    List<ProductDto> updateStockList(RequestStock request);
 
     ProductDto decreaseStock(String productId, Long qty);
 
