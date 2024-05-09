@@ -115,21 +115,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public ProductDto updateStock(String stockProcess, String productId, Long qty) {
-        log.debug("상품 재고 수량 변경 실행");
-
-        ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
-        );
-
-        stockProcess(stockProcess, product, qty);
-
-        return product.entityToDto();
-    }
-
-    @Transactional
-    @Override
-    public List<ProductDto> updateStockList(RequestStock request){
+    public List<ProductDto> updateStock(RequestStock request){
         log.debug("상품 목록 재고 수량 변경 실행 : {}", request.getStockProcess());
 
         List<String> productIds = request.getProductInfoList()
@@ -137,15 +123,15 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductInfo::getProductId)
                 .collect(Collectors.toList());
 
-        Map<String, Long> productMap = request.getProductInfoList()
-                .stream()
-                .collect(Collectors.toMap(ProductInfo::getProductId,ProductInfo::getQty));
-
         List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
 
         if (productList.isEmpty()) {
             throw new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT);
         }
+
+        Map<String, Long> productMap = request.getProductInfoList()
+                .stream()
+                .collect(Collectors.toMap(ProductInfo::getProductId,ProductInfo::getQty));
 
         for(ProductEntity product : productList) {
             Long qty = productMap.get(product.getProductId());
@@ -158,25 +144,22 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList());
     }
 
-    private void stockProcess(String stockProcess, ProductEntity product, Long qty){
-        switch(stockProcess) {
-            case "DECREASE" ->{
-                if(product.getStock() < qty) {
-                    throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
-                }
-                else{
-                    product.decreaseStock(qty);
-                }
+    private void stockProcess(String stockProcess, ProductEntity product, Long qty) {
+        switch(stockProcess){
+            case "DECREASE" -> {
+                product.decreaseStock(qty);
             }
-            case "RESTORE" ->{
+            case "RESTORE" -> {
                 product.restoreStock(qty);
             }
         }
     }
 
+    // test
     @Transactional
     @Override
 //    public synchronized ProductDto decreaseStock(String productId, Long qty) {
+//        log.debug("synchronized - 상품 재고 감소 실행");
     public ProductDto decreaseStock(String productId, Long qty) {
         log.debug("상품 재고 감소 실행");
         ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
@@ -188,33 +171,24 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.saveAndFlush(product).entityToDto();
     }
 
+    // test
     @Transactional
     @Override
     public ProductDto decreaseStockPessimistic(String productId, Long qty) {
+        log.debug("비관적 락 - 상품 재고 감소 실행");
         ProductEntity product = productRepository.findByProductIdPessimistic(productId).orElseThrow();
         product.decreaseStock(qty);
         return productRepository.saveAndFlush(product).entityToDto();
     }
 
+    // test
     @Transactional
     @Override
-    public ProductDto decreaseStockOptimistic(String productId, Long qty) {
+    public void decreaseStockOptimistic(String productId, Long qty) {
+        log.debug("낙관적 락 - 상품 재고 감소 실행");
         ProductEntity product = productRepository.findByProductIdOptimistic(productId).orElseThrow();
         product.decreaseStock(qty);
-        return productRepository.saveAndFlush(product).entityToDto();
-    }
-
-    @Transactional
-    @Override
-    public ProductDto restoreStock(String productId, Long qty) {
-        log.debug("상품 재고 복구 실행");
-        ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
-        );
-
-        product.restoreStock(qty);
-
-        return productRepository.saveAndFlush(product).entityToDto();
+        productRepository.saveAndFlush(product).entityToDto();
     }
 
     @Transactional

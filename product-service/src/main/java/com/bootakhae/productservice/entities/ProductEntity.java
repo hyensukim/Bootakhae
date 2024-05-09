@@ -2,6 +2,8 @@ package com.bootakhae.productservice.entities;
 
 import com.bootakhae.productservice.dto.ProductDto;
 import com.bootakhae.productservice.global.entities.BaseEntity;
+import com.bootakhae.productservice.global.exception.CustomException;
+import com.bootakhae.productservice.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +41,9 @@ public class ProductEntity extends BaseEntity {
     @Column(name="product_stock", nullable = false)
     private Long stock;
     public void decreaseStock(Long qty){
+        if(this.stock < qty){
+            throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
+        }
         this.stock -= qty;
     }
     public void restoreStock(Long qty){

@@ -70,6 +70,9 @@ resilience4j.circuitbreaker:
         # actuator 설정
         register-health-indicator: true # open / close 여부를 체크
 
+        ignore-exceptions:
+          - com.bootakhae.orderservice.global.exception.QtyLackException
+
 #        record-exceptions:
 #          - java.io.IOException
 #          - java.util.concurrent.TimeoutException
