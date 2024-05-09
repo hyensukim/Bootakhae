@@ -69,7 +69,7 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - name: AuthorizationHeaderFilter
+#            - name: AuthorizationHeaderFilter # 테스트 시 주석처리
 
           # actuator
         - id: order-service
@@ -88,7 +88,7 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/order-service/(?<segment>.*), /$\{segment}
-            - name: AuthorizationHeaderFilter
+#            - name: AuthorizationHeaderFilter # 테스트 시 주석처리
 
           # actuator
         - id: product-service
@@ -107,7 +107,7 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
-            - name: AuthorizationHeaderFilter
+#            - name: AuthorizationHeaderFilter # 테스트 시 주석처리
 
         # actuator
         - id: pay-service
@@ -126,7 +126,7 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/pay-service/(?<segment>.*), /$\{segment}
-            - name: AuthorizationHeaderFilter
+#            - name: AuthorizationHeaderFilter # 테스트 시 주석처리
 
 logging:
   level:
