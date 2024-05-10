@@ -20,16 +20,21 @@ spring:
     password: ${password}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         use_sql_comments: true
+#    defer-datasource-initialization: true
+#    generate-ddl: true
   data:
     redis:
       host: localhost
       port: 6379
+#  sql:
+#    init:
+#      mode: always
 
 management:
   endpoints:

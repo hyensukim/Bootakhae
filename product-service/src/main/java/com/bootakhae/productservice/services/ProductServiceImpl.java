@@ -10,6 +10,7 @@ import com.bootakhae.productservice.vo.request.ProductInfo;
 import com.bootakhae.productservice.vo.request.RequestStock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final Environment env;
 
+    @Transactional
     @Override
     public ProductDto registerProduct(ProductDto productDetails) {
         log.debug("상품 등록 실행");
@@ -78,39 +80,6 @@ public class ProductServiceImpl implements ProductService {
         return ProductListDto.builder()
                 .productList(productList.stream().map(ProductEntity::entityToDto).collect(Collectors.toList()))
                 .build();
-    }
-
-    @Override
-    public ProductDto getOneProduct(String productId) {
-        log.debug("상품 상세 조회 실행");
-        ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
-        );
-        return product.entityToDto();
-    }
-
-    @Override
-    public ProductListDto getAllProducts(int nowPage, int pageSize) {
-        log.debug("상품 목록 조회 실행");
-        PageRequest pageRequest = PageRequest.of(nowPage, pageSize, Sort.by("createdAt").descending());
-        Page<ProductEntity> pageList = productRepository.findAll(pageRequest);
-        return ProductListDto.builder()
-                .totalPages(pageList.getTotalPages())
-                .totalProducts(pageList.getTotalElements())
-                .productList(pageList.stream().map(ProductEntity::entityToDto).toList())
-                .build();
-    }
-
-    @Override
-    public List<ProductDto> getAllByProductIds(List<String> productIds) {
-        log.debug("위시 리스트에 등록된 상품 목록 조회 실행");
-        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
-
-        if (productList.isEmpty()) {
-            throw new CustomException(ErrorCode.NOT_EXISTS_WISHLIST);
-        }
-
-        return productList.stream().map(ProductEntity::entityToDto).toList();
     }
 
     @Transactional
@@ -204,5 +173,39 @@ public class ProductServiceImpl implements ProductService {
 
         // event open
         productList.forEach(ProductEntity::openThisEvent);
+    }
+
+    @Override
+    public ProductDto getOneProduct(String productId) {
+        log.debug("상품 상세 조회 실행");
+        ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
+        );
+        return product.entityToDto();
+    }
+
+    @Cacheable(value="PRODUCTS_CACHE", key="'nowPage:' + #nowPage")
+    @Override
+    public ProductListDto getAllProducts(int nowPage, int pageSize) {
+        log.debug("상품 목록 조회 실행");
+        PageRequest pageRequest = PageRequest.of(nowPage, pageSize, Sort.by("createdAt").descending());
+        Page<ProductEntity> pageList = productRepository.findAll(pageRequest);
+        return ProductListDto.builder()
+                .totalPages(pageList.getTotalPages())
+                .totalProducts(pageList.getTotalElements())
+                .productList(pageList.stream().map(ProductEntity::entityToDtoList).toList())
+                .build();
+    }
+
+    @Override
+    public List<ProductDto> getAllByProductIds(List<String> productIds) {
+        log.debug("위시 리스트에 등록된 상품 목록 조회 실행");
+        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
+
+        if (productList.isEmpty()) {
+            throw new CustomException(ErrorCode.NOT_EXISTS_WISHLIST);
+        }
+
+        return productList.stream().map(ProductEntity::entityToDto).toList();
     }
 }

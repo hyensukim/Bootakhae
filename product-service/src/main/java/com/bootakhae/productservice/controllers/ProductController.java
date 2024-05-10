@@ -67,7 +67,7 @@ public class ProductController {
      */
     @GetMapping
     public ResponseEntity<ResponseProductList> getAllProducts(@RequestParam(defaultValue = "0") int nowPage,
-                                                                @RequestParam(defaultValue = "5") int pageSize){
+                                                                @RequestParam(defaultValue = "50") int pageSize){
         ProductListDto productList = productService.getAllProducts(nowPage, pageSize);
         ResponseProductList response = productList.dtoToVo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
