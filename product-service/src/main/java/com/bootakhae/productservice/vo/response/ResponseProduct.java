@@ -1,5 +1,6 @@
 package com.bootakhae.productservice.vo.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,11 +19,13 @@ public class ResponseProduct {
 
     private Long price;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long stock;
 
     private String producer;
 
     private String nutritionFacts;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime eventTime;
 }

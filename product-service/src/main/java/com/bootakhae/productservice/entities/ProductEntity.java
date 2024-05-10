@@ -56,7 +56,7 @@ public class ProductEntity extends BaseEntity {
     @Column(name="product_nutrition_facts", nullable = false)
     private String nutritionFacts;
 
-    @Column(name="prodcut_is_event_opend", nullable = false)
+    @Column(name="prodcut_is_event_opened", nullable = false)
     private boolean isEventOpened;
     public void openThisEvent(){
         isEventOpened = true;
@@ -77,6 +77,16 @@ public class ProductEntity extends BaseEntity {
                 .producer(this.producer)
                 .nutritionFacts(this.nutritionFacts)
                 .eventTime(this.eventTime)
+                .build();
+    }
+
+    public ProductDto entityToDtoList(){
+        return ProductDto.builder()
+                .productId(this.productId)
+                .name(this.name)
+                .price(this.price)
+                .producer(this.producer)
+                .nutritionFacts(this.nutritionFacts)
                 .build();
     }
 }
