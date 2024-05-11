@@ -50,7 +50,7 @@ public class ProductFeignController {
      */
     @PutMapping
     public ResponseEntity<List<ResponseProduct>> updateProduct(@RequestBody RequestStock request){
-        List<ProductDto> productDetailsList = redissonInventoryFacade.update(request);
+        List<ProductDto> productDetailsList = productService.updateStock(request);
         return ResponseEntity.status(HttpStatus.OK).body(productDetailsList
                 .stream()
                 .map(ProductDto::dtoToVo)

@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
+    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     List<ProductEntity> findAllByProductIdIn(List<String> productIds);
+
     Optional<ProductEntity> findByProductId(String productId);
     Optional<ProductEntity> findByNameAndProducer(String name, String producer);
 
