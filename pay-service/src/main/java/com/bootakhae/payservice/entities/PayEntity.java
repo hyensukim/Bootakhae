@@ -42,7 +42,7 @@ public class PayEntity extends BaseEntity {
     @Column(name="pay_method", nullable=false, length = 50)
     private PayMethod payMethod;
     enum PayMethod {
-        CARD("신용 카드/체크 카드"),
+        CARD("신용/체크 카드"),
         VIRTUAL_ACCOUNT("가상 계좌"),
         TRANSFER("계좌 이체"),
         MOBILE("휴대폰")

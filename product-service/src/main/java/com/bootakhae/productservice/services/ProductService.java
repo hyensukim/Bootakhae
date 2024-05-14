@@ -16,13 +16,15 @@ public interface ProductService {
 
     ProductDto decreaseStock(String productId, Long qty);
 
-    ProductDto decreaseStockPessimistic(String productId, Long qty);
+    ProductDto decreaseStockPessimistic(String productId, Long qty); // test
 
-    void decreaseStockOptimistic(String productId, Long qty);
+    void decreaseStockOptimistic(String productId, Long qty); // test
 
     ProductDto getOneProduct(String productId);
 
     ProductListDto getAllProducts(int nowPage, int pageSize);
 
     List<ProductDto> getAllByProductIds(List<String> productIds);
+
+    void openEventProduct();
 }

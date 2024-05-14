@@ -44,7 +44,6 @@ management:
 
 schedule:
   start-time: ${start-time}
-  cron: ${cron}
 
 logging:
   level:

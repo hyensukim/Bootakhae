@@ -13,7 +13,6 @@ import com.bootakhae.orderservice.order.entities.OrderProduct;
 import com.bootakhae.orderservice.order.entities.ReturnOrderEntity;
 import com.bootakhae.orderservice.global.exception.CustomException;
 import com.bootakhae.orderservice.global.exception.ErrorCode;
-import com.bootakhae.orderservice.order.repositories.OrderProductRepository;
 import com.bootakhae.orderservice.order.repositories.OrderRepository;
 import com.bootakhae.orderservice.order.repositories.ReturnOrderRepository;
 import com.bootakhae.orderservice.order.vo.ProductInfo;
@@ -21,12 +20,15 @@ import com.bootakhae.orderservice.wishlist.entities.Wishlist;
 import com.bootakhae.orderservice.wishlist.repositories.WishlistRepository;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponseProduct;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponseUser;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,13 +43,13 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService{
 
     private final OrderRepository orderRepository;
-    private final OrderProductRepository orderProductRepository;
     private final ReturnOrderRepository returnOrderRepository;
     private final WishlistRepository wishListRepository;
     private final FeignTemplate feignTemplate;
 
     @Transactional
     @Override
+    @CircuitBreaker(name = "default-CB")
     public OrderDto registerOrder(OrderDto orderDetails) {
         log.debug("주문 등록 실행");
 
@@ -90,6 +92,7 @@ public class OrderServiceImpl implements OrderService{
 
     @Transactional
     @Override
+    @CircuitBreaker(name = "default-CB")
     public OrderDto registerWishlist(OrderDto orderDetails) {
         log.debug("위시리스트 주문 등록 실행");
 
@@ -230,6 +233,14 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Override
+    public List<OrderDto> getAllOrders() {
+        List<OrderEntity> orderList = orderRepository.findAll();
+        return orderList.stream()
+                .map(OrderEntity::entityToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<OrderDto> getOrderListByUserId(String userId, int nowPage, int pageSize) {
         log.debug("회원의 주문 목록 조회 실행");
         PageRequest pageRequest = PageRequest.of(nowPage,pageSize, Sort.by("createdAt").descending());
@@ -238,6 +249,46 @@ public class OrderServiceImpl implements OrderService{
                 .stream()
                 .map(OrderEntity::entityToDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public void changeOrderStatusAfterPayment() {
+        log.debug("배송중 이벤트 실행");
+        List<OrderEntity> orderList = orderRepository.findAllAfterPayment();
+
+        orderList.forEach(OrderEntity::startShipping);
+    }
+
+    @Transactional
+    @Override
+    public void changeOrderStatusAfterShipping() {
+        log.debug("배송완료 이벤트 실행");
+        List<OrderEntity> orderList = orderRepository.findAllAfterShipping();
+
+        orderList.forEach(OrderEntity::completeShipping);
+    }
+
+    @Transactional
+    @Override
+    public void changeOrderStatusForReturn() {
+        log.debug("반품 이벤트 실행");
+        List<OrderEntity> orderList = orderRepository.findAllForReturn();
+
+        for(OrderEntity order : orderList){
+            List<OrderProduct> orderProductList = order.getOrderProducts();
+
+            List<ProductInfo> productInfoList = orderProductList.stream()
+                    .map(o-> new ProductInfo(o.getProductId(),o.getQty()))
+                    .collect(Collectors.toList());
+
+            feignTemplate.updateStock(RequestStock.builder()
+                    .stockProcess(StockProcess.RESTORE.name())
+                    .productInfoList(productInfoList)
+                    .build());
+        }
+
+        orderList.forEach(OrderEntity::returnTheOrder);
     }
 
     /**
@@ -269,46 +320,6 @@ public class OrderServiceImpl implements OrderService{
         order.returnOrder(returnOrder);
 
         return order.entityToDto();
-    }
-
-    /**
-     * 매일 낮 12시에 확인
-     */
-    @Scheduled(cron = "${schedule.cron}")
-    @Transactional
-    public void changeOrderStatus() {
-        log.info("주문 상태 업데이트 실행");
-
-        List<OrderEntity> orderList = orderRepository.findAll();
-        for(OrderEntity order : orderList){
-            if(order.getStatus() == Status.PAYMENT
-                    && Math.abs(Duration.between(order.getCreatedAt(),LocalDateTime.now()).toDays()) >= 1){
-                order.startShipping();
-            }
-            else if(order.getStatus() == Status.SHIPPING
-                    && Math.abs(Duration.between(order.getUpdatedAt(),LocalDateTime.now()).toDays()) >= 1){
-                order.completeShipping();
-            }
-            else if(order.getStatus() != Status.RETURN
-                    && order.getReturnOrder() != null
-                    && Math.abs(Duration.between(order.getReturnOrder().getCreatedAt(),LocalDateTime.now())
-                    .toDays()) >= 1){
-
-                orderProductRepository.findByOrder(order).ifPresent(
-                    // fixme 이벤트 발생하여 재고 일치화 해주도록 개선!! - 이벤트 브로커
-                    (op) ->{
-                        ResponseProduct response = updateStock(
-                                StockProcess.RESTORE,
-                                op.getProductId(),
-                                op.getQty()
-                        );
-                        log.debug("재고_복구[{} 재고 : {}]", response.getName(), response.getStock());
-                    }
-                );
-
-                order.returnTheOrder();
-            }
-        }
     }
 
     private ResponseProduct updateStock(StockProcess stockProcess, String productId, Long qty) {

@@ -48,14 +48,14 @@ public interface UserMapper {
     UserDto voToDto(RequestUser requestUser);
 
     // target : vo, source : dto - 출력 데이터
-    @Mapping(target = "resEmail" ,source = "email" )
-    @Mapping(target = "resPassword" ,source = "password" )
-    @Mapping(target = "resAddress1" ,source = "address1" )
-    @Mapping(target = "resAddress2" ,source = "address2" )
-    @Mapping(target = "resName" ,source = "name" )
-    @Mapping(target = "resNickname" ,source = "nickname" )
-    @Mapping(target = "resPhone" ,source = "phone" )
-    @Mapping(target = "resUserId" ,source = "userId" )
-    @Mapping(target = "resCreatedAt", source = "createdAt")
+    @Mapping(target = "email" ,source = "email" )
+    @Mapping(target = "password" ,source = "password" )
+    @Mapping(target = "address1" ,source = "address1" )
+    @Mapping(target = "address2" ,source = "address2" )
+    @Mapping(target = "name" ,source = "name" )
+    @Mapping(target = "nickname" ,source = "nickname" )
+    @Mapping(target = "phone" ,source = "phone" )
+    @Mapping(target = "userId" ,source = "userId" )
+    @Mapping(target = "createdAt", source = "createdAt")
     ResponseUser dtoToVo(UserDto userDto);
 }

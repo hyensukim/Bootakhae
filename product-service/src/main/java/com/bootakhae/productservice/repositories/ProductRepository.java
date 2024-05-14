@@ -15,6 +15,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     List<ProductEntity> findAllByProductIdIn(List<String> productIds);
 
     Optional<ProductEntity> findByProductId(String productId);
+
     Optional<ProductEntity> findByNameAndProducer(String name, String producer);
 
     @Lock(value = LockModeType.PESSIMISTIC_WRITE)

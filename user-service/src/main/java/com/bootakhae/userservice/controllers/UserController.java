@@ -37,7 +37,7 @@ public class UserController {
     /**
      * 로그아웃
      */
-    @GetMapping("{userId}/logout")
+    @DeleteMapping("{userId}/logout")
     public ResponseEntity<Void> logout(@PathVariable("userId") String userId){
         refreshTokenService.removeTokenInfo(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)

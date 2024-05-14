@@ -43,7 +43,7 @@ public class FeignTemplate {
     /**
      * 상품 정보 일괄 조회 + 재고 반영
      */
-    @CircuitBreaker(name = "default-CB")
+//    @CircuitBreaker(name = "default-CB")
     public List<ResponseProduct> updateStock(RequestStock request) {
         return productClient.updateStock(request);
     }
@@ -51,7 +51,7 @@ public class FeignTemplate {
     /**
      * 결제 생성
      */
-    @CircuitBreaker(name = "default-CB")
+//    @CircuitBreaker(name = "default-CB")
     public ResponsePay registerPay(RequestPay request){
         return payClient.payment(request);
     }

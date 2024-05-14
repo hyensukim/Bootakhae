@@ -28,7 +28,7 @@ public class WishlistController {
     @PostMapping
     public ResponseEntity<ResponseWishDto> addWish(@Valid @RequestBody RequestWishDto request){
         ResponseWishDto response = wishListService.includeWish(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
@@ -43,7 +43,7 @@ public class WishlistController {
     /**
      * 위시 리스트 삭제
      */
-    @DeleteMapping("{userId}/{productId}")
+    @DeleteMapping("users/{userId}/products/{productId}")
     public ResponseEntity<Void> removeWish(@PathVariable String userId, @PathVariable String productId){
         wishListService.excludeWish(userId, productId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -52,7 +52,7 @@ public class WishlistController {
     /**
      * 위시 리스트 조회
      */
-    @GetMapping("{userId}")
+    @GetMapping("users/{userId}")
     public ResponseEntity<ResponseWishDto> wishList(@PathVariable String userId,
                                                     @RequestParam(defaultValue = "0") int nowPage,
                                                     @RequestParam(defaultValue = "6") int pageSize){

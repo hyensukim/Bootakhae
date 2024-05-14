@@ -87,13 +87,6 @@ public class WishlistServiceImpl implements WishlistService {
     public void excludeWish(String userId, String productId) {
         log.debug("위시 리스트 삭제 실행");
 
-        ResponseUser user;
-        try{
-            user = userClient.getUser(userId);
-        }catch(FeignException.FeignClientException e){
-            throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-        }
-
         Wishlist wishlist = wishlistRepository.findByUserIdAndProductId(userId, productId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXISTS_WISHLIST)
         );
