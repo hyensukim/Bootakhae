@@ -44,7 +44,7 @@ public class OrderServiceImpl implements OrderService{
 
     private final OrderRepository orderRepository;
     private final ReturnOrderRepository returnOrderRepository;
-    private final WishlistRepository wishListRepository;
+    private final WishlistRepository wishlistRepository;
     private final FeignTemplate feignTemplate;
 
     @Transactional
@@ -97,7 +97,7 @@ public class OrderServiceImpl implements OrderService{
         log.debug("위시리스트 주문 등록 실행");
 
         ResponseUser user =  feignTemplate.findUserByUserId(orderDetails.getUserId());
-        List<Wishlist> wishlist = wishListRepository.findAllByUserId(user.getUserId());
+        List<Wishlist> wishlist = wishlistRepository.findAllByUserId(user.getUserId());
         if(wishlist.isEmpty()) {
             throw new CustomException(ErrorCode.NOT_EXISTS_WISHLIST);
         }
@@ -149,6 +149,8 @@ public class OrderServiceImpl implements OrderService{
             order.registerPay(pay.getPayId());
 
             order = orderRepository.save(order);
+
+            wishlistRepository.deleteAll(wishlist); // 위시리스트 비우기
 
             return order.entityToDto(pay.getTotalPrice(), pay.getPayMethod());
 
