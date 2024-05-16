@@ -61,7 +61,7 @@ public class OrderServiceImpl implements OrderService{
                 orderDetails.getProductId(),
                 orderDetails.getQty()
         );
-        OrderEntity order = orderDetails.dtoToEntity(user.getResUserId(), product.getPrice());
+        OrderEntity order = orderDetails.dtoToEntity(user.getUserId(), product.getPrice());
         try {
             OrderProduct orderProduct = OrderProduct.createOrderedProduct(order, product, orderDetails.getQty());
             order.getOrderProducts().add(orderProduct);
@@ -97,7 +97,7 @@ public class OrderServiceImpl implements OrderService{
         log.debug("위시리스트 주문 등록 실행");
 
         ResponseUser user =  feignTemplate.findUserByUserId(orderDetails.getUserId());
-        List<Wishlist> wishlist = wishListRepository.findAllByUserId(user.getResUserId());
+        List<Wishlist> wishlist = wishListRepository.findAllByUserId(user.getUserId());
         if(wishlist.isEmpty()) {
             throw new CustomException(ErrorCode.NOT_EXISTS_WISHLIST);
         }
@@ -121,7 +121,7 @@ public class OrderServiceImpl implements OrderService{
             productsMap.put(product.getProductId(), product);
         }
 
-        OrderEntity order = orderDetails.dtoToEntity(user.getResUserId());
+        OrderEntity order = orderDetails.dtoToEntity(user.getUserId());
         try{
 
             List<OrderProduct> orderProductList = order.getOrderProducts();

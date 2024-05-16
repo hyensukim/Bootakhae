@@ -1,5 +1,6 @@
 package com.bootakhae.orderservice.wishlist.services;
 
+import com.bootakhae.orderservice.global.clients.FeignTemplate;
 import com.bootakhae.orderservice.global.clients.ProductClient;
 import com.bootakhae.orderservice.global.clients.UserClient;
 import com.bootakhae.orderservice.global.exception.CustomException;
@@ -29,56 +30,42 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WishlistServiceImpl implements WishlistService {
 
-    private final UserClient userClient;
-    private final ProductClient productClient;
-
+    private final FeignTemplate feignTemplate;
     private final WishlistRepository wishlistRepository;
 
     @Transactional
     @Override
-    public ResponseWishDto includeWish(RequestWishDto requestWishDto) {
+    public ResponseWishDto includeWish(RequestWishDto wishDetailsList) {
         log.debug("위시 리스트 등록 실행");
 
-        ResponseUser user;
-        ResponseProduct product;
-        try{
-            user = userClient.getUser(requestWishDto.getUserId());
-            product = productClient.getOneProduct(requestWishDto.getProductId());
-        }catch(FeignException.FeignClientException e){
-            throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-        }
+        ResponseUser user = feignTemplate.findUserByUserId(wishDetailsList.getUserId());
 
-        Wishlist wishlist;
-        wishlistRepository.findByUserIdAndProductId(user.getResUserId(), product.getProductId()).ifPresent(
+        wishlistRepository.findByUserIdAndProductId(user.getUserId(), wishDetailsList.getProductId()).ifPresent(
                 wlist -> {throw new CustomException(ErrorCode.DUPLICATE_WISHLIST);}
         );
 
-        wishlist = wishlistRepository
-                .save(new Wishlist(user.getResUserId(), product.getProductId(), requestWishDto.getQty()));
+        Wishlist wishlist = wishlistRepository.save(Wishlist.builder()
+                .userId(user.getUserId())
+                .productId(wishDetailsList.getProductId())
+                .qty(wishDetailsList.getQty())
+                .build()
+        );
 
         return wishlist.entityToDto();
     }
 
     @Transactional
     @Override
-    public ResponseWishDto updateQty(RequestWishDto requestWishDto) {
+    public ResponseWishDto updateQty(RequestWishDto wishDetailsList) {
         log.debug("위시 리스트 수량 변경 실행");
+        ResponseUser user = feignTemplate.findUserByUserId(wishDetailsList.getUserId());
 
-        ResponseUser user;
-        ResponseProduct product;
-        try{
-            user = userClient.getUser(requestWishDto.getUserId());
-            product = productClient.getOneProduct(requestWishDto.getProductId());
-        }catch(FeignException.FeignClientException e){
-            throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-        }
-
-        Wishlist wishlist = wishlistRepository.findByUserIdAndProductId(user.getResUserId(), product.getProductId())
+        Wishlist wishlist = wishlistRepository
+                .findByUserIdAndProductId(user.getUserId(), wishDetailsList.getProductId())
                 .map(ws -> {
-                    ws.changeQty(requestWishDto.getQty());
+                    ws.changeQty(wishDetailsList.getQty());
                     return wishlistRepository.save(ws);
                 }).orElseThrow(() -> new CustomException(ErrorCode.NOT_EXISTS_WISHLIST));
-
         return wishlist.entityToDto();
     }
 
@@ -98,19 +85,14 @@ public class WishlistServiceImpl implements WishlistService {
     public ResponseWishDto getWishList(String userId, int nowPage, int pageSize) {
         log.debug("위시 리스트 조회 실행");
 
-        ResponseUser user;
-        try{
-            user = userClient.getUser(userId);
-        }catch(FeignException.FeignClientException e){
-            throw new CustomException(ErrorCode.FEIGN_CLIENT_ERROR);
-        }
+        ResponseUser user = feignTemplate.findUserByUserId(userId);
 
         PageRequest pageRequest = PageRequest.of(nowPage, pageSize);
         Page<Wishlist> pageList = wishlistRepository.findAllByUserId(userId, pageRequest);
         List<ProductInfo> productInfoList = pageList.stream().map(Wishlist::entityToVo).toList();
 
         return ResponseWishDto.builder()
-                .userId(user.getResUserId())
+                .userId(user.getUserId())
                 .productInfoList(productInfoList)
                 .build();
     }
