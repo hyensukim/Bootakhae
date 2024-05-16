@@ -1,14 +1,13 @@
 package com.bootakhae.productservice.entities;
 
 import com.bootakhae.productservice.dto.ProductDto;
+import com.bootakhae.productservice.global.constant.Function;
+import com.bootakhae.productservice.global.constant.Type;
 import com.bootakhae.productservice.global.entities.BaseEntity;
 import com.bootakhae.productservice.global.exception.CustomException;
 import com.bootakhae.productservice.global.exception.ErrorCode;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 })
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class ProductEntity extends BaseEntity {
 
@@ -30,16 +29,16 @@ public class ProductEntity extends BaseEntity {
     private Long seq;
 
     @Column(name="product_id", nullable = false, unique=true, length = 50)
-    private String productId;
+    private String productId; // uuid
 
     @Column(name="product_name", nullable = false, length = 50)
-    private String name;
+    private String name; // 상품명
 
     @Column(name="product_price", nullable = false)
-    private Long price;
+    private Long price; // 상품가격
 
     @Column(name="product_stock", nullable = false)
-    private Long stock;
+    private Long stock; // 상품재고
     public void decreaseStock(Long qty){
         if(this.stock < qty){
             throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
@@ -51,10 +50,16 @@ public class ProductEntity extends BaseEntity {
     }
 
     @Column(name="product_producer", nullable = false, length = 30)
-    private String producer;
+    private String producer; // 제조사
+
+    @Column(name="product_function", nullable = false, length = 30)
+    private Function function; // 상품 기능
+
+    @Column(name="product_type", nullable = false, length = 30)
+    private Type type; // 상품 형태 - 캡슐, 음료(액상), 분말, 젤리, 스프레이형
 
     @Column(name="product_nutrition_facts", nullable = false)
-    private String nutritionFacts;
+    private String nutritionFacts; // 성분 - todo : 별도의 테이블 만들어보기
 
     @Column(name="prodcut_is_event_opened", nullable = false)
     private boolean isEventOpened;

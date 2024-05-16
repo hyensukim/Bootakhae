@@ -123,7 +123,9 @@ public class OrderEntity extends BaseEntity {
                 .address1(this.address1)
                 .address2(this.address2)
                 .phone(this.phone)
+                .returnAt(this.returnOrder != null ? this.returnOrder.getCreatedAt() : null)
                 .createdAt(this.getCreatedAt())
+                .updatedAt(this.getUpdatedAt())
                 .orderStatus(this.status)
                 .orderedProducts(orderedProducts)
                 .build();

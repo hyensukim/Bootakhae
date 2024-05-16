@@ -28,6 +28,10 @@ public class ProductDto implements Serializable {
 
     private String producer;
 
+    private String function;
+
+    private String type;
+
     private String nutritionFacts;
 
     private LocalDateTime eventTime;

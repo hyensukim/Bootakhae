@@ -25,7 +25,10 @@ public class ResponseOrder {
     private String address1;
     private String address2;
     private String phone;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private LocalDateTime returnAt;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private Status orderStatus;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<OrderProductDto> orderedProducts;

@@ -26,6 +26,7 @@ public class PayController {
     @PutMapping("{payId}")
     public ResponseEntity<ResponsePay> completePayment(@PathVariable("payId") String payId){
         PayDto payDetails = payService.completePay(payId);
-        return ResponseEntity.status(HttpStatus.OK).body(payDetails.dtoToVo());
+        ResponsePay response = payDetails.dtoToVo();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

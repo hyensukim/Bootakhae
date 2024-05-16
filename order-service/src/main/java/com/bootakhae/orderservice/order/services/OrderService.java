@@ -17,7 +17,15 @@ public interface OrderService {
 
     OrderDto getOrderDetails(String orderId);
 
+    List<OrderDto> getAllOrders();
+
     List<OrderDto> getOrderListByUserId(String userId, int nowPage, int pageSize);
+
+    void changeOrderStatusAfterPayment();
+
+    void changeOrderStatusAfterShipping();
+
+    void changeOrderStatusForReturn();
 
     OrderDto returnOrderedProduct(ReturnOrderDto returnOrderDetails);
 }

@@ -20,7 +20,7 @@ spring:
     password: ${password}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: true
@@ -44,7 +44,6 @@ management:
 
 schedule:
   start-time: ${start-time}
-  cron: ${cron}
 
 logging:
   level:

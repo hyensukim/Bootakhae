@@ -1,11 +1,15 @@
 package com.bootakhae.orderservice.global.clients;
 
+import com.bootakhae.orderservice.global.exception.ClientException;
 import com.bootakhae.orderservice.global.exception.CustomException;
 import com.bootakhae.orderservice.global.exception.ErrorCode;
 import com.bootakhae.orderservice.global.exception.QtyLackException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
 
 @Component
 public class FeignErrorDecoder implements ErrorDecoder {
@@ -15,11 +19,8 @@ public class FeignErrorDecoder implements ErrorDecoder {
     @Override
     public Exception decode(String methodKey, Response response) {
         // HTTP 상태 코드를 체크하여 사용자 정의 예외 처리
-        if(response.status() == 409){ // 재고 부족 관련 처리
-            return new QtyLackException(ErrorCode.LACK_PRODUCT_STOCK);
-        }
-        else if (response.status() >= 400 && response.status() <= 499) {
-            return new CustomException(ErrorCode.FEIGN_CLIENT_ERROR, makeMessage(response));
+        if (response.status() >= 400 && response.status() <= 499) {
+            return new ClientException(ErrorCode.FEIGN_CLIENT_ERROR, makeMessage(response));
         }
         else if (response.status() >= 500 && response.status() <= 599) {
             return new CustomException(ErrorCode.FEIGN_SERVER_ERROR, makeMessage(response));
@@ -29,6 +30,6 @@ public class FeignErrorDecoder implements ErrorDecoder {
     }
 
     private String makeMessage(Response response) {
-        return "Status : " + response.status() + ", Message : " + response.body();
+        return "Status : " + response.status();
     }
 }

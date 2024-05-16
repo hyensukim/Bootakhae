@@ -62,6 +62,7 @@ public class ProductServiceImpl implements ProductService {
         List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
 
         Map<String, ProductEntity> productMap = new HashMap<>();
+
         for (ProductEntity productEntity : productList) {
             productMap.put(productEntity.getProductId(), productEntity);
         }
@@ -75,7 +76,6 @@ public class ProductServiceImpl implements ProductService {
             Optional.ofNullable(productMap.get(productDetails.getProductId()))
                     .ifPresent(p -> p.registerEventTime(productDetails.getEventTime()));
         }
-
 
         return ProductListDto.builder()
                 .productList(productList.stream().map(ProductEntity::entityToDto).collect(Collectors.toList()))
@@ -161,17 +161,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @Scheduled(cron = "${schedule.cron}")
-    public void changeEventOpenFlag() {
-        log.info("상품 이벤트 상태 업데이트 실행");
-
-        String format = Objects.requireNonNull(env.getProperty("schedule.start-time"));
-        DateTimeFormatter eventDateTime = DateTimeFormatter.ofPattern(format);
-        LocalDateTime startTime = LocalDateTime.parse("yyyy-MM-dd HH:mm", eventDateTime);
+    @Override
+    public void openEventProduct() {
+        log.debug("이벤트 상품 오픈 실행");
+        DateTimeFormatter eventDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        String dateTimeString = Objects.requireNonNull(env.getProperty("schedule.start-time")); // 예시 값입니다. 실제 사용하는 값으로 대체해야 합니다.
+        LocalDateTime startTime = LocalDateTime.parse(dateTimeString, eventDateTimeFormatter);
 
         List<ProductEntity> productList = productRepository.findEventProductList(startTime, LocalDateTime.now());
 
-        // event open
         productList.forEach(ProductEntity::openThisEvent);
     }
 

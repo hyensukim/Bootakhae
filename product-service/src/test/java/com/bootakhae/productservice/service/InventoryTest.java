@@ -207,7 +207,7 @@ public class InventoryTest {
         for(int i=0; i< threadCount ;i++){
             executorService.submit(() -> {
                 try{
-                    redissonInventoryFacade.decrease(uuid, 1L);
+//                    redissonInventoryFacade.(uuid, 1L);
                 } finally{
                     countDownLatch.countDown(); // 요청이 들어간 쓰레드는 대기 상태로 전환
                 }

@@ -61,30 +61,52 @@ public class RedissonInventoryFacade {
         Map<String, RLock> locks = new LinkedHashMap<>(); // 상품 ID와 해당 락을 매핑하기 위한 Map
 
         try {
-            // 모든 상품에 대해 락을 시도합니다.
+            // 모든 상품에 대해 락을 시도
             for (ProductInfo info : productInfoList) {
                 RLock lock = redissonClient.getLock(info.getProductId());
-                boolean available = lock.tryLock(100, 10, TimeUnit.SECONDS); // 락 획득 시도
+                boolean available = lock.tryLock(100, 10, TimeUnit.SECONDS);
 
                 if (!available) { // 락 획득 실패 시
                     throw new CustomException(ErrorCode.LOCK_NOT_AVAILABLE);
                 }
 
-                locks.put(info.getProductId(), lock); // 성공적으로 락을 획득했으면 Map에 추가
+                locks.put(info.getProductId(), lock);
             }
-
-            // 모든 상품에 대한 락 획득 후 재고 업데이트 처리
             return productService.updateStock(request);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // 현재 스레드의 interrupt 상태를 설정
             throw new RuntimeException(e);
         } finally {
-            // 모든 락을 해제합니다.
             for (RLock lock : locks.values()) {
-                if (lock.isHeldByCurrentThread()) { // 현재 스레드가 락을 보유하고 있는지 확인
+                if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
                 }
             }
         }
     }
+
+    /**
+     * Lock을 세분화하여 적용하기
+     */
+//    public List<ProductDto> updateProducts(RequestStock request){
+//
+//        List<ProductInfo> productInfoList = request.getProductInfoList();
+//
+//        ProductInfo firstInfo = productInfoList.getFirst();
+//        RLock lock = redissonClient.getLock(firstInfo.getProductId());
+//
+//        try{
+//            boolean available = lock.tryLock(100, 1, TimeUnit.SECONDS);
+//
+//            if(!available){
+//                throw new CustomException(ErrorCode.LOCK_NOT_AVAILABLE);
+//            }
+//
+//            return productService.updateStock(request);
+//        }catch(InterruptedException e){
+//            throw new RuntimeException(e);
+//        }finally {
+//            lock.unlock();
+//        }
+//    }
 }

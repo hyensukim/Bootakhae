@@ -30,7 +30,9 @@ public class OrderDto {
     private String payId;
     private Long totalPrice;
     private Status orderStatus;
+    private LocalDateTime returnAt;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private List<OrderProductDto> orderedProducts;
 
     public ResponseOrder dtoToVo(){
@@ -43,7 +45,9 @@ public class OrderDto {
                 .address1(this.address1) // 주소
                 .address2(this.address2)
                 .phone(this.phone) // 연락처
+                .returnAt(this.returnAt) // 반품일자
                 .createdAt(this.createdAt) // 주문일자
+                .updatedAt(this.updatedAt) // 업데이트 일자
                 .orderStatus(this.orderStatus) // 주문 상태
                 .orderedProducts(this.orderedProducts)// 주문 상품
                 .build();

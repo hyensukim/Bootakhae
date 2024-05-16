@@ -18,5 +18,6 @@ public class ResponseProductList {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long totalProducts;
+
     private List<ResponseProduct> productList;
 }

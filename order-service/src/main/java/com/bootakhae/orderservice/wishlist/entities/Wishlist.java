@@ -2,21 +2,17 @@ package com.bootakhae.orderservice.wishlist.entities;
 
 import com.bootakhae.orderservice.order.vo.ProductInfo;
 import com.bootakhae.orderservice.wishlist.dto.ResponseWishDto;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
-import org.springframework.data.redis.core.index.Indexed;
-
-import java.util.UUID;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
-@RedisHash(value = "wishlist", timeToLive = 60 * 60 * 24 * 30)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@RedisHash(value = "wishlist", timeToLive = 60 * 60 * 24 * 30)
+@Table(name="wishlist", indexes = {
+        @Index(name = "idx_name_wishlist", columnList = "user_id, product_id")
+})
+@Entity
 public class Wishlist {
 
     @Builder
@@ -25,21 +21,22 @@ public class Wishlist {
             String productId,
             Long qty
     ){
-        seq = UUID.randomUUID().toString();
         this.userId = userId;
         this.productId = productId;
         this.qty = qty;
     }
 
     @Id
-    private String seq;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long seq;
 
-    @Indexed
+    @Column(name = "user_id", unique = true, nullable = false, length = 50)
     private String userId;
 
-    @Indexed
+    @Column(name = "product_id", unique = true, nullable = false, length = 50)
     private String productId;
 
+    @Column(name = "wishlist_qty", nullable = false)
     private Long qty;
 
     public void changeQty(Long qty) {

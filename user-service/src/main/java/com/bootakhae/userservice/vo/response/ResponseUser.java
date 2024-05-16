@@ -7,22 +7,22 @@ import java.time.LocalDateTime;
 @Data
 public class ResponseUser {
 
-    private String resEmail;
+    private String email;
 
-    private String resPassword;
+    private String password;
 
-    private String resAddress1;
+    private String address1;
 
-    private String resAddress2;
+    private String address2;
 
-    private String resName;
+    private String name;
 
-    private String resNickname;
+    private String nickname;
 
-    private String resPhone;
+    private String phone;
 
-    private String resUserId;
+    private String userId;
 
-    private LocalDateTime resCreatedAt;
+    private LocalDateTime createdAt;
 
 }

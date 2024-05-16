@@ -71,7 +71,7 @@ resilience4j.circuitbreaker:
         register-health-indicator: true # open / close 여부를 체크
 
         ignore-exceptions:
-          - com.bootakhae.orderservice.global.exception.QtyLackException
+          - com.bootakhae.orderservice.global.exception.ClientException
 
 #        record-exceptions:
 #          - java.io.IOException
