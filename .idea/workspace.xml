@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="52761229-1d80-4bb2-8d08-163662576622" name="Changes" comment="fix : Monolith -&gt; MSA 구조 변경">
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/controller/OrderController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/controller/ReturnOrderController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/dto/OrderDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/dto/OrderProductDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/dto/ReturnOrderDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/entities/OrderEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/entities/OrderProduct.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/entities/ReturnOrderEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/global/constant/Reason.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/global/constant/Status.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/global/entities/BaseEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/global/exception/CustomException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/repositories/OrderProductRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/repositories/OrderRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/repositories/ReturnOrderRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/services/OrderService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/services/OrderServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/services/ReturnOrderService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/services/ReturnOrderServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/vo/request/RequestOrder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/vo/request/RequestReturnOrder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/vo/request/RequestWishlist.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/vo/response/ResponseOrder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/vo/response/ResponseReturn.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/controllers/ProductController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/dto/ProductDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/entities/ProductEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/global/entities/BaseEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/global/exception/CustomException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/repositories/ProductRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/services/ProductService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/services/ProductServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/vo/request/RequestProduct.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/vo/response/ResponseProduct.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/dto/CryptoInfoDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/dto/TokenDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/dto/UserDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/entities/TokenEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/entities/UserEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/constant/Role.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/converter/CryptoStringConverter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/entities/BaseEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/exception/CustomException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/jwt/AuthenticationFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/jwt/JwtValidationFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/jwt/TokenProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/mapper/UserMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/utils/AesCryptoUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/utils/AuthUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/repositories/TokenRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/repositories/UserRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/EmailService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/EmailServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/TokenService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/TokenServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/UserService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/UserServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/vo/request/RequestEmailCheck.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/vo/request/RequestLogin.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/vo/request/RequestPassword.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/vo/request/RequestUser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/vo/response/ResponseUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/ISSUE_TEMPLATE/이슈-생성-템플릿.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/WebappApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/ErrorControllerAdvisor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/converter/CryptoStringConverter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/entities/BaseEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/exception/CustomException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/utils/AesCryptoUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/utils/AuthUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/jwt/AuthenticationFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/jwt/JwtValidationFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/jwt/TokenProvider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/constant/Reason.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/constant/Status.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/controller/OrderController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/controller/ReturnOrderController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/dto/OrderDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/dto/OrderProductDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/dto/ReturnOrderDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/entities/OrderEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/entities/OrderProduct.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/entities/ReturnOrderEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/repositories/OrderProductRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/repositories/OrderRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/repositories/ReturnOrderRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/services/OrderService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/services/OrderServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/services/ReturnOrderService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/services/ReturnOrderServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/vo/request/RequestOrder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/vo/request/RequestReturnOrder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/vo/request/RequestWishlist.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/vo/response/ResponseOrder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/vo/response/ResponseReturn.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/controllers/ProductController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/dto/ProductDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/entities/ProductEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/repositories/ProductRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/services/ProductService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/services/ProductServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/vo/request/RequestProduct.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/vo/response/ResponseProduct.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/constant/Role.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/controllers/EmailController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/controllers/UserController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/dto/AuthInfoDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/dto/CryptoInfoDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/dto/TokenDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/dto/UserDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/entities/TokenEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/entities/UserEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/mapper/UserMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/repositories/TokenRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/repositories/UserRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/EmailService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/EmailServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/TokenService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/TokenServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/UserService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/UserServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/vo/request/RequestEmailCheck.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/vo/request/RequestLogin.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/vo/request/RequestPassword.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/vo/request/RequestUser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/vo/response/ResponseUser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/controllers/WishlistController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/dto/request/RequestWishDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/dto/response/ResponseWishDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/entities/WishEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/repositories/WishlistRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/services/WishlistService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/services/WishlistServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/vo/ProductInfo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/bootakhae/webapp/WebappApplicationTests.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="webapp" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="dev" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;history&quot;: [
+    {
+      &quot;assignee&quot;: &quot;hyensukim&quot;
+    }
+  ],
+  &quot;lastFilter&quot;: {
+    &quot;assignee&quot;: &quot;hyensukim&quot;
+  }
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOLvaBCM5tK0Oe&quot;,
+        &quot;number&quot;: 3
+      },
+      &quot;lastSeen&quot;: 1713608143822
+    }
+  ]
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/hyensukim/Bootakhae.git&quot;,
+    &quot;accountId&quot;: &quot;f846f814-7c8e-4967-9e5e-5c9ca6de3439&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot/3.2.4/ccb7cbb30dcf1d91dbbf20a3219a457eead46601/spring-boot-3.2.4.jar!/org/springframework/boot/web/server/Cookie.class" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2fGNb239dTW5YQ5SjGRWnCqPhjK" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.Build webapp.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.Download Sources.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.VerificationCodeTest.makeTempPass.executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;Spring Boot.WebappApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/project/webapp/user-service&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.bootakhae.webapp.order.constant" />
+      <recent name="com.bootakhae.webapp.product.dto" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\project\webapp\src\main\java\com\bootakhae\webapp" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.bootakhae.webapp.common" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.WebappApplication">
+    <configuration name="VerificationCodeTest.makeTempPass" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;com.bootakhae.webapp.units.VerificationCodeTest.makeTempPass&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="WebappApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <envs>
+        <env name="mail.username_" value="crazymin180" />
+        <env name="mail.password" value="pvcfpxggryhxwfuz" />
+      </envs>
+      <module name="webapp.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.bootakhae.webapp.WebappApplication" />
+      <option name="VM_PARAMETERS" value="-Dfile.encoding=UTF-8" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Gradle.VerificationCodeTest.makeTempPass" />
+      <item itemvalue="Spring Boot.WebappApplication" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.VerificationCodeTest.makeTempPass" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9f38398b9061-18abd8497189-intellij.indexing.shared.core-IU-241.14494.240" />
+        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-IU-241.14494.240" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="52761229-1d80-4bb2-8d08-163662576622" name="Changes" comment="" />
+      <created>1713423524572</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1713423524572</updated>
+      <workItem from="1713423525619" duration="38453000" />
+      <workItem from="1713486950520" duration="32979000" />
+      <workItem from="1713529891998" duration="12793000" />
+      <workItem from="1713575037141" duration="46480000" />
+      <workItem from="1713669592127" duration="14340000" />
+      <workItem from="1713708337737" duration="5366000" />
+      <workItem from="1713713870237" duration="8846000" />
+      <workItem from="1713745912229" duration="46420000" />
+      <workItem from="1713810086295" duration="3480000" />
+      <workItem from="1713829856154" duration="17560000" />
+      <workItem from="1713918451995" duration="4065000" />
+      <workItem from="1713923442420" duration="410000" />
+      <workItem from="1713923871422" duration="596000" />
+    </task>
+    <task id="LOCAL-00001" summary="feat : 회원가입 기능 구현 및 유효성 검사">
+      <option name="closed" value="true" />
+      <created>1713425401448</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1713425401448</updated>
+    </task>
+    <task id="LOCAL-00002" summary="feat: 회원가입 시 개인정보 암호화 및 복호화">
+      <option name="closed" value="true" />
+      <created>1713434020090</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1713434020090</updated>
+    </task>
+    <task id="LOCAL-00003" summary="feat: 암호화 및 복호화 수정 + 회원 상세 조회">
+      <option name="closed" value="true" />
+      <created>1713435876383</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1713435876383</updated>
+    </task>
+    <task id="LOCAL-00004" summary="feat: 회원 정보 수정 및 비밀번호 수정">
+      <option name="closed" value="true" />
+      <created>1713441495422</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1713441495422</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat: 암호화 및 복호화 수정">
+      <option name="closed" value="true" />
+      <created>1713458115889</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1713458115889</updated>
+    </task>
+    <task id="LOCAL-00006" summary="feat: 이메일 인증 구현">
+      <option name="closed" value="true" />
+      <created>1713530296740</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1713530296740</updated>
+    </task>
+    <task id="LOCAL-00007" summary="feat: 이메일 인증 구현">
+      <option name="closed" value="true" />
+      <created>1713530565974</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1713530565974</updated>
+    </task>
+    <task id="LOCAL-00008" summary="feat: 회원가입 시 이메일 중복 확인 + 로그인 기능 구현">
+      <option name="closed" value="true" />
+      <created>1713530964487</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1713530964487</updated>
+    </task>
+    <task id="LOCAL-00009" summary="feat: 비밀번호 암호화 + 예외 공통 처리 + 코드 컨벤션(여백 정리)">
+      <option name="closed" value="true" />
+      <created>1713531126986</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1713531126986</updated>
+    </task>
+    <task id="LOCAL-00010" summary="feat#2 : 회원 상세 조회 및 회원 정보 수정, 비밀번호 수정 구현">
+      <option name="closed" value="true" />
+      <created>1713531860306</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1713531860306</updated>
+    </task>
+    <task id="LOCAL-00011" summary="feat#2 : 비밀번호 수정 암호화 처리 적용">
+      <option name="closed" value="true" />
+      <created>1713531989072</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1713531989072</updated>
+    </task>
+    <task id="LOCAL-00012" summary="feat#1 : 로그인 기능 수정">
+      <option name="closed" value="true" />
+      <created>1713582211459</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1713582211459</updated>
+    </task>
+    <task id="LOCAL-00013" summary="feat#6 : 상품 기능 구현 완료">
+      <option name="closed" value="true" />
+      <created>1713583037181</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1713583037181</updated>
+    </task>
+    <task id="LOCAL-00014" summary="feat#5 : 찜 관련 기능 구현">
+      <option name="closed" value="true" />
+      <created>1713608087836</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1713608087836</updated>
+    </task>
+    <task id="LOCAL-00015" summary="feat : 테이블명 수정 및 공백 정리">
+      <option name="closed" value="true" />
+      <created>1713608125309</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1713608125309</updated>
+    </task>
+    <task id="LOCAL-00016" summary="feat#5 : 찜 목록 전체 조회 기능 구현">
+      <option name="closed" value="true" />
+      <created>1713614911357</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1713614911357</updated>
+    </task>
+    <task id="LOCAL-00017" summary="feat#5 : 찜 목록 전체 조회 기능 수정">
+      <option name="closed" value="true" />
+      <created>1713630925803</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1713630925803</updated>
+    </task>
+    <task id="LOCAL-00018" summary="feat#5 : 찜 엔티티 이름ㅁ 수정">
+      <option name="closed" value="true" />
+      <created>1713633525250</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1713633525250</updated>
+    </task>
+    <task id="LOCAL-00019" summary="feat#5 : 찜 엔티티 이름 수정">
+      <option name="closed" value="true" />
+      <created>1713633564640</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1713633564640</updated>
+    </task>
+    <task id="LOCAL-00020" summary="feat : Valid 어노테이션 및 주석 추가 + 찜 목록 구현부 수정">
+      <option name="closed" value="true" />
+      <created>1713708473231</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1713708473231</updated>
+    </task>
+    <task id="LOCAL-00021" summary="feat#10 : 주문 등록 및 위시 리스트 주문 등록 구현">
+      <option name="closed" value="true" />
+      <created>1713708509825</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1713708509825</updated>
+    </task>
+    <task id="LOCAL-00022" summary="feat#10 : 주문 관련 기능 구현 및 테스트 + 반품 기능 구현">
+      <option name="closed" value="true" />
+      <created>1713757217441</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1713757217441</updated>
+    </task>
+    <task id="LOCAL-00023" summary="feat : 주문 시 재고 변경 로직 추가">
+      <option name="closed" value="true" />
+      <created>1713757268515</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1713757268515</updated>
+    </task>
+    <task id="LOCAL-00024" summary="feat#12 : 스케줄러를 통한 주문 상태 변경 기능 구현 및 BaseEntity 디렉토리 이동(common)">
+      <option name="closed" value="true" />
+      <created>1713763184911</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1713763184911</updated>
+    </task>
+    <task id="LOCAL-00025" summary="feat#9 : 암호화/복호화 관련 AttributeConverter 도입">
+      <option name="closed" value="true" />
+      <created>1713842762645</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1713842762645</updated>
+    </task>
+    <task id="LOCAL-00026" summary="feat#11 : refresh token 구현 및 재발급, 로그아웃 기능 구현">
+      <option name="closed" value="true" />
+      <created>1713842811714</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1713842811714</updated>
+    </task>
+    <task id="LOCAL-00027" summary="feat#11 : refresh token 구현 및 재발급, 로그아웃 기능 구현">
+      <option name="closed" value="true" />
+      <created>1713843577561</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1713843577561</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="dev" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat : 회원가입 기능 구현 및 유효성 검사" />
+    <MESSAGE value="feat: 회원가입 시 개인정보 암호화 및 복호화" />
+    <MESSAGE value="feat: 암호화 및 복호화 수정 + 회원 상세 조회" />
+    <MESSAGE value="feat: 회원 정보 수정 및 비밀번호 수정" />
+    <MESSAGE value="feat: 암호화 및 복호화 수정" />
+    <MESSAGE value="feat: 이메일 인증 구현" />
+    <MESSAGE value="feat: 회원가입 시 이메일 중복 확인 + 로그인 기능 구현" />
+    <MESSAGE value="feat: 비밀번호 암호화 + 예외 공통 처리 + 코드 컨벤션(여백 정리)" />
+    <MESSAGE value="feat#2 : 회원 상세 조회 및 회원 정보 수정, 비밀번호 수정 구현" />
+    <MESSAGE value="feat#2 : 비밀번호 수정 암호화 처리 적용" />
+    <MESSAGE value="feat#1 : 로그인 기능 수정" />
+    <MESSAGE value="feat#6 : 상품 기능 구현 완료" />
+    <MESSAGE value="feat#5 : 찜 관련 기능 구현" />
+    <MESSAGE value="feat : 테이블명 수정 및 공백 정리" />
+    <MESSAGE value="feat#5 : 찜 목록 전체 조회 기능 구현" />
+    <MESSAGE value="feat#5 : 찜 목록 전체 조회 기능 수정" />
+    <MESSAGE value="feat#5 : 찜 엔티티 이름ㅁ 수정" />
+    <MESSAGE value="feat#5 : 찜 엔티티 이름 수정" />
+    <MESSAGE value="feat : Valid 어노테이션 및 주석 추가 + 찜 목록 구현부 수정" />
+    <MESSAGE value="feat#10 : 주문 등록 및 위시 리스트 주문 등록 구현" />
+    <MESSAGE value="feat#10 : 주문 관련 기능 구현 및 테스트 + 반품 기능 구현" />
+    <MESSAGE value="feat : 주문 시 재고 변경 로직 추가" />
+    <MESSAGE value="feat#12 : 스케줄러를 통한 주문 상태 변경 기능 구현 및 BaseEntity 디렉토리 이동(common)" />
+    <MESSAGE value="feat#9 : 암호화/복호화 관련 AttributeConverter 도입" />
+    <MESSAGE value="feat#11 : refresh token 구현 및 재발급, 로그아웃 기능 구현" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat#11 : refresh token 구현 및 재발급, 로그아웃 기능 구현" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/controllers/UserController.java</url>
+          <line>31</line>
+          <option name="timeStamp" value="58" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
