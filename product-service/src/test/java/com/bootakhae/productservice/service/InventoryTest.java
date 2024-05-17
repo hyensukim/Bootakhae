@@ -5,6 +5,8 @@ import com.bootakhae.productservice.entities.ProductEntity;
 import com.bootakhae.productservice.facade.LettuceInventoryFacade;
 import com.bootakhae.productservice.facade.OptimisticInventoryFacade;
 import com.bootakhae.productservice.facade.RedissonInventoryFacade;
+import com.bootakhae.productservice.global.constant.Function;
+import com.bootakhae.productservice.global.constant.Type;
 import com.bootakhae.productservice.repositories.ProductRepository;
 import com.bootakhae.productservice.services.ProductService;
 import org.junit.jupiter.api.AfterEach;
@@ -61,8 +63,9 @@ public class InventoryTest {
                 .name("텐텐")
                 .producer("우리집")
                 .price(1000L)
-                .stock(10000L)
-//                .version(1L)
+                .stock(5000L)
+                .function(Function.ACTIVE_BOWEL)
+                .type(Type.CAPSULE)
                 .nutritionFacts("단백질 100%")
                 .build();
 
@@ -117,12 +120,12 @@ public class InventoryTest {
     @DisplayName("Pessimistic Lock 을 통한 동시성 제어")
     public void 동시에5000명이주문하는상황비관적() throws InterruptedException{
         //given
-        final int threadCount = 10000; // 동시 요청 갯수
-        ExecutorService executorService = Executors.newFixedThreadPool(10000); // 30개의 쓰레드
+        final int threadCount = 5000; // 동시 요청 갯수
+        ExecutorService executorService = Executors.newFixedThreadPool(5000); // 30개의 쓰레드
         CountDownLatch countDownLatch = new CountDownLatch(threadCount); // 요청 마친 쓰레드는 대기하도록 처리
 
         //when
-        for(int i=0; i< 10000 ;i++){
+        for(int i=0; i< 5000 ;i++){
             executorService.submit(() -> {
                 try{
                     ProductDto dto = productService.decreaseStockPessimistic(uuid, 1L);
@@ -199,15 +202,41 @@ public class InventoryTest {
     @DisplayName("Redisson Distributed Lock 을 통한 동시성 제어")
     public void 동시에5000명이주문하는상황Redisson() throws InterruptedException{
         //given
-        final int threadCount = 10000; // 동시 요청 갯수
-        ExecutorService executorService = Executors.newFixedThreadPool(10000); // 30개의 쓰레드
+        final int threadCount = 5000; // 동시 요청 갯수
+        ExecutorService executorService = Executors.newFixedThreadPool(30); // 30개의 쓰레드
         CountDownLatch countDownLatch = new CountDownLatch(threadCount); // 요청 마친 쓰레드는 대기하도록 처리
 
         //when
         for(int i=0; i< threadCount ;i++){
             executorService.submit(() -> {
                 try{
-//                    redissonInventoryFacade.(uuid, 1L);
+                    redissonInventoryFacade.decreaseStock(uuid, 1L);
+                } finally{
+                    countDownLatch.countDown(); // 요청이 들어간 쓰레드는 대기 상태로 전환
+                }
+            });
+        }
+        countDownLatch.await(); // 모든 쓰레드의 호출이 끝나면 쓰레드 풀 자체 종료
+
+        ProductEntity product = productRepository.findByProductId(uuid).orElseThrow();
+
+        //then
+        assertEquals(0, product.getStock());
+    }
+
+    @Test
+    @DisplayName("")
+    public void 동시에5000명이주문하는상황Redis() throws InterruptedException{
+        //given
+        final int threadCount = 5000; // 동시 요청 갯수
+        ExecutorService executorService = Executors.newFixedThreadPool(30); // 30개의 쓰레드
+        CountDownLatch countDownLatch = new CountDownLatch(threadCount); // 요청 마친 쓰레드는 대기하도록 처리
+
+        //when
+        for(int i=0; i< threadCount ;i++){
+            executorService.submit(() -> {
+                try{
+                    redissonInventoryFacade.decreaseStock(uuid, 1L);
                 } finally{
                     countDownLatch.countDown(); // 요청이 들어간 쓰레드는 대기 상태로 전환
                 }

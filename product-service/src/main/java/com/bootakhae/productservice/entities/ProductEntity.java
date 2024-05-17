@@ -79,6 +79,8 @@ public class ProductEntity extends BaseEntity {
                 .name(this.name)
                 .price(this.price)
                 .stock(this.stock)
+                .function(this.function.name())
+                .type(this.type.name())
                 .producer(this.producer)
                 .nutritionFacts(this.nutritionFacts)
                 .eventTime(this.eventTime)
@@ -90,6 +92,8 @@ public class ProductEntity extends BaseEntity {
                 .productId(this.productId)
                 .name(this.name)
                 .price(this.price)
+                .function(this.function.name())
+                .type(this.type.name())
                 .producer(this.producer)
                 .nutritionFacts(this.nutritionFacts)
                 .build();
