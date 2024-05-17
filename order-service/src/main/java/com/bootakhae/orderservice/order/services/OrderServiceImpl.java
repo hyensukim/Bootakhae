@@ -6,6 +6,8 @@ import com.bootakhae.orderservice.global.clients.vo.request.RequestStock;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponsePay;
 import com.bootakhae.orderservice.global.constant.Status;
 import com.bootakhae.orderservice.global.constant.StockProcess;
+import com.bootakhae.orderservice.global.exception.ClientException;
+import com.bootakhae.orderservice.global.exception.ServerException;
 import com.bootakhae.orderservice.order.dto.OrderDto;
 import com.bootakhae.orderservice.order.dto.ReturnOrderDto;
 import com.bootakhae.orderservice.order.entities.OrderEntity;
@@ -23,6 +25,7 @@ import com.bootakhae.orderservice.global.clients.vo.response.ResponseUser;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,37 +48,53 @@ public class OrderServiceImpl implements OrderService{
     private final OrderRepository orderRepository;
     private final ReturnOrderRepository returnOrderRepository;
     private final WishlistRepository wishlistRepository;
+
     private final FeignTemplate feignTemplate;
 
     @Transactional
     @Override
     @CircuitBreaker(name = "default-CB")
+    @Retry(name = "default-RT")
     public OrderDto registerOrder(OrderDto orderDetails) {
         log.debug("주문 등록 실행");
 
+        long startTime = System.currentTimeMillis();
+
         ResponseUser user = feignTemplate.findUserByUserId(orderDetails.getUserId());
 
-        log.debug("재고 감소 실행");
         ResponseProduct product = updateStock(
                 StockProcess.DECREASE,
                 orderDetails.getProductId(),
                 orderDetails.getQty()
         );
-        OrderEntity order = orderDetails.dtoToEntity(user.getUserId(), product.getPrice());
+
         try {
+            OrderEntity order = orderDetails.dtoToEntity(user.getUserId(), product.getPrice());
             OrderProduct orderProduct = OrderProduct.createOrderedProduct(order, product, orderDetails.getQty());
             order.getOrderProducts().add(orderProduct);
 
             log.debug("결제 등록 실행");
             ResponsePay pay = feignTemplate.registerPay(RequestPay.builder()
-                            .orderId(order.getOrderId())
-                            .payMethod(orderDetails.getPayMethod())
-                            .totalPrice(product.getPrice() * orderProduct.getQty())
-                            .build()
+                    .orderId(order.getOrderId())
+                    .payMethod(orderDetails.getPayMethod())
+                    .totalPrice(product.getPrice() * orderProduct.getQty())
+                    .build()
             );
             order.registerPay(pay.getPayId());
             orderRepository.save(order);
+            log.debug("정상 처리까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
             return order.entityToDto(pay.getTotalPrice(), pay.getPayMethod());
+        }catch(ClientException e){
+            ResponseProduct response = updateStock(
+                    StockProcess.RESTORE,
+                    orderDetails.getProductId(),
+                    orderDetails.getQty()
+            );
+
+            log.debug("재고 수량 복구 성공");
+            log.debug("{}의 재고 : {}", response.getName(), response.getStock());
+            log.debug("복구까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
+            throw new ClientException(ErrorCode.FEIGN_CLIENT_ERROR, e.getMessage());
         }catch(Exception e){
             ResponseProduct response = updateStock(
                     StockProcess.RESTORE,
@@ -85,8 +104,8 @@ public class OrderServiceImpl implements OrderService{
 
             log.debug("재고 수량 복구 성공");
             log.debug("{}의 재고 : {}", response.getName(), response.getStock());
-
-            throw new CustomException(ErrorCode.FAILURE_ORDER);
+            log.debug("복구까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
+            throw new ServerException(ErrorCode.FEIGN_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -95,6 +114,8 @@ public class OrderServiceImpl implements OrderService{
     @CircuitBreaker(name = "default-CB")
     public OrderDto registerWishlist(OrderDto orderDetails) {
         log.debug("위시리스트 주문 등록 실행");
+
+        long startTime = System.currentTimeMillis();
 
         ResponseUser user =  feignTemplate.findUserByUserId(orderDetails.getUserId());
         List<Wishlist> wishlist = wishlistRepository.findAllByUserId(user.getUserId());
@@ -152,10 +173,11 @@ public class OrderServiceImpl implements OrderService{
 
             wishlistRepository.deleteAll(wishlist); // 위시리스트 비우기
 
+            log.debug("정상 처리까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
+
             return order.entityToDto(pay.getTotalPrice(), pay.getPayMethod());
 
-        }catch(Exception e){
-            log.error(e.getMessage());
+        }catch(ClientException e){
             List<ResponseProduct> responseList = feignTemplate.updateStock(
                     RequestStock.builder()
                             .stockProcess(StockProcess.RESTORE.name())
@@ -164,8 +186,19 @@ public class OrderServiceImpl implements OrderService{
             );
             log.debug("위시리스트 재고 수량 복구 성공");
             log.debug("재고 수량 복구 성공 갯수 : {}", responseList.size());
-
-            throw new CustomException(ErrorCode.FAILURE_ORDER);
+            log.debug("복구까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
+            throw new ClientException(ErrorCode.FEIGN_CLIENT_ERROR, e.getMessage());
+        }catch(Exception e){
+            List<ResponseProduct> responseList = feignTemplate.updateStock(
+                    RequestStock.builder()
+                            .stockProcess(StockProcess.RESTORE.name())
+                            .productInfoList(productInfoList)
+                            .build()
+            );
+            log.debug("위시리스트 재고 수량 복구 성공");
+            log.debug("재고 수량 복구 성공 갯수 : {}", responseList.size());
+            log.debug("복구까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
+            throw new ServerException(ErrorCode.FEIGN_SERVER_ERROR, e.getMessage());
         }
     }
 

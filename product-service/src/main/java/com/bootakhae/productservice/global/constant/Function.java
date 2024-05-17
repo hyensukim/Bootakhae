@@ -9,7 +9,8 @@ public enum Function {
     JOINT_HEALTH("관절 건강"),
     IMPROVE_MEMORY("기억력 개선"),
     IMPROVE_FATIGUE("피로 개선"),
-    SKIN_HEALTH("피부 건강");
+    SKIN_HEALTH("피부 건강"),
+    BONE_HEALTH("뼈 건강");
 
     private final String description;
 

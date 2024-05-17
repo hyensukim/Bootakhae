@@ -26,6 +26,29 @@ public class RedissonInventoryFacade {
     private final ProductService productService;
 
     /**
+     * 테스트 용
+     */
+    public void decreaseStock(String productId, Long amount) {
+
+        RLock lock = redissonClient.getLock(productId);
+
+        try{
+            boolean available = lock.tryLock(100, 1, TimeUnit.SECONDS);
+
+            if(!available){
+                throw new CustomException(ErrorCode.LOCK_NOT_AVAILABLE);
+            }
+
+            productService.decreaseStock(productId, amount);
+        }
+        catch(InterruptedException e){
+            throw new RuntimeException(e);
+        }finally{
+            lock.unlock();
+        }
+    }
+
+    /**
      * 첫 항만 Lock
      */
     public List<ProductDto> update(RequestStock request){

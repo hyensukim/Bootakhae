@@ -22,6 +22,10 @@ public class ResponseProduct {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long stock;
 
+    private String function;
+
+    private String type;
+
     private String producer;
 
     private String nutritionFacts;
