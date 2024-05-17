@@ -35,7 +35,7 @@ public class PayServiceImpl implements PayService {
         log.debug("결제 완료 변경 실행");
 
         PayEntity pay = payRepository.findByPayId(payId).orElseThrow(
-                () -> new RuntimeException("생성되지 않은 결제 내역입니다.")
+                () -> new CustomException(ErrorCode.NOT_EXISTS_PAY)
         );
 
         pay.completePayment();

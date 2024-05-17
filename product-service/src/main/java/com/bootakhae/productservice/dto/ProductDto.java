@@ -1,6 +1,8 @@
 package com.bootakhae.productservice.dto;
 
 import com.bootakhae.productservice.entities.ProductEntity;
+import com.bootakhae.productservice.global.constant.Function;
+import com.bootakhae.productservice.global.constant.Type;
 import com.bootakhae.productservice.vo.response.ResponseProduct;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -43,6 +45,8 @@ public class ProductDto implements Serializable {
                 .price(this.price)
                 .stock(this.stock)
                 .producer(this.producer)
+                .function(Function.valueOf(this.function))
+                .type(Type.valueOf(this.type))
                 .nutritionFacts(this.nutritionFacts)
                 .eventTime(this.eventTime)
                 .build();
@@ -54,6 +58,8 @@ public class ProductDto implements Serializable {
                 .name(this.name)
                 .price(this.price)
                 .stock(this.stock)
+                .function(this.function)
+                .type(this.type)
                 .producer(this.producer)
                 .nutritionFacts(this.nutritionFacts)
                 .eventTime(this.eventTime)

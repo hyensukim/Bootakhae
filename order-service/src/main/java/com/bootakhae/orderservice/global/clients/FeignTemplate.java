@@ -35,9 +35,19 @@ public class FeignTemplate {
     /**
      * 결제 정보 조회
      */
-    @Retry(name = "default-RT")
+    @Retry(name="default-RT", fallbackMethod = "fallbackForPay")
+//    @CircuitBreaker(name = "default-CB", fallbackMethod = "fallbackForPay")
     public ResponsePay getOnePay(String payId){
         return payClient.getOnePay(payId);
+    }
+
+    private ResponsePay fallbackForPay(String payId, Throwable throwable){
+        log.debug("getOnePay fallback : {}", throwable.getMessage());
+        return ResponsePay.builder()
+                .payId(payId)
+                .payMethod("ERR")
+                .totalPrice(0L)
+                .build();
     }
 
     /**
