@@ -86,6 +86,8 @@ Test
 
 - wishlist 내 상품 일괄 주문 처리 중 Redisson Lock 사용 시 문제 발생
     - 전체 상품 마다 Lock을 걸어주면서 병목 현상이 발생하여 성능 저하 발생( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-%EC%9C%84%EC%8B%9C%EB%A6%AC%EC%8A%A4%ED%8A%B8-%EB%82%B4-%EC%A0%84%EC%B2%B4-%EC%83%81%ED%92%88-%EC%A3%BC%EB%AC%B8-%EC%8B%9C-Lock-%EC%A0%81%EC%9A%A9-%EB%B0%A9%EC%8B%9D) )
+ 
+- wishlist 상품 일괄 주문 등록 실행 중 오류 발생 ( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-wishlist-%EC%83%81%ED%92%88-%EC%9D%BC%EA%B4%84-%EC%A3%BC%EB%AC%B8-%EB%93%B1%EB%A1%9D-%EC%8B%A4%ED%96%89-%EC%A4%91-%EC%98%A4%EB%A5%98-%EB%B0%9C%EC%83%9D) )
 - Redis Cache와 MariaDB 간의 데이터 정합성 불일치 문제 발생
 - CircuitBreaker 실패율 집계 시 400번대 오류도 카운팅되는 오류 발생
 - HttpMediaTypeNotAcceptableException 발생
