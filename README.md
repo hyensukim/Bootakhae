@@ -109,4 +109,4 @@ Test
 - [API 명세서](https://dark-elm-e4a.notion.site/3643ce7aec4b4dea82b4c3bc8535a76f?v=ff50dfcedb3b4b27ab999ae160c74d27&pvs=4)
 
 - ERD
-    ![ERD](https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2F81cfe124-34c3-47ae-8bfa-2111950b84c6%2Fe1a3515f-1080-4d79-b1ab-c4ad01447eef%2FdrawSQL-image-export-2024-05-16.png?table=block&id=4977227b-5063-4b75-9b3b-5df515dd4950&spaceId=81cfe124-34c3-47ae-8bfa-2111950b84c6&width=2000&userId=4143463d-d548-47bb-97d8-60f13214f72c&cache=v2)
+    ![ERD](https://raw.githubusercontent.com/hyensukim/Bootakhae/main/images/ERD.png)
