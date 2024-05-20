@@ -20,6 +20,7 @@ public class ReturnOrderServiceImpl implements ReturnOrderService {
 
     @Override
     public List<ReturnOrderDto> getReturnOrders(int nowPage, int pageSize) {
+        log.debug("반품 목록 조회");
         Page<ReturnOrderEntity> returnList = returnOrderRepository.findAll(PageRequest.of(nowPage,pageSize));
         return returnList.stream().map(ReturnOrderEntity::entityToDto).toList();
     }

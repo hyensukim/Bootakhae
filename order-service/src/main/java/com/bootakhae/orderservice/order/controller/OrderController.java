@@ -3,9 +3,8 @@ package com.bootakhae.orderservice.order.controller;
 import com.bootakhae.orderservice.order.dto.OrderDto;
 import com.bootakhae.orderservice.order.services.OrderService;
 import com.bootakhae.orderservice.order.vo.request.RequestOrder;
-import com.bootakhae.orderservice.order.vo.request.RequestReturnOrder;
 import com.bootakhae.orderservice.order.vo.response.ResponseOrder;
-import com.bootakhae.orderservice.wishlist.vo.request.RequestWishlist;
+
 
 import jakarta.validation.Valid;
 
@@ -37,15 +36,6 @@ public class OrderController {
     public ResponseEntity<ResponseOrder> createOrder(@Valid @RequestBody RequestOrder request) {
         OrderDto orderDetails =  orderService.registerOrder(request.voToDto());
         ResponseOrder response = orderDetails.dtoToVo();
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    /**
-     * 위시리스트 주문하기
-     */
-    @PostMapping("wishes")
-    public ResponseEntity<ResponseOrder> createOrderByWishlist(@Valid @RequestBody RequestWishlist request) {
-        ResponseOrder response = orderService.registerWishlist(request.voToDto()).dtoToVo();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

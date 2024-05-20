@@ -2,14 +2,11 @@ package com.bootakhae.orderservice.order.vo.request;
 
 import com.bootakhae.orderservice.global.constant.Reason;
 import com.bootakhae.orderservice.order.dto.ReturnOrderDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access =  AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class RequestReturnOrder {
     private String orderId;

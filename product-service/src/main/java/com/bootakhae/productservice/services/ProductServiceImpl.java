@@ -93,10 +93,6 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
 
-        if (productList.isEmpty()) {
-            throw new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT);
-        }
-
         Map<String, Long> productMap = request.getProductInfoList()
                 .stream()
                 .collect(Collectors.toMap(ProductInfo::getProductId,ProductInfo::getQty));
@@ -108,7 +104,10 @@ public class ProductServiceImpl implements ProductService {
 
         return productList
                 .stream()
-                .map(ProductEntity::entityToDto)
+                .map(p-> {
+                    Long qty = productMap.get(p.getProductId());
+                    return p.entityToDto(qty);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -190,7 +189,7 @@ public class ProductServiceImpl implements ProductService {
         return ProductListDto.builder()
                 .totalPages(pageList.getTotalPages())
                 .totalProducts(pageList.getTotalElements())
-                .productList(pageList.stream().map(ProductEntity::entityToDtoList).toList())
+                .productList(pageList.stream().map(ProductEntity::entityToDto).toList())
                 .build();
     }
 

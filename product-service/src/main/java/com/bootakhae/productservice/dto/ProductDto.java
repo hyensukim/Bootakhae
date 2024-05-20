@@ -4,11 +4,7 @@ import com.bootakhae.productservice.entities.ProductEntity;
 import com.bootakhae.productservice.global.constant.Function;
 import com.bootakhae.productservice.global.constant.Type;
 import com.bootakhae.productservice.vo.response.ResponseProduct;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -27,6 +23,8 @@ public class ProductDto implements Serializable {
     private Long price;
 
     private Long stock;
+
+    private Long qty; // 재고 처리 후 반환 필드
 
     private String producer;
 
@@ -58,6 +56,7 @@ public class ProductDto implements Serializable {
                 .name(this.name)
                 .price(this.price)
                 .stock(this.stock)
+                .qty(this.qty)
                 .function(this.function)
                 .type(this.type)
                 .producer(this.producer)

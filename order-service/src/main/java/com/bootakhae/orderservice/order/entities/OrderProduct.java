@@ -37,10 +37,10 @@ public class OrderProduct {
     @Column(name = "order_product_qty", nullable = false)
     private Long qty;
 
-    public static OrderProduct createOrderedProduct(OrderEntity order, ResponseProduct product, Long qty) {
+    public static OrderProduct createOrderedProduct(OrderEntity order,String productId, Long qty) {
         return OrderProduct.builder()
                 .order(order)
-                .productId(product.getProductId())
+                .productId(productId)
                 .qty(qty)
                 .build();
     }

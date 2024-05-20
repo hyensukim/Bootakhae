@@ -1,6 +1,6 @@
 package com.bootakhae.orderservice.global.clients.vo.request;
 
-import com.bootakhae.orderservice.order.vo.ProductInfo;
+import com.bootakhae.orderservice.order.dto.OrderProductDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,5 +14,5 @@ import java.util.List;
 @AllArgsConstructor
 public class RequestStock {
     private String stockProcess;
-    private List<ProductInfo> productInfoList;
+    private List<OrderProductDto> productInfoList;
 }

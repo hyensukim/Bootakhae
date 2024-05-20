@@ -127,7 +127,7 @@ public class OrderEntity extends BaseEntity {
                 .createdAt(this.getCreatedAt())
                 .updatedAt(this.getUpdatedAt())
                 .orderStatus(this.status)
-                .orderedProducts(orderedProducts)
+                .orderProductList(orderedProducts)
                 .build();
     }
 }

@@ -9,8 +9,6 @@ public interface OrderService {
 
     OrderDto registerOrder(OrderDto orderDetails);
 
-    OrderDto registerWishlist(OrderDto orderDetails);
-
     OrderDto completePayment(String payId);
 
     OrderDto removeOrder(String orderId);
