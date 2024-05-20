@@ -19,9 +19,6 @@ public class ResponseProduct {
 
     private Long price;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long stock;
-
     private String function;
 
     private String type;
@@ -29,6 +26,12 @@ public class ResponseProduct {
     private String producer;
 
     private String nutritionFacts;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long stock;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long qty;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime eventTime;

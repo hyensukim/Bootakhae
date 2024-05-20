@@ -4,151 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="52761229-1d80-4bb2-8d08-163662576622" name="Changes" comment="fix : Monolith -&gt; MSA 구조 변경">
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/controller/OrderController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/controller/ReturnOrderController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/dto/OrderDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/dto/OrderProductDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/dto/ReturnOrderDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/entities/OrderEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/entities/OrderProduct.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/entities/ReturnOrderEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/global/constant/Reason.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/global/constant/Status.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/global/entities/BaseEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/global/exception/CustomException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/repositories/OrderProductRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/repositories/OrderRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/repositories/ReturnOrderRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/services/OrderService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/services/OrderServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/services/ReturnOrderService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/services/ReturnOrderServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/vo/request/RequestOrder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/vo/request/RequestReturnOrder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/vo/request/RequestWishlist.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/vo/response/ResponseOrder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/bootakhae/orderservice/vo/response/ResponseReturn.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/controllers/ProductController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/dto/ProductDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/entities/ProductEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/global/entities/BaseEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/global/exception/CustomException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/repositories/ProductRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/services/ProductService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/services/ProductServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/vo/request/RequestProduct.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/bootakhae/productservice/vo/response/ResponseProduct.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/dto/CryptoInfoDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/dto/TokenDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/dto/UserDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/entities/TokenEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/entities/UserEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/constant/Role.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/converter/CryptoStringConverter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/entities/BaseEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/exception/CustomException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/jwt/AuthenticationFilter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/jwt/JwtValidationFilter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/jwt/TokenProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/mapper/UserMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/utils/AesCryptoUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/global/utils/AuthUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/repositories/TokenRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/repositories/UserRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/EmailService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/EmailServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/TokenService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/TokenServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/UserService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/services/UserServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/vo/request/RequestEmailCheck.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/vo/request/RequestLogin.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/vo/request/RequestPassword.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/vo/request/RequestUser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/bootakhae/userservice/vo/response/ResponseUser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/ISSUE_TEMPLATE/이슈-생성-템플릿.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/WebappApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/ErrorControllerAdvisor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/converter/CryptoStringConverter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/entities/BaseEntity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/exception/CustomException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/utils/AesCryptoUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/common/utils/AuthUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/config/SecurityConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/jwt/AuthenticationFilter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/jwt/JwtValidationFilter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/jwt/TokenProvider.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/constant/Reason.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/constant/Status.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/controller/OrderController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/controller/ReturnOrderController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/dto/OrderDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/dto/OrderProductDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/dto/ReturnOrderDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/entities/OrderEntity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/entities/OrderProduct.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/entities/ReturnOrderEntity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/repositories/OrderProductRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/repositories/OrderRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/repositories/ReturnOrderRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/services/OrderService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/services/OrderServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/services/ReturnOrderService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/services/ReturnOrderServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/vo/request/RequestOrder.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/vo/request/RequestReturnOrder.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/vo/request/RequestWishlist.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/vo/response/ResponseOrder.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/order/vo/response/ResponseReturn.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/controllers/ProductController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/dto/ProductDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/entities/ProductEntity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/repositories/ProductRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/services/ProductService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/services/ProductServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/vo/request/RequestProduct.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/product/vo/response/ResponseProduct.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/constant/Role.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/controllers/EmailController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/controllers/UserController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/dto/AuthInfoDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/dto/CryptoInfoDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/dto/TokenDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/dto/UserDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/entities/TokenEntity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/entities/UserEntity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/mapper/UserMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/repositories/TokenRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/repositories/UserRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/EmailService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/EmailServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/TokenService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/TokenServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/UserService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/services/UserServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/vo/request/RequestEmailCheck.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/vo/request/RequestLogin.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/vo/request/RequestPassword.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/vo/request/RequestUser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/user/vo/response/ResponseUser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/controllers/WishlistController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/dto/request/RequestWishDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/dto/response/ResponseWishDto.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/entities/WishEntity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/repositories/WishlistRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/services/WishlistService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/services/WishlistServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/bootakhae/webapp/wishlist/vo/ProductInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/bootakhae/webapp/WebappApplicationTests.java" beforeDir="false" />
-    </list>
+    <list default="true" id="52761229-1d80-4bb2-8d08-163662576622" name="Changes" comment="fix : Monolith -&gt; MSA 구조 변경" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -241,30 +97,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Gradle.Build webapp.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Download Sources.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.VerificationCodeTest.makeTempPass.executor&quot;: &quot;Run&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;Spring Boot.WebappApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/project/webapp/user-service&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.Build webapp.executor": "Run",
+    "Gradle.Download Sources.executor": "Run",
+    "Gradle.VerificationCodeTest.makeTempPass.executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "Spring Boot.WebappApplication.executor": "Run",
+    "git-widget-placeholder": "ref#38",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/project/webapp",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.bootakhae.webapp.order.constant" />
@@ -353,6 +209,7 @@
       <workItem from="1713918451995" duration="4065000" />
       <workItem from="1713923442420" duration="410000" />
       <workItem from="1713923871422" duration="596000" />
+      <workItem from="1716185409962" duration="375000" />
     </task>
     <task id="LOCAL-00001" summary="feat : 회원가입 기능 구현 및 유효성 검사">
       <option name="closed" value="true" />

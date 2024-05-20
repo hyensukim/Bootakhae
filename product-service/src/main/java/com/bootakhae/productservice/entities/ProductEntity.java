@@ -73,29 +73,23 @@ public class ProductEntity extends BaseEntity {
         this.eventTime = eventTime;
     }
 
+    /* entity -> dto */
     public ProductDto entityToDto(){
+        return entityToDto(null);
+    }
+
+    public ProductDto entityToDto(Long qty) {
         return ProductDto.builder()
                 .productId(this.productId)
                 .name(this.name)
                 .price(this.price)
                 .stock(this.stock)
+                .qty(qty)
                 .function(this.function.name())
                 .type(this.type.name())
                 .producer(this.producer)
                 .nutritionFacts(this.nutritionFacts)
                 .eventTime(this.eventTime)
-                .build();
-    }
-
-    public ProductDto entityToDtoList(){
-        return ProductDto.builder()
-                .productId(this.productId)
-                .name(this.name)
-                .price(this.price)
-                .function(this.function.name())
-                .type(this.type.name())
-                .producer(this.producer)
-                .nutritionFacts(this.nutritionFacts)
                 .build();
     }
 }

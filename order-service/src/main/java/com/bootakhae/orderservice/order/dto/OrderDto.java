@@ -18,13 +18,17 @@ import java.util.List;
 public class OrderDto {
     // 요청 들어온 정보
     private String userId;
-    private String productId;
     private String address1;
     private String address2;
-    private String phone;
-    private Long qty;
-    private String payMethod;
 //    private Boolean chooseBasicAddress;
+    private String phone;
+
+//    private String productId;
+//    private Long qty;
+    private List<OrderProductDto> orderProductList;
+
+    private String payMethod;
+
 
     private String orderId;
     private String payId;
@@ -33,7 +37,6 @@ public class OrderDto {
     private LocalDateTime returnAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<OrderProductDto> orderedProducts;
 
     public ResponseOrder dtoToVo(){
         return ResponseOrder.builder()
@@ -49,15 +52,11 @@ public class OrderDto {
                 .createdAt(this.createdAt) // 주문일자
                 .updatedAt(this.updatedAt) // 업데이트 일자
                 .orderStatus(this.orderStatus) // 주문 상태
-                .orderedProducts(this.orderedProducts)// 주문 상품
+                .orderedProducts(this.orderProductList)// 주문 상품
                 .build();
     }
 
     public OrderEntity dtoToEntity(String userId){
-        return dtoToEntity(userId, 0L);
-    }
-
-    public OrderEntity dtoToEntity(String userId, Long price){
         return OrderEntity.builder()
                 .userId(userId)
                 .address1(this.address1)
