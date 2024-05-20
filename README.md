@@ -72,7 +72,7 @@ Test
     - 주문 서비스 구현 중 재고 차감 처리 시 동시성 문제 발생( [자세히 보기](https://velog.io/@hyensukim/BootakHae-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0) )
     - 해결 방법 중 Redis를 활용한 분산락 도입( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B02) )
 - CircuitBreaker 및 Retry 도입 개소
-    - 이벤트 시간 동안 주문 처리 로직에 트레픽이 응집될 것을 대비하여 도입( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-CircuitBreaker-%EB%8F%84%EC%9E%85-%EA%B0%9C%EC%86%8C) ) - 미완
+    - 이벤트 시간 동안 주문 처리 로직에 트레픽이 응집될 것을 대비하여 도입( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-CircuitBreaker-%EB%8F%84%EC%9E%85-%EA%B0%9C%EC%86%8C) )
 
 <br>
 
