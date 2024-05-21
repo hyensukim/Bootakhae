@@ -39,8 +39,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService{
             throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        String newAccessToken = tokenProvider.createAccessToken(userId);
-        String newRefreshToken = tokenProvider.createRefreshToken();
+        String roles = tokenProvider.getRolesByToken(refreshToken);
+
+        String newAccessToken = tokenProvider.createAccessToken(userId, roles);
+        String newRefreshToken = tokenProvider.createRefreshToken(roles);
 
         return new TokenDto(userId, newAccessToken, newRefreshToken);
     }

@@ -103,17 +103,16 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    // 2
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
         UserEntity userEntity = userRepository.findByEmail(username)
                 .orElseThrow(()->new UsernameNotFoundException(username));
 
-//        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-//        authorities.add(new SimpleGrantedAuthority(userEntity.getRole().name()));
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(userEntity.getRole().name()));
 
         return new User(userEntity.getEmail(), userEntity.getPassword(),
-                true,true,true,true,
-                new ArrayList<>());
+                true,true,true,true, authorities);
     }
 }

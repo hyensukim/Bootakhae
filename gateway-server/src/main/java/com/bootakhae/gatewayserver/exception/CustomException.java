@@ -1,4 +1,4 @@
-package com.bootakhae.gatewayserver.global.exception;
+package com.bootakhae.gatewayserver.exception;
 
 import lombok.Getter;
 

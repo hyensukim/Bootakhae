@@ -33,17 +33,19 @@ public class TokenProvider{
     @Value("${token.secret}")
     private String SECRET;
 
-    public String createAccessToken(String userId){
+    public String createAccessToken(String userId, String roles){
         return Jwts.builder()
                 .subject(userId)
+                .claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + Long.parseLong(ACCESS_EXPIRED_TIME)*1000L))
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    public String createRefreshToken(){
+    public String createRefreshToken(String roles){
         return Jwts.builder()
+                .claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + Long.parseLong(REFRESH_EXPIRED_TIME)*1000L))
                 .signWith(getSigningKey())
@@ -64,6 +66,10 @@ public class TokenProvider{
         return getClaimsFromToken(token).getExpiration();
     }
 
+    public String getRolesByToken(String token){
+        return getClaimsFromToken(token).get("roles", String.class);
+    }
+
     public UserDto getUserDetailsByEmail(String email){
         return userService.getUserDetailsByEmail(email);
     }
@@ -80,64 +86,4 @@ public class TokenProvider{
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
-//    public Authentication getAuthentication(String token) {
-//        Claims claims = Jwts.parser()
-//                .verifyWith(getSigningKey())
-//                .build()
-//                .parseSignedClaims(token)
-//                .getPayload();
-        /* 권한이 여러개인 경우에, 해당 로직으로 구현 */
-//        String authorities = String.valueOf(claims.get("auth"));
-//        authorities = StringUtils.hasText(authorities) ? authorities : Role.USER.name();
-//        List<SimpleGrantedAuthority> authorityList = Arrays.stream(authorities.split(","))
-//                .map(SimpleGrantedAuthority::new).toList();
-//
-//        UserDto dto = userService.getOneByUserId(claims.getSubject());
-//
-//        List<SimpleGrantedAuthority> authorityList = Arrays.stream(dto.getRole().name().split(","))
-//                .map(SimpleGrantedAuthority::new).toList();
-//
-//        User user =  new User(dto.getUserId(),dto.getPassword(),
-//                true,true,true,true,
-//                authorityList);
-//
-//        return new UsernamePasswordAuthenticationToken(user, token, user.getAuthorities());
-//    }
-
-//    public boolean validateToken(String token){
-//        try{
-//            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
-//            return true;
-//        } catch (SignatureException e) {
-//            log.error("Invalid JWT signature: {}", e.getMessage());
-//            return false;
-//        } catch (MalformedJwtException e) {
-//            log.error("Invalid JWT token: {}", e.getMessage());
-//            return false;
-//        } catch (ExpiredJwtException e) {
-//            log.error("JWT token is expired: {}", e.getMessage());
-//            return false;
-//        } catch (UnsupportedJwtException e) {
-//            log.error("JWT token is unsupported: {}", e.getMessage());
-//            return false;
-//        } catch (IllegalArgumentException e) {
-//            log.error("JWT claims string is empty: {}", e.getMessage());
-//            return false;
-//        }catch(Exception e){
-//            log.error("token 검증 중 오류 발생 : {}",e.getMessage());
-//            return false;
-//        }
-//    }
-
-//    public boolean isExpired(String token){
-//        try{
-//            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
-//            return false;
-//        }
-//        catch(ExpiredJwtException e){
-//            log.debug("Access token 만료됐습니다.",e);
-//            return true;
-//        }
-//    }
 }
