@@ -1,4 +1,4 @@
-package com.bootakhae.gatewayserver.global.util;
+package com.bootakhae.gatewayserver.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -89,6 +89,10 @@ public class TokenProvider {
 
     public String getUserIdByToken(String token){
         return getClaimsFromToken(token).getSubject();
+    }
+
+    public String getRolesByToken(String token){
+        return getClaimsFromToken(token).get("roles", String.class);
     }
 
     /**

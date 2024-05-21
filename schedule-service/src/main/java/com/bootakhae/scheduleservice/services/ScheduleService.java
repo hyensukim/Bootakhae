@@ -36,7 +36,7 @@ public class ScheduleService {
     }
 
     /**
-     * 매일 2시에 이벤트 상품 확인
+     * 매일 오후 2시에 이벤트 상품 확인
      */
     @Scheduled(cron = "${schedule.product.cron}")
     public void changeEventOpenFlag() {

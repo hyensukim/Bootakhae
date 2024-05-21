@@ -69,7 +69,8 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-#            - name: AuthorizationHeaderFilter # 테스트 시 주석처리
+            - name: AuthorizationHeaderFilter # 테스트 시 주석처리
+            - name: AdminAccessFilter
 
           # actuator
         - id: order-service
@@ -98,6 +99,15 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
+
+        - id : product-service
+          uri: http://localhost:8082/
+          predicates:
+            - Path=/product-service/api/v1/products
+            - Method=PUT
+          filters:
+            - name: AuthorizationHeaderFilter
+            - name: AdminAccessFilter
 
         # product-service 공통
         - id: product-service

@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -23,7 +24,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -40,16 +43,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     }
 
+    // 1
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
-        // credential - 자격증명, getInputStream()을 통해서 요청 바디에 담긴 데이터를 처리할 수 있다!
         try {
-            // 1. 요청 데이터 받기
             RequestLogin credential = new ObjectMapper().readValue(request.getInputStream(), RequestLogin.class);
 
-            // 2. Spring Security 에서 사용 가능한 인증 정보로 변환 - UsernamePasswordAuthenticationToken 으로 변환
-            // 3. AuthenticationManager 에게 인증 요청 정보 넘기기
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             credential.getEmail(),
@@ -60,6 +60,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         }
     }
 
+    // 3
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
@@ -69,17 +70,20 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         UserDetails user = ((User) authResult.getPrincipal());
 
-//        List<String> roles = user.getAuthorities()
-//                .stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .toList();
+        List<String> roleList = user.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        String roles = roleList.stream().collect(Collectors.joining(","));
 
         String email = user.getUsername();
+
         UserDto userDetails = tokenProvider.getUserDetailsByEmail(email);
 
-        String accessToken = tokenProvider.createAccessToken(userDetails.getUserId());
+        String accessToken = tokenProvider.createAccessToken(userDetails.getUserId(), roles);
         Date expiredTime = tokenProvider.getExpiredTime(accessToken);
-        String refreshToken = tokenProvider.createRefreshToken();
+        String refreshToken = tokenProvider.createRefreshToken(roles);
 
         refreshTokenService.saveTokenInfo(userDetails.getUserId(), refreshToken);
 
