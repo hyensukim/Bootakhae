@@ -1,6 +1,7 @@
 package com.bootakhae.productservice.services;
 
 import com.bootakhae.productservice.dto.ProductDto;
+import com.bootakhae.productservice.dto.ProductInfoDto;
 import com.bootakhae.productservice.dto.ProductListDto;
 import com.bootakhae.productservice.entities.ProductEntity;
 import com.bootakhae.productservice.global.exception.CustomException;
@@ -194,14 +195,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> getAllByProductIds(List<String> productIds) {
+    public void checkStock(List<ProductInfoDto> productInfoList) {
         log.debug("위시 리스트에 등록된 상품 목록 조회 실행");
+
+        Map<String,Long> productMap = new HashMap<>();
+        List<String> productIds = new ArrayList<>();
+
+        productInfoList.forEach(productInfo -> {
+            productIds.add(productInfo.getProductId());
+            productMap.put(productInfo.getProductId(), productInfo.getQty());}
+        );
+
         List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
 
-        if (productList.isEmpty()) {
-            throw new CustomException(ErrorCode.NOT_EXISTS_WISHLIST);
+        for(ProductEntity product : productList) {
+            Long qty = productMap.get(product.getProductId());
+            if(product.getStock() < qty){
+                throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
+            }
         }
-
-        return productList.stream().map(ProductEntity::entityToDto).toList();
     }
 }

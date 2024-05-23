@@ -6,6 +6,7 @@ import com.bootakhae.orderservice.order.dto.OrderProductDto;
 import com.bootakhae.orderservice.order.dto.ReturnOrderDto;
 import com.bootakhae.orderservice.global.entities.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "orders")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderEntity extends BaseEntity {
 
     @Builder
@@ -28,14 +29,12 @@ public class OrderEntity extends BaseEntity {
                        String address1,
                        String address2,
                        String phone
-//                       ,Long totalPrice
     ){
         this.orderId = Objects.requireNonNullElse(orderId, UUID.randomUUID().toString());
         this.userId = userId;
         this.address1 = address1;
         this.address2 = address2;
         this.phone = phone;
-//        this.totalPrice = Objects.requireNonNullElse(totalPrice, 0L);
         this.status = Status.PAYING;
     }
 
@@ -105,7 +104,26 @@ public class OrderEntity extends BaseEntity {
     }
 
     public OrderDto entityToDto(){
-        return entityToDto(null, null);
+        return entityToDto(null);
+    }
+
+    public OrderDto entityToDto(Long totalPrice){
+        return OrderDto.builder()
+                .orderId(this.orderId)
+                .userId(this.userId)
+                .totalPrice(totalPrice)
+                .address1(this.address1)
+                .address2(this.address2)
+                .phone(this.phone)
+                .returnAt(this.returnOrder != null ? this.returnOrder.getCreatedAt() : null)
+                .createdAt(this.getCreatedAt())
+                .updatedAt(this.getUpdatedAt())
+                .orderStatus(this.status)
+                .orderProductList(this.orderProducts
+                        .stream()
+                        .map(OrderProduct::entityToDto)
+                        .collect(Collectors.toList()))
+                .build();
     }
 
     public OrderDto entityToDto(Long totalPrice, String payMethod){
@@ -118,7 +136,7 @@ public class OrderEntity extends BaseEntity {
                 .orderId(this.orderId)
                 .userId(this.userId)
                 .payId(this.payId)
-                .payMethod(payMethod)
+//                .payMethod(payMethod)
                 .totalPrice(totalPrice)
                 .address1(this.address1)
                 .address2(this.address2)

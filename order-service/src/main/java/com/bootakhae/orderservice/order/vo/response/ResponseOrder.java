@@ -20,7 +20,7 @@ public class ResponseOrder {
     private String orderId;
     private String userId;
     private String payId;
-    private String payMethod;
+//    private String payMethod;
     private Long totalPrice;
     private String address1;
     private String address2;

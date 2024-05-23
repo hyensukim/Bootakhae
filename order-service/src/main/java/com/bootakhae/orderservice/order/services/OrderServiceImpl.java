@@ -1,7 +1,6 @@
 package com.bootakhae.orderservice.order.services;
 
 import com.bootakhae.orderservice.global.clients.FeignTemplate;
-import com.bootakhae.orderservice.global.clients.vo.request.RequestPay;
 import com.bootakhae.orderservice.global.clients.vo.request.RequestStock;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponsePay;
 import com.bootakhae.orderservice.global.constant.Status;
@@ -19,11 +18,6 @@ import com.bootakhae.orderservice.global.exception.ErrorCode;
 import com.bootakhae.orderservice.order.repositories.OrderRepository;
 import com.bootakhae.orderservice.order.repositories.ReturnOrderRepository;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponseProduct;
-import com.bootakhae.orderservice.global.clients.vo.response.ResponseUser;
-
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-
-import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,21 +44,18 @@ public class OrderServiceImpl implements OrderService{
 
     @Transactional
     @Override
-    @CircuitBreaker(name = "default-CB")
-    @Retry(name = "default-RT")
+//    @CircuitBreaker(name = "default-CB")
+//    @Retry(name = "default-RT")
     public OrderDto registerOrder(OrderDto orderDetails) {
         log.debug("주문 등록 실행");
         long startTime = System.currentTimeMillis();
 
-        // 회원 조회
-        ResponseUser user = feignTemplate.findUserByUserId(orderDetails.getUserId());
-
-        // 주문할 상품 리스트
         List<OrderProductDto> orderProductList = orderDetails.getOrderProductList();
 
-        if(orderProductList.isEmpty()) throw new CustomException(ErrorCode.NOT_EXISTS_PRODUCT_IN_ORDER);
+        // 1. 재고 확인
+        feignTemplate.checkStock(orderProductList);
 
-        // 1. 재고 감소
+        // 2. 재고 감소
         List<ResponseProduct> productList = feignTemplate.updateStock(
                 RequestStock.builder()
                         .stockProcess(StockProcess.DECREASE.name())
@@ -74,7 +65,7 @@ public class OrderServiceImpl implements OrderService{
 
         try {
             // 2. 주문 정보 입력
-            OrderEntity order = orderDetails.dtoToEntity(user.getUserId());
+            OrderEntity order = orderDetails.dtoToEntity();
             long sum = 0L;
             for( ResponseProduct product : productList) {
                 OrderProduct orderProduct
@@ -83,17 +74,17 @@ public class OrderServiceImpl implements OrderService{
                 sum += (product.getPrice() * product.getQty());
             }
 
-            // 3. 결제 처리
-            ResponsePay pay = feignTemplate.registerPay(RequestPay.builder()
-                    .orderId(order.getOrderId())
-                    .payMethod(orderDetails.getPayMethod())
-                    .totalPrice(sum)
-                    .build()
-            );
-            order.registerPay(pay.getPayId());
+//            // 3. 결제 처리
+//            ResponsePay pay = feignTemplate.registerPay(RequestPay.builder()
+//                    .orderId(order.getOrderId())
+//                    .payMethod(orderDetails.getPayMethod())
+//                    .totalPrice(sum)
+//                    .build()
+//            );
+//            order.registerPay(pay.getPayId());
             orderRepository.save(order);
             log.debug("정상 처리까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
-            return order.entityToDto(pay.getTotalPrice(), pay.getPayMethod());
+            return order.entityToDto(sum);
         }catch(ClientException e){
             feignTemplate.updateStock(
                     RequestStock.builder()
