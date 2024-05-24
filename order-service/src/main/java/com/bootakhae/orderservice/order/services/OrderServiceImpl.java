@@ -44,57 +44,31 @@ public class OrderServiceImpl implements OrderService{
 
     @Transactional
     @Override
-//    @CircuitBreaker(name = "default-CB")
-//    @Retry(name = "default-RT")
     public OrderDto registerOrder(OrderDto orderDetails) {
         log.debug("주문 등록 실행");
         long startTime = System.currentTimeMillis();
-
-        List<OrderProductDto> orderProductList = orderDetails.getOrderProductList();
+        List<OrderProductDto> orderProductList = orderDetails.getOrderProductList(); // 주문 요청 상품
 
         // 1. 재고 확인
         feignTemplate.checkStock(orderProductList);
 
         // 2. 재고 감소
-        List<ResponseProduct> productList = feignTemplate.updateStock(
-                RequestStock.builder()
-                        .stockProcess(StockProcess.DECREASE.name())
-                        .productInfoList(orderProductList)
-                        .build()
-        );
+        List<ResponseProduct> productList = feignTemplate.decreaseStock(orderProductList);
 
         try {
-            // 2. 주문 정보 입력
+            // 3. 주문 처리
             OrderEntity order = orderDetails.dtoToEntity();
             long sum = 0L;
-            for( ResponseProduct product : productList) {
-                OrderProduct orderProduct
-                        = OrderProduct.createOrderedProduct(order,product.getProductId(), product.getQty());
-                order.getOrderProducts().add(orderProduct);
-                sum += (product.getPrice() * product.getQty());
+            for (ResponseProduct product : productList) {
+                OrderProduct orderProduct =
+                        OrderProduct.createOrderedProduct(order, product.getProductId(), product.getQty());
+                order.getOrderProducts().add(orderProduct); // 주문 상품 등록
+                sum += (product.getPrice() * product.getQty()); // 총비용 연산
             }
 
-//            // 3. 결제 처리
-//            ResponsePay pay = feignTemplate.registerPay(RequestPay.builder()
-//                    .orderId(order.getOrderId())
-//                    .payMethod(orderDetails.getPayMethod())
-//                    .totalPrice(sum)
-//                    .build()
-//            );
-//            order.registerPay(pay.getPayId());
             orderRepository.save(order);
             log.debug("정상 처리까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
             return order.entityToDto(sum);
-        }catch(ClientException e){
-            feignTemplate.updateStock(
-                    RequestStock.builder()
-                            .stockProcess(StockProcess.RESTORE.name())
-                            .productInfoList(orderProductList)
-                            .build()
-            );
-
-            log.debug("복구까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
-            throw new ClientException(ErrorCode.FEIGN_CLIENT_ERROR, e.getMessage());
         }catch(Exception e){
             feignTemplate.updateStock(
                     RequestStock.builder()

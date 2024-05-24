@@ -45,7 +45,12 @@ public class FeignTemplate {
     /**
      * 재고 감소
      */
-
+    public List<ResponseProduct> decreaseStock(List<OrderProductDto> orderProductList){
+        return productClient.decreaseStock(orderProductList.stream()
+                .map(OrderProductDto::dtoToVo)
+                .collect(Collectors.toList())
+        );
+    }
     /**
      * 재고 복구
      */
@@ -56,9 +61,9 @@ public class FeignTemplate {
     /**
      * 결제 생성
      */
-    public ResponsePay registerPay(RequestPay request){
-        return payClient.payment(request);
-    }
+//    public ResponsePay registerPay(RequestPay request){
+//        return payClient.payment(request);
+//    }
 
     /**
      * 결제 정보 조회

@@ -21,7 +21,7 @@ public class LettuceInventoryFacade {
             Thread.sleep(100);
         }
         try{
-            productService.decreaseStock(productId, qty);
+            productService.decreaseStockTest(productId, qty);
         }finally{
             lettuceTemplate.unlock(productId);
         } // 예외와 상관 없이 Lock 반환

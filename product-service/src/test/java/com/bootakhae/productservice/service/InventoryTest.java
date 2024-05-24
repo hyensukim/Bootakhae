@@ -83,7 +83,7 @@ public class InventoryTest {
         // given
 
         //when
-        ProductDto productDto = productService.decreaseStock(uuid,1L );
+        ProductDto productDto = productService.decreaseStockTest(uuid,1L );
 
         //then
         assertEquals(99, productDto.getStock());
@@ -101,7 +101,7 @@ public class InventoryTest {
         for(int i=0; i< 5000 ;i++){
             executorService.submit(() -> {
                 try{
-                    ProductDto dto = productService.decreaseStock(uuid, 1L);
+                    ProductDto dto = productService.decreaseStockTest(uuid, 1L);
 //                    System.out.println(dto.getStock());
                 }finally{
                     countDownLatch.countDown(); // 요청이 들어간 쓰레드는 대기 상태로 전환

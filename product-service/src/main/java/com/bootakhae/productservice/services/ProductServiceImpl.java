@@ -112,6 +112,26 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<ProductDto> decreaseStock(List<ProductInfoDto> productInfoList) {
+        log.debug("상품 재고 감소 실행");
+        List<String> productIds = productInfoList.stream()
+                .map(ProductInfoDto::getProductId).collect(Collectors.toList());
+        Map<String,Long> productMap = productInfoList.stream()
+                .collect(Collectors.toMap(ProductInfoDto::getProductId, ProductInfoDto::getQty));
+
+        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
+
+        for(ProductEntity product : productList) {
+            Long qty = productMap.get(product.getProductId());
+            product.decreaseStock(qty);
+        }
+
+        productList = productRepository.saveAllAndFlush(productList);
+
+        return  productList.stream().map(ProductEntity::entityToDto).collect(Collectors.toList());
+    }
+
     private void stockProcess(String stockProcess, ProductEntity product, Long qty) {
         switch(stockProcess){
             case "DECREASE" -> {
@@ -128,8 +148,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
 //    public synchronized ProductDto decreaseStock(String productId, Long qty) {
 //        log.debug("synchronized - 상품 재고 감소 실행");
-    public ProductDto decreaseStock(String productId, Long qty) {
-        log.debug("상품 재고 감소 실행");
+    public ProductDto decreaseStockTest(String productId, Long qty) {
+        log.debug("테스트 - 상품 재고 감소 실행");
         ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
         );

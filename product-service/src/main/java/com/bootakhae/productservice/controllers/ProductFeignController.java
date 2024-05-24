@@ -11,10 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,8 +28,8 @@ public class ProductFeignController {
      */
     @GetMapping("{productId}")
     public ResponseEntity<ResponseProduct> getOneProduct(@PathVariable("productId") String productId){
-        ProductDto dto = productService.getOneProduct(productId);
-        ResponseProduct response = dto.dtoToVo();
+        ProductDto productDetails = productService.getOneProduct(productId);
+        ResponseProduct response = productDetails.dtoToVo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -41,8 +38,8 @@ public class ProductFeignController {
      * @from order-service
      */
     @PostMapping
-    public ResponseEntity<Void> checkStock(@RequestBody List<ProductInfo> productInfoList){
-        productService.checkStock(productInfoList.stream()
+    public ResponseEntity<Void> checkStock(@RequestBody List<ProductInfo> request){
+        productService.checkStock(request.stream()
                 .map(ProductInfo::voToDto)
                 .collect(Collectors.toList()));
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -55,10 +52,21 @@ public class ProductFeignController {
     @PutMapping
     public ResponseEntity<List<ResponseProduct>> updateProduct(@RequestBody RequestStock request){
         List<ProductDto> productDetailsList = productService.updateStock(request);
-        return ResponseEntity.status(HttpStatus.OK).body(productDetailsList
-                .stream()
-                .map(ProductDto::dtoToVo)
-                .collect(Collectors.toList())
-        );
+        List<ResponseProduct> response = productDetailsList.stream().map(ProductDto::dtoToVo).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     *
+     * @param request
+     * @return
+     */
+    @PutMapping("decrease")
+    public ResponseEntity<List<ResponseProduct>> decreaseStock(@RequestBody List<ProductInfo> request){
+        List<ProductDto> productDetailsList = productService.decreaseStock(request.stream()
+                .map(ProductInfo::voToDto)
+                .collect(Collectors.toList()));
+        List<ResponseProduct> response = productDetailsList.stream().map(ProductDto::dtoToVo).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
