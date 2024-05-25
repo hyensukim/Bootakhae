@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +20,7 @@ public class RequestUser {
     @NotBlank(message = "비밀번호를 입력해주세요")
     @Pattern(message = "영문자, 숫자, 특수문자('!','@','#','$','%','^','&','*','(',')')를 1자 이상 입력하세요.",
             regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*()\\[\\]{}]).+")
-    @Size(message = "비밀번호를 8자 이상 16자 이하로 입력하세요.",min = 8, max = 16)
+    @Length(message = "비밀번호를 8자 이상 16자 이하로 입력하세요.",min = 8, max = 16)
     private String password;
 
     @NotBlank(message = "우편번호를 입력해주세요")
@@ -30,7 +31,7 @@ public class RequestUser {
 
     @NotBlank(message = "이름을 입력해주세요")
     @Pattern(message = "이름을 한글로 작성해주세요", regexp="^[가-힣]+$")
-    @Size(min = 2, message = "이름은 2자 이상 입력하세요")
+    @Length(min = 2, message = "이름은 2자 이상 입력하세요")
     private String name;
 
     @NotBlank(message = "닉네임을 입력해주세요")

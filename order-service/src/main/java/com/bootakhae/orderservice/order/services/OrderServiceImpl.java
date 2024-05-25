@@ -1,15 +1,12 @@
 package com.bootakhae.orderservice.order.services;
 
 import com.bootakhae.orderservice.global.clients.FeignTemplate;
-import com.bootakhae.orderservice.global.clients.vo.request.RequestPay;
-import com.bootakhae.orderservice.global.clients.vo.request.RequestStock;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponsePay;
 import com.bootakhae.orderservice.global.constant.Status;
-import com.bootakhae.orderservice.global.constant.StockProcess;
-import com.bootakhae.orderservice.global.exception.ClientException;
 import com.bootakhae.orderservice.global.exception.ServerException;
 import com.bootakhae.orderservice.order.dto.OrderDto;
 import com.bootakhae.orderservice.order.dto.OrderProductDto;
+import com.bootakhae.orderservice.order.dto.PayDto;
 import com.bootakhae.orderservice.order.dto.ReturnOrderDto;
 import com.bootakhae.orderservice.order.entities.OrderEntity;
 import com.bootakhae.orderservice.order.entities.OrderProduct;
@@ -19,11 +16,6 @@ import com.bootakhae.orderservice.global.exception.ErrorCode;
 import com.bootakhae.orderservice.order.repositories.OrderRepository;
 import com.bootakhae.orderservice.order.repositories.ReturnOrderRepository;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponseProduct;
-import com.bootakhae.orderservice.global.clients.vo.response.ResponseUser;
-
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-
-import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,68 +42,30 @@ public class OrderServiceImpl implements OrderService{
 
     @Transactional
     @Override
-    @CircuitBreaker(name = "default-CB")
-    @Retry(name = "default-RT")
     public OrderDto registerOrder(OrderDto orderDetails) {
         log.debug("주문 등록 실행");
         long startTime = System.currentTimeMillis();
+        List<OrderProductDto> orderProductList = orderDetails.getOrderProductList(); // 주문 요청 상품
 
-        // 회원 조회
-        ResponseUser user = feignTemplate.findUserByUserId(orderDetails.getUserId());
-
-        // 주문할 상품 리스트
-        List<OrderProductDto> orderProductList = orderDetails.getOrderProductList();
-
-        if(orderProductList.isEmpty()) throw new CustomException(ErrorCode.NOT_EXISTS_PRODUCT_IN_ORDER);
-
-        // 1. 재고 감소
-        List<ResponseProduct> productList = feignTemplate.updateStock(
-                RequestStock.builder()
-                        .stockProcess(StockProcess.DECREASE.name())
-                        .productInfoList(orderProductList)
-                        .build()
-        );
+        // 1. 재고 확인 및 감소
+        List<ResponseProduct> productList = feignTemplate.checkAndDecreaseStock(orderProductList);
 
         try {
-            // 2. 주문 정보 입력
-            OrderEntity order = orderDetails.dtoToEntity(user.getUserId());
+            // 2. 주문 처리
+            OrderEntity order = orderDetails.dtoToEntity();
             long sum = 0L;
-            for( ResponseProduct product : productList) {
-                OrderProduct orderProduct
-                        = OrderProduct.createOrderedProduct(order,product.getProductId(), product.getQty());
-                order.getOrderProducts().add(orderProduct);
-                sum += (product.getPrice() * product.getQty());
+            for (ResponseProduct product : productList) {
+                OrderProduct orderProduct =
+                        OrderProduct.createOrderedProduct(order, product.getProductId(), product.getQty());
+                order.getOrderProducts().add(orderProduct); // 주문 상품 등록
+                sum += (product.getPrice() * product.getQty()); // 총비용 연산
             }
 
-            // 3. 결제 처리
-            ResponsePay pay = feignTemplate.registerPay(RequestPay.builder()
-                    .orderId(order.getOrderId())
-                    .payMethod(orderDetails.getPayMethod())
-                    .totalPrice(sum)
-                    .build()
-            );
-            order.registerPay(pay.getPayId());
             orderRepository.save(order);
             log.debug("정상 처리까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
-            return order.entityToDto(pay.getTotalPrice(), pay.getPayMethod());
-        }catch(ClientException e){
-            feignTemplate.updateStock(
-                    RequestStock.builder()
-                            .stockProcess(StockProcess.RESTORE.name())
-                            .productInfoList(orderProductList)
-                            .build()
-            );
-
-            log.debug("복구까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
-            throw new ClientException(ErrorCode.FEIGN_CLIENT_ERROR, e.getMessage());
+            return order.entityToDto(sum);
         }catch(Exception e){
-            feignTemplate.updateStock(
-                    RequestStock.builder()
-                            .stockProcess(StockProcess.RESTORE.name())
-                            .productInfoList(orderProductList)
-                            .build()
-            );
-
+            feignTemplate.restoreStock(orderProductList);
             log.debug("복구까지 걸리는 시간 : {}", System.currentTimeMillis() - startTime);
             throw new ServerException(ErrorCode.FEIGN_SERVER_ERROR, e.getMessage());
         }
@@ -119,15 +73,13 @@ public class OrderServiceImpl implements OrderService{
 
     @Transactional
     @Override
-    public OrderDto completePayment(String payId) {
+    public void completePayment(PayDto payDetails) {
         log.debug("결제 완료 변경");
-        OrderEntity order = orderRepository.findByPayId(payId).orElseThrow(
+        OrderEntity order = orderRepository.findByOrderId(payDetails.getOrderId()).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXISTS_ORDER)
         );
-
+        order.registerPay(payDetails.getPayId());
         order.completePayment();
-
-        return order.entityToDto();
     }
 
 
@@ -138,33 +90,32 @@ public class OrderServiceImpl implements OrderService{
      */
     @Transactional
     @Override
-    public OrderDto removeOrder(String orderId) {
-        log.debug("주문 삭제 실행");
+    public OrderDto cancelOrder(String orderId) {
+        log.debug("주문 취소 실행");
 
         OrderEntity order = orderRepository.findByOrderId(orderId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_EXISTS_ORDER)
         );
 
-        List<OrderProduct> orderProducts = order.getOrderProducts();
-
-        List<OrderProductDto> productList = orderProducts.stream()
-                .map(OrderProduct::entityToDto)
-                .collect(Collectors.toList());
-
-        if(!orderProducts.isEmpty() && order.getStatus() == Status.PAYMENT){
-            feignTemplate.updateStock(
-                    RequestStock.builder()
-                            .stockProcess(StockProcess.RESTORE.name())
-                            .productInfoList(productList)
-                            .build()
-                    );
-            order.cancelTheOrder();
-        }
-        else if(order.getStatus() == Status.CANCEL){
+        if(order.getStatus() == Status.CANCEL){
             throw new CustomException(ErrorCode.ALREADY_CANCEL_ORDER);
         }
+        else if(order.getStatus() == Status.PAYING){
+            throw new CustomException(ErrorCode.NOT_COMPLETE_PAYMENT);
+        }
+        else {
 
-        return order.entityToDto();
+            List<OrderProductDto> orderProductList = order.getOrderProducts().stream()
+                    .map(OrderProduct::entityToDto)
+                    .collect(Collectors.toList());
+
+            if (order.getStatus() == Status.PAYMENT) {
+                feignTemplate.restoreStock(orderProductList);
+                order.cancelTheOrder();
+            }
+
+            return order.entityToDto();
+        }
     }
 
     @Override
@@ -178,14 +129,6 @@ public class OrderServiceImpl implements OrderService{
         ResponsePay payDetails = feignTemplate.getOnePay(order.getPayId());
 
         return order.entityToDto(payDetails.getTotalPrice(), payDetails.getPayMethod());
-    }
-
-    @Override
-    public List<OrderDto> getAllOrders() {
-        List<OrderEntity> orderList = orderRepository.findAll();
-        return orderList.stream()
-                .map(OrderEntity::entityToDto)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -226,14 +169,11 @@ public class OrderServiceImpl implements OrderService{
         for(OrderEntity order : orderList){
             List<OrderProduct> orderProductList = order.getOrderProducts();
 
-            List<OrderProductDto> productList = orderProductList.stream()
+            List<OrderProductDto> orderproductList = orderProductList.stream()
                     .map(OrderProduct::entityToDto)
                     .collect(Collectors.toList());
 
-            feignTemplate.updateStock(RequestStock.builder()
-                    .stockProcess(StockProcess.RESTORE.name())
-                    .productInfoList(productList)
-                    .build());
+            feignTemplate.restoreStock(orderproductList);
         }
 
         orderList.forEach(OrderEntity::returnTheOrder);

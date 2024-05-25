@@ -3,6 +3,7 @@ package com.bootakhae.productservice.controllers;
 import com.bootakhae.productservice.dto.ProductDto;
 import com.bootakhae.productservice.facade.RedissonInventoryFacade;
 import com.bootakhae.productservice.services.ProductService;
+import com.bootakhae.productservice.vo.request.ProductInfo;
 import com.bootakhae.productservice.vo.request.RequestStock;
 import com.bootakhae.productservice.vo.response.ResponseProduct;
 import lombok.RequiredArgsConstructor;
@@ -27,21 +28,21 @@ public class ProductFeignController {
      */
     @GetMapping("{productId}")
     public ResponseEntity<ResponseProduct> getOneProduct(@PathVariable("productId") String productId){
-        ProductDto dto = productService.getOneProduct(productId);
-        ResponseProduct response = dto.dtoToVo();
+        ProductDto productDetails = productService.getOneProduct(productId);
+        ResponseProduct response = productDetails.dtoToVo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     /**
-     * 위시 리스트 상품 목록 조회
-     * - 한번에 여러 아이디 값의 상품들을 조회하기 위해 PostMapping
+     * 재고 확인
      * @from order-service
      */
     @PostMapping
-    public ResponseEntity<List<ResponseProduct>> getProducts(@RequestBody List<String> productIds){
-        List<ProductDto> productDetailsList = productService.getAllByProductIds(productIds);
-        List<ResponseProduct> responseList = productDetailsList.stream().map(ProductDto::dtoToVo).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(responseList);
+    public ResponseEntity<Void> checkStock(@RequestBody List<ProductInfo> request){
+        productService.checkStock(request.stream()
+                .map(ProductInfo::voToDto)
+                .collect(Collectors.toList()));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     /**
@@ -51,10 +52,30 @@ public class ProductFeignController {
     @PutMapping
     public ResponseEntity<List<ResponseProduct>> updateProduct(@RequestBody RequestStock request){
         List<ProductDto> productDetailsList = productService.updateStock(request);
-        return ResponseEntity.status(HttpStatus.OK).body(productDetailsList
-                .stream()
-                .map(ProductDto::dtoToVo)
-                .collect(Collectors.toList())
-        );
+        List<ResponseProduct> response = productDetailsList.stream().map(ProductDto::dtoToVo).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * 재고 확인 및 감소
+     * @from order-service
+     */
+    @PutMapping("decrease")
+    public ResponseEntity<List<ResponseProduct>> checkAndDecreaseStock(@RequestBody List<ProductInfo> request){
+        List<ProductDto> productDetailsList = productService.checkAndDecreaseStock(request.stream()
+                .map(ProductInfo::voToDto)
+                .collect(Collectors.toList()));
+        List<ResponseProduct> response = productDetailsList.stream().map(ProductDto::dtoToVo).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * 재고 복구
+     * @from order-service
+     */
+    @PutMapping("restore")
+    public ResponseEntity<Void> restoreStock(@RequestBody List<ProductInfo> request){
+        productService.restoreStock(request.stream().map(ProductInfo::voToDto).collect(Collectors.toList()));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

@@ -17,7 +17,8 @@ public class ErrorAdvisor {
      */
     @ExceptionHandler(value = BindException.class)
     protected ResponseEntity<?> handleValidationError(BindException e){
-        log.error("[Validation] 유효성 검증 에러 발생 : ", e);
+        log.error("[Validation] 유효성 검증 에러 발생 :");
+        e.getFieldErrors().forEach(error -> log.error("- {}",error.getDefaultMessage()));
         List<String> errorMessageList = e.getFieldErrors().stream().map(
                 b->b.getField() + " : " + b.getDefaultMessage()
         ).toList();

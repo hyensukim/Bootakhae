@@ -18,17 +18,11 @@ public class PayDto {
 
     private String orderId;
 
-    private String orderStatus;
-
     private String payMethod;
 
     private Long totalPrice;
 
-    private String status;
-
     private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
 
     public PayEntity dtoToEntity() {
         return PayEntity.builder()
@@ -42,12 +36,9 @@ public class PayDto {
         return ResponsePay.builder()
                 .payId(this.payId)
                 .orderId(this.orderId)
-                .orderStatus(this.orderStatus)
                 .payMethod(this.payMethod)
-                .status(this.status)
                 .totalPrice(this.totalPrice)
                 .createdAt(this.createdAt)
-                .updatedAt(this.updatedAt)
                 .build();
     }
 }

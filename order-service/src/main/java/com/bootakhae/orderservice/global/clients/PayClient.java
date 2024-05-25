@@ -11,9 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "pay-service")
 public interface PayClient {
 
-    @PostMapping("api/v1/internal/pays")
-    ResponsePay payment(@RequestBody RequestPay request);
-
     @GetMapping("api/v1/internal/pays/{payId}")
     ResponsePay getOnePay(@PathVariable String payId);
 }

@@ -23,9 +23,9 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
+    private final Environment env;
     private final JavaMailSender emailSender;
     private final JavaMailSender javaMailSender;
-    private final Environment env;
     private final StringRedisTemplate stringRedisTemplate;
 
     private static final String OTP_PREFIX = "otp:";

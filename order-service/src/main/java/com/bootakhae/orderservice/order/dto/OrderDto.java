@@ -20,15 +20,10 @@ public class OrderDto {
     private String userId;
     private String address1;
     private String address2;
-//    private Boolean chooseBasicAddress;
     private String phone;
 
-//    private String productId;
-//    private Long qty;
     private List<OrderProductDto> orderProductList;
-
     private String payMethod;
-
 
     private String orderId;
     private String payId;
@@ -56,9 +51,9 @@ public class OrderDto {
                 .build();
     }
 
-    public OrderEntity dtoToEntity(String userId){
+    public OrderEntity dtoToEntity(){
         return OrderEntity.builder()
-                .userId(userId)
+                .userId(this.userId)
                 .address1(this.address1)
                 .address2(this.address2)
                 .phone(this.phone)

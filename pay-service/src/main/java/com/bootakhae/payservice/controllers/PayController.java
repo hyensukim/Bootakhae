@@ -2,6 +2,7 @@ package com.bootakhae.payservice.controllers;
 
 import com.bootakhae.payservice.dto.PayDto;
 import com.bootakhae.payservice.services.PayService;
+import com.bootakhae.payservice.vo.request.RequestPay;
 import com.bootakhae.payservice.vo.response.ResponsePay;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,12 +22,12 @@ public class PayController {
     }
 
     /**
-     * 결제 완료
+     * 결제 등록
      */
-    @PutMapping("{payId}")
-    public ResponseEntity<ResponsePay> completePayment(@PathVariable("payId") String payId){
-        PayDto payDetails = payService.completePay(payId);
+    @PostMapping
+    public ResponseEntity<ResponsePay> registerPay(@RequestBody RequestPay request){
+        PayDto payDetails = payService.registerPay(request.voToDto());
         ResponsePay response = payDetails.dtoToVo();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

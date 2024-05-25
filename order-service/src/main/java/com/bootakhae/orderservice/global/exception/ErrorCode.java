@@ -65,7 +65,9 @@ public enum ErrorCode {
     NOT_RETURN_DURATION(HttpStatus.BAD_REQUEST, "ORD-ERR-05", "배송 완료 후 1일이 지나 반품이 불가합니다."),
     ALREADY_CANCEL_ORDER(HttpStatus.BAD_REQUEST, "ORD-ERR-06","이미 취소된 주문입니다."),
 
-    FAILURE_ORDER(HttpStatus.BAD_REQUEST, "ORD-ERR-07","주문에 실패했습니다.");
+    FAILURE_ORDER(HttpStatus.BAD_REQUEST, "ORD-ERR-07","주문에 실패했습니다."),
+    ANYONE_ELSE_PRODUCT(HttpStatus.BAD_REQUEST,"ORD-ERR-08","요청하신 상품이 없습니다."),
+    NOT_COMPLETE_PAYMENT(HttpStatus.BAD_REQUEST,"ORD-ERR-09","결제가 완료되지 않았습니다.");
 
 
     private final HttpStatus status;

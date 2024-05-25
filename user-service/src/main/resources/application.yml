@@ -38,10 +38,6 @@ spring:
             enable: true # startTLS 활성화 여부 (기본값: false)
           auth: true # 사용자 인증 시도 여부 (기본값 : false)
           timeout: ${smtp-timeout} # Socket Read Timeout 시간 (기본값 : 무한)
-  data:
-    redis:
-      host: localhost
-      port: 6379
 
 management:
   endpoints:

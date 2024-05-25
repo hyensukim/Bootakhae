@@ -40,17 +40,17 @@ public class OrderController {
     }
 
     /**
-     * 주문 취소
+     * 주문취소
      */
     @DeleteMapping("{orderId}")
-    public ResponseEntity<ResponseOrder> removeOrder(@PathVariable String orderId) {
-        OrderDto orderDetails = orderService.removeOrder(orderId);
+    public ResponseEntity<ResponseOrder> cancelOrder(@PathVariable String orderId) {
+        OrderDto orderDetails = orderService.cancelOrder(orderId);
         ResponseOrder response = orderDetails.dtoToVo();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 
     /**
-     * 주문 상세 조회
+     * 주문상세 조회
      */
     @GetMapping("{orderId}")
     public ResponseEntity<ResponseOrder> getOrderDetail(@PathVariable String orderId) {
@@ -60,7 +60,7 @@ public class OrderController {
     }
 
     /**
-     * 회원 주문 목록 조회
+     * 회원주문목록 조회
      */
     @GetMapping("users/{userId}")
     public ResponseEntity<List<ResponseOrder>> getUsersOrder(@PathVariable String userId,

@@ -19,8 +19,11 @@ import java.util.List;
 public class ResponseOrder {
     private String orderId;
     private String userId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String payId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String payMethod;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long totalPrice;
     private String address1;
     private String address2;

@@ -1,6 +1,7 @@
 package com.bootakhae.productservice.services;
 
 import com.bootakhae.productservice.dto.ProductDto;
+import com.bootakhae.productservice.dto.ProductInfoDto;
 import com.bootakhae.productservice.dto.ProductListDto;
 import com.bootakhae.productservice.entities.ProductEntity;
 import com.bootakhae.productservice.global.exception.CustomException;
@@ -81,44 +82,56 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
+    @Override
+    public List<ProductDto> updateStock(RequestStock request) {
+        return List.of();
+    }
+
     @Transactional
     @Override
-    public List<ProductDto> updateStock(RequestStock request){
-        log.debug("상품 목록 재고 수량 변경 실행 : {}", request.getStockProcess());
+    public List<ProductDto> checkAndDecreaseStock(List<ProductInfoDto> productInfoList) {
+        log.debug("상품 재고 감소 실행");
+        Map<String,Long> productMap = new HashMap<>();
+        List<String> productIds = new ArrayList<>();
 
-        List<String> productIds = request.getProductInfoList()
+        productInfoList.forEach(productInfo -> {
+            productIds.add(productInfo.getProductId());
+            productMap.put(productInfo.getProductId(), productInfo.getQty());}
+        );
+
+        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
+
+        for(ProductEntity product : productList) {
+            Long qty = productMap.get(product.getProductId());
+            product.decreaseStock(qty);
+        }
+
+        productList = productRepository.saveAllAndFlush(productList);
+
+        return  productList.stream().map(p -> {
+            long qty = productMap.get(p.getProductId());
+            return p.entityToDto(qty);
+        }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public void restoreStock(List<ProductInfoDto> productInfoList) {
+        log.debug("상품 재고 복구 실행");
+        List<String> productIds = productInfoList
                 .stream()
-                .map(ProductInfo::getProductId)
+                .map(ProductInfoDto::getProductId)
                 .collect(Collectors.toList());
 
         List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
 
-        Map<String, Long> productMap = request.getProductInfoList()
+        Map<String, Long> productMap = productInfoList
                 .stream()
-                .collect(Collectors.toMap(ProductInfo::getProductId,ProductInfo::getQty));
+                .collect(Collectors.toMap(ProductInfoDto::getProductId,ProductInfoDto::getQty));
 
         for(ProductEntity product : productList) {
             Long qty = productMap.get(product.getProductId());
-            stockProcess(request.getStockProcess(), product, qty);
-        }
-
-        return productList
-                .stream()
-                .map(p-> {
-                    Long qty = productMap.get(p.getProductId());
-                    return p.entityToDto(qty);
-                })
-                .collect(Collectors.toList());
-    }
-
-    private void stockProcess(String stockProcess, ProductEntity product, Long qty) {
-        switch(stockProcess){
-            case "DECREASE" -> {
-                product.decreaseStock(qty);
-            }
-            case "RESTORE" -> {
-                product.restoreStock(qty);
-            }
+            product.restoreStock(qty);
         }
     }
 
@@ -127,8 +140,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
 //    public synchronized ProductDto decreaseStock(String productId, Long qty) {
 //        log.debug("synchronized - 상품 재고 감소 실행");
-    public ProductDto decreaseStock(String productId, Long qty) {
-        log.debug("상품 재고 감소 실행");
+    public ProductDto decreaseStockTest(String productId, Long qty) {
+        log.debug("테스트 - 상품 재고 감소 실행");
         ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
         );
@@ -194,14 +207,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> getAllByProductIds(List<String> productIds) {
-        log.debug("위시 리스트에 등록된 상품 목록 조회 실행");
-        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
-
-        if (productList.isEmpty()) {
-            throw new CustomException(ErrorCode.NOT_EXISTS_WISHLIST);
-        }
-
-        return productList.stream().map(ProductEntity::entityToDto).toList();
+    public void checkStock(List<ProductInfoDto> productInfoList) {
+//        log.debug("위시 리스트에 등록된 상품 목록 조회 실행");
+//
+//        Map<String,Long> productMap = new HashMap<>();
+//        List<String> productIds = new ArrayList<>();
+//
+//        productInfoList.forEach(productInfo -> {
+//            productIds.add(productInfo.getProductId());
+//            productMap.put(productInfo.getProductId(), productInfo.getQty());}
+//        );
+//
+//        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
+//
+//        for(ProductEntity product : productList) {
+//            Long qty = productMap.get(product.getProductId());
+//            if(product.getStock() < qty){
+//                throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
+//            }
+//        }
     }
 }

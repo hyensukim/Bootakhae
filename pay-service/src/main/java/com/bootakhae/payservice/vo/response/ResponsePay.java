@@ -16,15 +16,9 @@ public class ResponsePay {
 
     private String orderId;
 
-    private String orderStatus;
-
     private String payMethod;
-
-    private String status;
 
     private Long totalPrice;
 
     private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
 }

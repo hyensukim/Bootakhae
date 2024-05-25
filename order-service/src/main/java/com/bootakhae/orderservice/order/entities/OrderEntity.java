@@ -6,6 +6,7 @@ import com.bootakhae.orderservice.order.dto.OrderProductDto;
 import com.bootakhae.orderservice.order.dto.ReturnOrderDto;
 import com.bootakhae.orderservice.global.entities.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "orders")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderEntity extends BaseEntity {
 
     @Builder
@@ -28,14 +29,12 @@ public class OrderEntity extends BaseEntity {
                        String address1,
                        String address2,
                        String phone
-//                       ,Long totalPrice
     ){
         this.orderId = Objects.requireNonNullElse(orderId, UUID.randomUUID().toString());
         this.userId = userId;
         this.address1 = address1;
         this.address2 = address2;
         this.phone = phone;
-//        this.totalPrice = Objects.requireNonNullElse(totalPrice, 0L);
         this.status = Status.PAYING;
     }
 
@@ -100,12 +99,17 @@ public class OrderEntity extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "return_order_id")
     private ReturnOrderEntity returnOrder;
+
     public void returnOrder(ReturnOrderEntity returnOrder){
         this.returnOrder = returnOrder;
     }
 
     public OrderDto entityToDto(){
-        return entityToDto(null, null);
+        return entityToDto(null);
+    }
+
+    public OrderDto entityToDto(Long totalPrice){
+        return entityToDto(totalPrice,null);
     }
 
     public OrderDto entityToDto(Long totalPrice, String payMethod){

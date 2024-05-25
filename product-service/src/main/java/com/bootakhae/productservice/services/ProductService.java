@@ -1,6 +1,7 @@
 package com.bootakhae.productservice.services;
 
 import com.bootakhae.productservice.dto.ProductDto;
+import com.bootakhae.productservice.dto.ProductInfoDto;
 import com.bootakhae.productservice.dto.ProductListDto;
 import com.bootakhae.productservice.vo.request.RequestStock;
 
@@ -14,7 +15,11 @@ public interface ProductService {
 
     List<ProductDto> updateStock(RequestStock request);
 
-    ProductDto decreaseStock(String productId, Long qty);
+    List<ProductDto> checkAndDecreaseStock(List<ProductInfoDto> productInfoList);
+
+    void restoreStock(List<ProductInfoDto> productInfoList);
+
+    ProductDto decreaseStockTest(String productId, Long qty);
 
     ProductDto decreaseStockPessimistic(String productId, Long qty); // test
 
@@ -24,7 +29,7 @@ public interface ProductService {
 
     ProductListDto getAllProducts(int nowPage, int pageSize);
 
-    List<ProductDto> getAllByProductIds(List<String> productIds);
+    void checkStock(List<ProductInfoDto> productInfoList);
 
     void openEventProduct();
 }

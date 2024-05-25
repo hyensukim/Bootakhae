@@ -36,7 +36,6 @@ public class RequestWishlist {
                 .address1(this.address1)
                 .address2(this.address2)
                 .phone(this.phone)
-                .payMethod(this.payMethod)
                 .build();
     }
 }

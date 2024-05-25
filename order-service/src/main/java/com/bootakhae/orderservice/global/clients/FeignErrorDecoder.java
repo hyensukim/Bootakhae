@@ -1,7 +1,6 @@
 package com.bootakhae.orderservice.global.clients;
 
 import com.bootakhae.orderservice.global.exception.ClientException;
-import com.bootakhae.orderservice.global.exception.CustomException;
 import com.bootakhae.orderservice.global.exception.ErrorCode;
 import com.bootakhae.orderservice.global.exception.ServerException;
 import feign.Response;

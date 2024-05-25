@@ -1,5 +1,6 @@
 package com.bootakhae.productservice.vo.request;
 
+import com.bootakhae.productservice.dto.ProductInfoDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,4 +16,11 @@ import lombok.NoArgsConstructor;
 public class ProductInfo {
     private String productId;
     private Long qty;
+
+    public ProductInfoDto voToDto(){
+        return ProductInfoDto.builder()
+                .productId(this.productId)
+                .qty(this.qty)
+                .build();
+    }
 }

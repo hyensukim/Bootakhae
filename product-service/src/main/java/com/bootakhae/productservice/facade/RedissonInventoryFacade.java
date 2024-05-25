@@ -39,7 +39,7 @@ public class RedissonInventoryFacade {
                 throw new CustomException(ErrorCode.LOCK_NOT_AVAILABLE);
             }
 
-            productService.decreaseStock(productId, amount);
+            productService.decreaseStockTest(productId, amount);
         }
         catch(InterruptedException e){
             throw new RuntimeException(e);

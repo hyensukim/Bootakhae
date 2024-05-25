@@ -6,12 +6,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 @Data
 public class RequestProduct {
 
     @NotBlank(message="상품명을 입력해주세요")
-    @Size(message="최대 25자까지 입력 가능합니다.",max=25)
+    @Length(message="최대 25자까지 입력 가능합니다.",max=25)
     private String name;
 
     @NotNull(message="상품 가격을 입력해주세요")
@@ -23,19 +24,19 @@ public class RequestProduct {
     private Long stock;
 
     @NotBlank(message="제조사를 입력해주세요")
-    @Size(message="최대 25자까지 입력 가능합니다.", max=25)
+    @Length(message="최대 25자까지 입력 가능합니다.", max=25)
     private String producer;
 
     @NotBlank(message="상품 기능을 선택해주세요")
-    @Size(message="최대 25자까지 입력 가능합니다.", max=25)
+    @Length(message="최대 25자까지 입력 가능합니다.", max=25)
     private String function;
 
     @NotBlank(message="상품 형태를 선택해주세요")
-    @Size(message="최대 25자까지 입력 가능합니다.", max=25)
+    @Length(message="최대 25자까지 입력 가능합니다.", max=25)
     private String type;
 
     @NotBlank(message="성분표를 입력해주세요")
-    @Size(message="최대 250자까지 입력 가능합니다.", max = 250)
+    @Length(message="최대 250자까지 입력 가능합니다.", max = 250)
     private String nutritionFacts;
 
     public ProductDto voToDto(){
