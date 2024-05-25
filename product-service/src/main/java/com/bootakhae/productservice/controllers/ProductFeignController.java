@@ -57,16 +57,25 @@ public class ProductFeignController {
     }
 
     /**
-     *
-     * @param request
-     * @return
+     * 재고 확인 및 감소
+     * @from order-service
      */
     @PutMapping("decrease")
-    public ResponseEntity<List<ResponseProduct>> decreaseStock(@RequestBody List<ProductInfo> request){
-        List<ProductDto> productDetailsList = productService.decreaseStock(request.stream()
+    public ResponseEntity<List<ResponseProduct>> checkAndDecreaseStock(@RequestBody List<ProductInfo> request){
+        List<ProductDto> productDetailsList = productService.checkAndDecreaseStock(request.stream()
                 .map(ProductInfo::voToDto)
                 .collect(Collectors.toList()));
         List<ResponseProduct> response = productDetailsList.stream().map(ProductDto::dtoToVo).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * 재고 복구
+     * @from order-service
+     */
+    @PutMapping("restore")
+    public ResponseEntity<Void> restoreStock(@RequestBody List<ProductInfo> request){
+        productService.restoreStock(request.stream().map(ProductInfo::voToDto).collect(Collectors.toList()));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

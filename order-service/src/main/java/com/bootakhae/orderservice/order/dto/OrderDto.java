@@ -23,7 +23,7 @@ public class OrderDto {
     private String phone;
 
     private List<OrderProductDto> orderProductList;
-//    private String payMethod;
+    private String payMethod;
 
     private String orderId;
     private String payId;
@@ -38,7 +38,7 @@ public class OrderDto {
                 .orderId(this.orderId) // 주문번호
                 .userId(this.userId) // 주문한 회원
                 .payId(this.payId) // 결제번호
-//                .payMethod(this.payMethod) // 결제 방법
+                .payMethod(this.payMethod) // 결제 방법
                 .totalPrice(this.totalPrice) // 전체 비용
                 .address1(this.address1) // 주소
                 .address2(this.address2)

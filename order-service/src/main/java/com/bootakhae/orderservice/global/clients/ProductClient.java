@@ -17,15 +17,15 @@ public interface ProductClient {
     @GetMapping("/api/v1/internal/products/{productId}")
     ResponseProduct getOneProduct(@PathVariable("productId") String productId);
 
-    // 재고 확인
-    @PostMapping("/api/v1/internal/products")
-    void checkStock(@RequestBody List<RequestProduct> productInfoList);
-
     // 재고 변경
     @PutMapping("/api/v1/internal/products")
     List<ResponseProduct> updateStock(@RequestBody RequestStock requestStock);
 
-    //재고 감소
+    // 재고 확인 + 감소
     @PutMapping("/api/v1/internal/products/decrease")
-    List<ResponseProduct> decreaseStock(@RequestBody List<RequestProduct> productInfoList);
+    List<ResponseProduct> checkAndDecreaseStock(@RequestBody List<RequestProduct> productInfoList);
+
+    // 재고 복구
+    @PutMapping("/api/v1/internal/products/restore")
+    void restoreStock(@RequestBody List<RequestProduct> productInfoList);
 }

@@ -25,7 +25,6 @@ public class PayEntity extends BaseEntity {
         this.orderId = orderId;
         this.payMethod = PayMethod.valueOf(payMethod);
         this.totalPrice = totalPrice;
-        this.status = Status.READY;
     }
 
     @Id
@@ -58,37 +57,13 @@ public class PayEntity extends BaseEntity {
     @Column(name="pay_total_price", nullable=false)
     private Long totalPrice;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "pay_status", nullable = false, length = 50)
-    private Status status;
-
-    public void completePayment(){this.status = Status.DONE;}
-
-    enum Status {
-        READY("결제 중"),
-        DONE("결제 완료");
-
-        final String description;
-
-        Status(String description){
-            this.description = description;
-        }
-    }
-
     public PayDto entityToDto(){
-        return entityToDto(null, null);
-    }
-
-    public PayDto entityToDto(String orderId, String orderStatus){
         return PayDto.builder()
                 .payId(this.payId)
-                .orderId(orderId)
-                .orderStatus(orderStatus)
+                .orderId(this.orderId)
                 .payMethod(this.payMethod.name())
-                .status(this.status.name())
                 .totalPrice(this.totalPrice)
                 .createdAt(this.getCreatedAt())
-                .updatedAt(this.getUpdatedAt())
                 .build();
     }
 }

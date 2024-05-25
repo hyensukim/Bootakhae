@@ -3,7 +3,7 @@ package com.bootakhae.payservice.services;
 import com.bootakhae.payservice.dto.PayDto;
 import com.bootakhae.payservice.entities.PayEntity;
 import com.bootakhae.payservice.global.clients.OrderClient;
-import com.bootakhae.payservice.global.clients.vo.response.ResponseOrder;
+import com.bootakhae.payservice.global.clients.vo.request.RequestOrder;
 import com.bootakhae.payservice.global.exception.CustomException;
 import com.bootakhae.payservice.global.exception.ErrorCode;
 import com.bootakhae.payservice.repositories.PayRepository;
@@ -24,26 +24,22 @@ public class PayServiceImpl implements PayService {
     @Override
     public PayDto registerPay(PayDto payDetails) {
         log.debug("결제 생성 실행");
+
+        if(payRepository.existsPayEntityByOrderId(payDetails.getOrderId())){
+            throw new CustomException(ErrorCode.ALREADY_COMPLETED_PAY);
+        }
+
         PayEntity pay = payDetails.dtoToEntity();
-        pay = payRepository.save(pay);
-        return pay.entityToDto();
-    }
 
-    @Transactional
-    @Override
-    public PayDto completePay(String payId) {
-        log.debug("결제 완료 변경 실행");
-
-        PayEntity pay = payRepository.findByPayId(payId).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_EXISTS_PAY)
+        // 주문 서비스에 결제 완료 알리기
+        orderClient.updateOrder(RequestOrder.builder()
+                .orderId(pay.getOrderId())
+                .payId(pay.getPayId())
+                .build()
         );
 
-        pay.completePayment();
-        
-        // 주문 서비스에 결제 완료 알리기
-        ResponseOrder order = orderClient.updateOrder(payId);
-
-        return pay.entityToDto(order.getOrderId(), order.getOrderStatus());
+        pay = payRepository.save(pay);
+        return pay.entityToDto();
     }
 
     @Override

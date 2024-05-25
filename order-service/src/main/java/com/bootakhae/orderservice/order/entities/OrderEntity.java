@@ -99,6 +99,7 @@ public class OrderEntity extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "return_order_id")
     private ReturnOrderEntity returnOrder;
+
     public void returnOrder(ReturnOrderEntity returnOrder){
         this.returnOrder = returnOrder;
     }
@@ -108,22 +109,7 @@ public class OrderEntity extends BaseEntity {
     }
 
     public OrderDto entityToDto(Long totalPrice){
-        return OrderDto.builder()
-                .orderId(this.orderId)
-                .userId(this.userId)
-                .totalPrice(totalPrice)
-                .address1(this.address1)
-                .address2(this.address2)
-                .phone(this.phone)
-                .returnAt(this.returnOrder != null ? this.returnOrder.getCreatedAt() : null)
-                .createdAt(this.getCreatedAt())
-                .updatedAt(this.getUpdatedAt())
-                .orderStatus(this.status)
-                .orderProductList(this.orderProducts
-                        .stream()
-                        .map(OrderProduct::entityToDto)
-                        .collect(Collectors.toList()))
-                .build();
+        return entityToDto(totalPrice,null);
     }
 
     public OrderDto entityToDto(Long totalPrice, String payMethod){
@@ -136,7 +122,7 @@ public class OrderEntity extends BaseEntity {
                 .orderId(this.orderId)
                 .userId(this.userId)
                 .payId(this.payId)
-//                .payMethod(payMethod)
+                .payMethod(payMethod)
                 .totalPrice(totalPrice)
                 .address1(this.address1)
                 .address2(this.address2)

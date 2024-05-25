@@ -23,16 +23,11 @@ import java.util.stream.Collectors;
 public class FeignTemplate {
 
     private final ProductClient productClient;
+    private final UserClient userClient;
     private final PayClient payClient;
 
-    /**
-     * 재고 확인
-     */
-    public void checkStock(List<OrderProductDto> orderProductList) {
-        productClient.checkStock(orderProductList.stream()
-                .map(OrderProductDto::dtoToVo)
-                .collect(Collectors.toList())
-        );
+    public ResponseUser findUserByUserId(String userId){
+        return userClient.getUser(userId);
     }
 
     /**
@@ -45,8 +40,8 @@ public class FeignTemplate {
     /**
      * 재고 감소
      */
-    public List<ResponseProduct> decreaseStock(List<OrderProductDto> orderProductList){
-        return productClient.decreaseStock(orderProductList.stream()
+    public List<ResponseProduct> checkAndDecreaseStock(List<OrderProductDto> orderProductList){
+        return productClient.checkAndDecreaseStock(orderProductList.stream()
                 .map(OrderProductDto::dtoToVo)
                 .collect(Collectors.toList())
         );
@@ -54,9 +49,12 @@ public class FeignTemplate {
     /**
      * 재고 복구
      */
-//    public List<ResponseProduct> restoreStock(){
-//        return
-//    }
+    public void restoreStock(List<OrderProductDto> orderProductList){
+        productClient.restoreStock(orderProductList.stream()
+                .map(OrderProductDto::dtoToVo)
+                .collect(Collectors.toList())
+        );
+    }
 
     /**
      * 결제 생성

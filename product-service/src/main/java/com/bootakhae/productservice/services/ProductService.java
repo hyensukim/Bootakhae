@@ -15,7 +15,9 @@ public interface ProductService {
 
     List<ProductDto> updateStock(RequestStock request);
 
-    List<ProductDto> decreaseStock(List<ProductInfoDto> productInfoList);
+    List<ProductDto> checkAndDecreaseStock(List<ProductInfoDto> productInfoList);
+
+    void restoreStock(List<ProductInfoDto> productInfoList);
 
     ProductDto decreaseStockTest(String productId, Long qty);
 

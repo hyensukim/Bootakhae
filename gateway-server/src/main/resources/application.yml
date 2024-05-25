@@ -100,14 +100,17 @@ spring:
             - RemoveRequestHeader=Cookie
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
 
+        # 상품 등록 - 관리자 권한
         - id : product-service
           uri: http://localhost:8082/
           predicates:
             - Path=/product-service/api/v1/products
-            - Method=PUT
+            - Method=PUT,POST
           filters:
-            - name: AuthorizationHeaderFilter
-            - name: AdminAccessFilter
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/product-service/(?<segment>.*), /$\{segment}
+#            - name: AuthorizationHeaderFilter
+#            - name: AdminAccessFilter
 
         # product-service 공통
         - id: product-service

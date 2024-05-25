@@ -71,7 +71,8 @@ public enum ErrorCode {
     /**
      * Pay
      */
-    NOT_EXISTS_PAY(HttpStatus.BAD_REQUEST, "PAY-ERR-01", "결제 이력이 없습니다.")
+    NOT_EXISTS_PAY(HttpStatus.BAD_REQUEST, "PAY-ERR-01", "결제 이력이 없습니다."),
+    ALREADY_COMPLETED_PAY(HttpStatus.BAD_REQUEST,"PAY-ERR-02","이미 완료처리된 결제입니다.")
     ;
 
 

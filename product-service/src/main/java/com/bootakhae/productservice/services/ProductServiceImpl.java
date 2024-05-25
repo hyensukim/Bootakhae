@@ -82,43 +82,22 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
-    @Transactional
     @Override
-    public List<ProductDto> updateStock(RequestStock request){
-        log.debug("상품 목록 재고 수량 변경 실행 : {}", request.getStockProcess());
-
-        List<String> productIds = request.getProductInfoList()
-                .stream()
-                .map(ProductInfo::getProductId)
-                .collect(Collectors.toList());
-
-        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
-
-        Map<String, Long> productMap = request.getProductInfoList()
-                .stream()
-                .collect(Collectors.toMap(ProductInfo::getProductId,ProductInfo::getQty));
-
-        for(ProductEntity product : productList) {
-            Long qty = productMap.get(product.getProductId());
-            stockProcess(request.getStockProcess(), product, qty);
-        }
-
-        return productList
-                .stream()
-                .map(p-> {
-                    Long qty = productMap.get(p.getProductId());
-                    return p.entityToDto(qty);
-                })
-                .collect(Collectors.toList());
+    public List<ProductDto> updateStock(RequestStock request) {
+        return List.of();
     }
 
+    @Transactional
     @Override
-    public List<ProductDto> decreaseStock(List<ProductInfoDto> productInfoList) {
+    public List<ProductDto> checkAndDecreaseStock(List<ProductInfoDto> productInfoList) {
         log.debug("상품 재고 감소 실행");
-        List<String> productIds = productInfoList.stream()
-                .map(ProductInfoDto::getProductId).collect(Collectors.toList());
-        Map<String,Long> productMap = productInfoList.stream()
-                .collect(Collectors.toMap(ProductInfoDto::getProductId, ProductInfoDto::getQty));
+        Map<String,Long> productMap = new HashMap<>();
+        List<String> productIds = new ArrayList<>();
+
+        productInfoList.forEach(productInfo -> {
+            productIds.add(productInfo.getProductId());
+            productMap.put(productInfo.getProductId(), productInfo.getQty());}
+        );
 
         List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
 
@@ -129,17 +108,30 @@ public class ProductServiceImpl implements ProductService {
 
         productList = productRepository.saveAllAndFlush(productList);
 
-        return  productList.stream().map(ProductEntity::entityToDto).collect(Collectors.toList());
+        return  productList.stream().map(p -> {
+            long qty = productMap.get(p.getProductId());
+            return p.entityToDto(qty);
+        }).collect(Collectors.toList());
     }
 
-    private void stockProcess(String stockProcess, ProductEntity product, Long qty) {
-        switch(stockProcess){
-            case "DECREASE" -> {
-                product.decreaseStock(qty);
-            }
-            case "RESTORE" -> {
-                product.restoreStock(qty);
-            }
+    @Transactional
+    @Override
+    public void restoreStock(List<ProductInfoDto> productInfoList) {
+        log.debug("상품 재고 복구 실행");
+        List<String> productIds = productInfoList
+                .stream()
+                .map(ProductInfoDto::getProductId)
+                .collect(Collectors.toList());
+
+        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
+
+        Map<String, Long> productMap = productInfoList
+                .stream()
+                .collect(Collectors.toMap(ProductInfoDto::getProductId,ProductInfoDto::getQty));
+
+        for(ProductEntity product : productList) {
+            Long qty = productMap.get(product.getProductId());
+            product.restoreStock(qty);
         }
     }
 
@@ -216,23 +208,23 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void checkStock(List<ProductInfoDto> productInfoList) {
-        log.debug("위시 리스트에 등록된 상품 목록 조회 실행");
-
-        Map<String,Long> productMap = new HashMap<>();
-        List<String> productIds = new ArrayList<>();
-
-        productInfoList.forEach(productInfo -> {
-            productIds.add(productInfo.getProductId());
-            productMap.put(productInfo.getProductId(), productInfo.getQty());}
-        );
-
-        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
-
-        for(ProductEntity product : productList) {
-            Long qty = productMap.get(product.getProductId());
-            if(product.getStock() < qty){
-                throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
-            }
-        }
+//        log.debug("위시 리스트에 등록된 상품 목록 조회 실행");
+//
+//        Map<String,Long> productMap = new HashMap<>();
+//        List<String> productIds = new ArrayList<>();
+//
+//        productInfoList.forEach(productInfo -> {
+//            productIds.add(productInfo.getProductId());
+//            productMap.put(productInfo.getProductId(), productInfo.getQty());}
+//        );
+//
+//        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
+//
+//        for(ProductEntity product : productList) {
+//            Long qty = productMap.get(product.getProductId());
+//            if(product.getStock() < qty){
+//                throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
+//            }
+//        }
     }
 }

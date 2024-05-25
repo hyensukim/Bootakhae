@@ -2,7 +2,6 @@ package com.bootakhae.payservice.controllers;
 
 import com.bootakhae.payservice.dto.PayDto;
 import com.bootakhae.payservice.services.PayService;
-import com.bootakhae.payservice.vo.request.RequestPay;
 import com.bootakhae.payservice.vo.response.ResponsePay;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,16 +14,6 @@ import org.springframework.web.bind.annotation.*;
 public class PayFeignController {
 
     private final PayService payService;
-
-    /**
-     * 결제 생성
-     * @from order-service
-     */
-    @PostMapping
-    public ResponseEntity<ResponsePay> payment(@RequestBody RequestPay request){
-        PayDto payDetails =  payService.registerPay(request.voToDto());
-        return ResponseEntity.status(HttpStatus.OK).body(payDetails.dtoToVo());
-    }
 
     /**
      * 결제 상세 정보 조회
