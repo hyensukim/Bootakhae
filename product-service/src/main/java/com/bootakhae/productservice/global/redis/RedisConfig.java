@@ -16,6 +16,8 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
@@ -23,7 +25,6 @@ import java.time.Duration;
 public class RedisConfig {
 
     private final RedisProperties redisProperties;
-
     private static final String REDISSON_HOST_PREFIX = "redis://";
 
     @Bean
@@ -33,23 +34,21 @@ public class RedisConfig {
 
     @Bean
     public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory){
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration
+        // 기본 캐시 설정
+        RedisCacheConfiguration defaultCacheConfiguration = RedisCacheConfiguration
                 .defaultCacheConfig()
                 .disableCachingNullValues() // null 값은 캐싱하지 않음
-                .entryTtl(Duration.ofMinutes(5)); // cache ttl
-//                .serializeValuesWith(
-//                        RedisSerializationContext.SerializationPair
-//                                .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper))
-//                );
+                .entryTtl(Duration.ofMinutes(5));
 
-
-//        Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
-//        redisCacheConfigurationMap.put("cacheNames-POST", redisCacheConfiguration);
+        // 캐시별 TTL 설정
+        Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
+        cacheConfigs.put("PRODUCTS_CACHE", defaultCacheConfiguration.entryTtl(Duration.ofMinutes(1)));
+        cacheConfigs.put("EVENT_PRODUCTS_CACHE", defaultCacheConfiguration.entryTtl(Duration.ofHours(1)));
 
         return RedisCacheManager.RedisCacheManagerBuilder
                 .fromConnectionFactory(connectionFactory)
-                .cacheDefaults(redisCacheConfiguration)
-//                .withInitialCacheConfigurations(redisCacheConfigurationMap)
+                .cacheDefaults(defaultCacheConfiguration)
+                .withInitialCacheConfigurations(cacheConfigs)
                 .build();
     }
 

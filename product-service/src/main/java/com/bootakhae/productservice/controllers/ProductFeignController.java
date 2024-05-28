@@ -34,29 +34,6 @@ public class ProductFeignController {
     }
 
     /**
-     * 재고 확인
-     * @from order-service
-     */
-    @PostMapping
-    public ResponseEntity<Void> checkStock(@RequestBody List<ProductInfo> request){
-        productService.checkStock(request.stream()
-                .map(ProductInfo::voToDto)
-                .collect(Collectors.toList()));
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    /**
-     * 상품 목록 재고 시스템
-     * @from order-service
-     */
-    @PutMapping
-    public ResponseEntity<List<ResponseProduct>> updateProduct(@RequestBody RequestStock request){
-        List<ProductDto> productDetailsList = productService.updateStock(request);
-        List<ResponseProduct> response = productDetailsList.stream().map(ProductDto::dtoToVo).collect(Collectors.toList());
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    /**
      * 재고 확인 및 감소
      * @from order-service
      */

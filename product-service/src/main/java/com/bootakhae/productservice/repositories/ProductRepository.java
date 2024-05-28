@@ -2,6 +2,8 @@ package com.bootakhae.productservice.repositories;
 
 import com.bootakhae.productservice.entities.ProductEntity;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -17,6 +19,9 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     Optional<ProductEntity> findByProductId(String productId);
 
     Optional<ProductEntity> findByNameAndProducer(String name, String producer);
+
+    @Query("SELECT p FROM ProductEntity p WHERE p.isEventOpened = :isEvent")
+    Page<ProductEntity> findByIsEvent(boolean isEvent, Pageable pageable);
 
     @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from ProductEntity  p where p.productId = :productId")
