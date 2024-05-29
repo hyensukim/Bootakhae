@@ -47,7 +47,10 @@ management:
 
 # OTP TTL 시간 
 redis:
-  ttl: ${otp-ttl}
+  otp:
+    ttl: ${otp-ttl}
+  refresh-token:
+    ttl: ${refresh-token-ttl}
 
 logging:
   level:

@@ -66,7 +66,7 @@ public class EmailServiceImpl implements EmailService {
 
         String subject = "[BooTakHae] 회원가입 인증 안내";
         String from = env.getProperty("spring.mail.username")+"@gmail.com";
-        long limitTime = Long.parseLong(Objects.requireNonNull(env.getProperty("redis.ttl")));
+        long limitTime = Long.parseLong(Objects.requireNonNull(env.getProperty("redis.otp.ttl")));
         String code = makeCode();
 
         MimeMessage message = emailSender.createMimeMessage();
