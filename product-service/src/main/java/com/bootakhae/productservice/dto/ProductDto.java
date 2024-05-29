@@ -6,15 +6,21 @@ import com.bootakhae.productservice.global.constant.Type;
 import com.bootakhae.productservice.vo.response.ResponseProduct;
 import lombok.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class ProductDto implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 2305366629908850317L;
 
     private String productId;
 

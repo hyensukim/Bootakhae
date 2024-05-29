@@ -7,11 +7,11 @@ import com.bootakhae.productservice.entities.ProductEntity;
 import com.bootakhae.productservice.global.exception.CustomException;
 import com.bootakhae.productservice.global.exception.ErrorCode;
 import com.bootakhae.productservice.repositories.ProductRepository;
-import com.bootakhae.productservice.vo.request.ProductInfo;
-import com.bootakhae.productservice.vo.request.RequestStock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
+    @CacheEvict(value="PRODUCTS_CACHE", allEntries = true) // PRODUCTS_CACHE 라는 항목의 모든 캐시를 지웁니다.
     public ProductDto registerProduct(ProductDto productDetails) {
         log.debug("상품 등록 실행");
         ProductEntity product = productDetails.dtoToEntity();
@@ -48,6 +49,17 @@ public class ProductServiceImpl implements ProductService {
         product = productRepository.save(product);
 
         return product.entityToDto();
+    }
+
+    @Transactional
+    @CacheEvict(value="PRODUCTS_CACHE", allEntries = true) // PRODUCTS_CACHE 라는 항목의 모든 캐시를 지웁니다.
+    @Override
+    public void deleteProduct(String productId){
+        log.debug("상품 삭제 실행");
+        ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
+        );
+        productRepository.delete(product);
     }
 
     @Transactional
@@ -82,9 +94,19 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
+    @Transactional
     @Override
-    public List<ProductDto> updateStock(RequestStock request) {
-        return List.of();
+    @Caching(evict = {@CacheEvict(value="PRODUCTS_CACHE", allEntries = true),
+            @CacheEvict(value = "EVENT_PRODUCTS_CACHE", allEntries = true)})
+    public void openEventProduct() {
+        log.debug("이벤트 상품 오픈 실행");
+        DateTimeFormatter eventDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        String dateTimeString = Objects.requireNonNull(env.getProperty("schedule.start-time")); // 예시 값입니다. 실제 사용하는 값으로 대체해야 합니다.
+        LocalDateTime startTime = LocalDateTime.parse(dateTimeString, eventDateTimeFormatter);
+
+        List<ProductEntity> productList = productRepository.findEventProductList(startTime, LocalDateTime.now());
+
+        productList.forEach(ProductEntity::openThisEvent);
     }
 
     @Transactional
@@ -135,6 +157,42 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Override
+    public ProductDto getOneProduct(String productId) {
+        log.debug("상품 상세 조회 실행");
+        ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
+                () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
+        );
+        return product.entityToDto();
+    }
+
+    @Cacheable(value="PRODUCTS_CACHE", key="'nowPage:' + #nowPage")
+    @Override
+    public ProductListDto getNormalProducts(int nowPage, int pageSize) {
+        log.debug("상품 목록 조회 실행");
+        PageRequest pageRequest = PageRequest.of(nowPage, pageSize, Sort.by("createdAt").descending());
+        Page<ProductEntity> pageList = productRepository.findByIsEvent(false,pageRequest);
+        return ProductListDto.builder()
+                .totalPages(pageList.getTotalPages())
+                .totalProducts(pageList.getTotalElements())
+                .productList(pageList.stream().map(ProductEntity::entityToDto).toList())
+                .build();
+    }
+
+    @Cacheable(value="EVENT_PRODUCTS_CACHE", key="'nowPage:' + #nowPage")
+    @Override
+    public ProductListDto getEventProducts(int nowPage, int pageSize){
+        log.debug("이벤트 상품 목록 조회 실행");
+        PageRequest pageRequest = PageRequest.of(nowPage, pageSize, Sort.by("createdAt").descending());
+        Page<ProductEntity> pageList = productRepository.findByIsEvent(true,pageRequest);
+        return ProductListDto.builder()
+                .totalPages(pageList.getTotalPages())
+                .totalProducts(pageList.getTotalElements())
+                .productList(pageList.stream().map(ProductEntity::entityToDto).toList())
+                .build();
+    }
+
+
     // test
     @Transactional
     @Override
@@ -169,62 +227,5 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity product = productRepository.findByProductIdOptimistic(productId).orElseThrow();
         product.decreaseStock(qty);
         productRepository.saveAndFlush(product).entityToDto();
-    }
-
-    @Transactional
-    @Override
-    public void openEventProduct() {
-        log.debug("이벤트 상품 오픈 실행");
-        DateTimeFormatter eventDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-        String dateTimeString = Objects.requireNonNull(env.getProperty("schedule.start-time")); // 예시 값입니다. 실제 사용하는 값으로 대체해야 합니다.
-        LocalDateTime startTime = LocalDateTime.parse(dateTimeString, eventDateTimeFormatter);
-
-        List<ProductEntity> productList = productRepository.findEventProductList(startTime, LocalDateTime.now());
-
-        productList.forEach(ProductEntity::openThisEvent);
-    }
-
-    @Override
-    public ProductDto getOneProduct(String productId) {
-        log.debug("상품 상세 조회 실행");
-        ProductEntity product = productRepository.findByProductId(productId).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_REGISTERED_PRODUCT)
-        );
-        return product.entityToDto();
-    }
-
-    @Cacheable(value="PRODUCTS_CACHE", key="'nowPage:' + #nowPage")
-    @Override
-    public ProductListDto getAllProducts(int nowPage, int pageSize) {
-        log.debug("상품 목록 조회 실행");
-        PageRequest pageRequest = PageRequest.of(nowPage, pageSize, Sort.by("createdAt").descending());
-        Page<ProductEntity> pageList = productRepository.findAll(pageRequest);
-        return ProductListDto.builder()
-                .totalPages(pageList.getTotalPages())
-                .totalProducts(pageList.getTotalElements())
-                .productList(pageList.stream().map(ProductEntity::entityToDto).toList())
-                .build();
-    }
-
-    @Override
-    public void checkStock(List<ProductInfoDto> productInfoList) {
-//        log.debug("위시 리스트에 등록된 상품 목록 조회 실행");
-//
-//        Map<String,Long> productMap = new HashMap<>();
-//        List<String> productIds = new ArrayList<>();
-//
-//        productInfoList.forEach(productInfo -> {
-//            productIds.add(productInfo.getProductId());
-//            productMap.put(productInfo.getProductId(), productInfo.getQty());}
-//        );
-//
-//        List<ProductEntity> productList = productRepository.findAllByProductIdIn(productIds);
-//
-//        for(ProductEntity product : productList) {
-//            Long qty = productMap.get(product.getProductId());
-//            if(product.getStock() < qty){
-//                throw new CustomException(ErrorCode.LACK_PRODUCT_STOCK);
-//            }
-//        }
     }
 }

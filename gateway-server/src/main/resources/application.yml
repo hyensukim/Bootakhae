@@ -70,7 +70,6 @@ spring:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
             - name: AuthorizationHeaderFilter # 테스트 시 주석처리
-            - name: AdminAccessFilter
 
           # actuator
         - id: order-service
