@@ -17,23 +17,22 @@ E-Commerce 도메인을 활용하여 대용량 주문 요청을 정확하고 빠
 ## 기술 스택
 
 Dev Stack
-
-- Spring Boot
-- Spring Data JPA
-- Spring Boot Scheduler
-- Spring Cloud Gateway
-- Service Discovery(Eureka Server)
-- Resilience4j
-- RabbitMQ
+- Java 21
+- Spring Boot 3.2.5
+- Spring Data JPA 3.2.5
+- Spring Cloud Gateway 4.1.2
+- Service Discovery(Eureka Server) 2.0.2
+- Resilience4j 3.1.1
+- RabbitMQ 3.13.2
 
 DB 
 
-- MariaDB
-- Redis
+- MariaDB 11.3.2
+- Redis 7.2.4
 
 Test
 
-- JMeter
+- JMeter 5.6.3
 
 <br>
 
