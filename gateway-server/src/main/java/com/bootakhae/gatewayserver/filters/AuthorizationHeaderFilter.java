@@ -9,15 +9,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 
 import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-import org.springframework.core.Ordered;
+
 import org.springframework.core.env.Environment;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> implements Ordered {
+public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
 
     TokenProvider tokenProvider;
 
@@ -26,18 +27,13 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
         this.tokenProvider = tokenProvider;
     }
 
-    @Override
-    public int getOrder() {
-        return 1;
-    }
-
     public static class Config {
 
     }
 
     @Override
     public GatewayFilter apply(Config config) {
-        return (exchange, chain) -> {
+        return new OrderedGatewayFilter((exchange, chain) -> {
             ServerHttpRequest request= exchange.getRequest();
 
             // 1. 헤더에 포함된 JWT 정보 확인
@@ -60,6 +56,6 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
             log.debug("access-token 검증 : 인증 성공");
             return chain.filter(exchange);
-        };
+        },1);
     }
 }

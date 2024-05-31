@@ -3,10 +3,13 @@ package com.bootakhae.gatewayserver.filters;
 import com.bootakhae.gatewayserver.exception.ErrorCode;
 import com.bootakhae.gatewayserver.exception.ErrorResponse;
 import com.bootakhae.gatewayserver.util.TokenProvider;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-import org.springframework.core.Ordered;
+
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +17,7 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-public class AdminAccessFilter  extends AbstractGatewayFilterFactory<AdminAccessFilter.Config> implements Ordered {
+public class AdminAccessFilter  extends AbstractGatewayFilterFactory<AdminAccessFilter.Config> {
 
     TokenProvider tokenProvider;
 
@@ -23,18 +26,13 @@ public class AdminAccessFilter  extends AbstractGatewayFilterFactory<AdminAccess
         this.tokenProvider = tokenProvider;
     }
 
-    @Override
-    public int getOrder() {
-        return 2;
-    }
-
     public static class Config {
 
     }
 
     @Override
     public GatewayFilter apply(AdminAccessFilter.Config config) {
-        return (exchange, chain) -> {
+        return new OrderedGatewayFilter((exchange, chain) -> {
 
             String jwt = tokenProvider.getToken(exchange.getRequest());
 
@@ -45,6 +43,6 @@ public class AdminAccessFilter  extends AbstractGatewayFilterFactory<AdminAccess
             }
 
             return chain.filter(exchange);
-        };
+        },2);
     }
 }
