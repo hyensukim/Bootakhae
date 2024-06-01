@@ -89,8 +89,7 @@ Test
 1. 이메일 인증을 위한 임시 번호 저장소 변경
 2. Spring Scheduler + RabbitMQ 활용하여 특정 이벤트 발생
     1. Scheduler 도입( [자세히 보기](https://velog.io/@hyensukim/Spring-Scheduler-%EB%8F%84%EC%9E%85%EA%B8%B0) )
-    2. Schedule-Service 분리 ( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-Scheduler-%EA%B4%80%EB%A0%A8-%EB%A6%AC%ED%8C%A9%ED%86%A0%EB%A7%81-g0c6yxzw) )
-    3. RabbitMQ를 활용한 이벤트 발생 ( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-Schedule-Service%EC%97%90-RabbitMQ-%EB%8F%84%EC%9E%85-lmm2a19s) )
+    2. Schedule-Service 분리 및 RabbitMQ를 활용한 이벤트 발생 ( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-Scheduler-%EA%B4%80%EB%A0%A8-%EB%A6%AC%ED%8C%A9%ED%86%A0%EB%A7%81-g0c6yxzw) )
 
 <br>
 
