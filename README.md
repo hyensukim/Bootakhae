@@ -22,7 +22,7 @@ Dev Stack
 - Spring Data JPA 3.2.5
 - Spring Cloud Gateway 4.1.2
 - Service Discovery(Eureka Server) 2.0.2
-- Resilience4j 3.1.1
+- Resilience4j 2.1.0
 - RabbitMQ 3.13.2
 
 DB 
