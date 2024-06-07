@@ -37,9 +37,6 @@ management:
 resilience4j.circuitbreaker:
 #  circuit-breaker-aspect-order: 1 # 우선순위
   instances:
-#      Test 용 설정
-#      cb-case:
-#        base-config: default
       default-CB:
         base-config: default
   configs:
@@ -76,9 +73,6 @@ resilience4j.circuitbreaker:
           - org.springframework.web.client.HttpServerErrorException
           - com.bootakhae.orderservice.global.exception.ServerException
 
-#        ignore-exceptions: # 무시할 예외 목록
-#          - com.bootakhae.orderservice.global.exception.ClientException
-
 # Retry 설정
 resilience4j.retry:
 #  retry-aspect-order: 2 # 우선순위
@@ -91,10 +85,6 @@ resilience4j.retry:
     default:
       max-attempts: 3
       wait-duration: 500ms
-      
-
-schedule:
-  cron: ${cron}
 
 logging:
   level:

@@ -108,7 +108,7 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
-            - name: AdminAccessFilter # 테스트 시 주석처리
+#            - name: AdminAccessFilter # 테스트 시 주석처리
             - name: AuthorizationHeaderFilter # 테스트 시 주석처리
 
         # product-service 공통

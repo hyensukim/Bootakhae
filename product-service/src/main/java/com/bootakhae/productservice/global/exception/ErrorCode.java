@@ -42,7 +42,7 @@ public enum ErrorCode {
      */
     NOT_REGISTERED_PRODUCT(HttpStatus.BAD_REQUEST, "PDT-ERR-01", "등록되지 않은 상품입니다."),
     DUPLICATED_PRODUCT(HttpStatus.BAD_REQUEST, "PDT-ERR-02", "이미 등록된 제품입니다."),
-    LACK_PRODUCT_STOCK(HttpStatus.CONFLICT, "PDT-ERR-03", "상품 재고가 부족합니다."),
+    LACK_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "PDT-ERR-03", "상품 재고가 부족합니다."),
 
     /**
      * wishlist
