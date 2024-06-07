@@ -27,7 +27,7 @@
 
 ## Architecture
 
-![picture]([https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2F81cfe124-34c3-47ae-8bfa-2111950b84c6%2F21963d37-df36-47d3-a9f2-34b0b2010992%2F%25EC%25A0%259C%25EB%25AA%25A9_%25EC%2597%2586%25EB%258A%2594_%25EB%258B%25A4%25EC%259D%25B4%25EC%2596%25B4%25EA%25B7%25B8%25EB%259E%25A8.drawio_(1).png?table=block&id=1fa7a446-499c-478d-bbcc-0abcb846a325&spaceId=81cfe124-34c3-47ae-8bfa-2111950b84c6&width=2000&userId=4143463d-d548-47bb-97d8-60f13214f72c&cache=v2](https://raw.githubusercontent.com/hyensukim/Bootakhae/main/images/Architecture(2).png))
+![picture](https://raw.githubusercontent.com/hyensukim/Bootakhae/main/images/Architecture(2).png)
 
 <br>
 
