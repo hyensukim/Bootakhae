@@ -6,15 +6,22 @@ import com.bootakhae.orderservice.global.clients.vo.response.ResponsePay;
 import com.bootakhae.orderservice.global.constant.StockProcess;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponseProduct;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponseUser;
+import com.bootakhae.orderservice.global.exception.ServerException;
+import com.bootakhae.orderservice.global.resilience4j.FallBackTemplate;
 import com.bootakhae.orderservice.order.dto.OrderProductDto;
 import com.bootakhae.orderservice.order.vo.ProductInfo;
+import feign.RetryableException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,6 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FeignTemplate {
 
+    private final FallBackTemplate fallBackTemplate;
     private final ProductClient productClient;
     private final UserClient userClient;
     private final PayClient payClient;
@@ -57,27 +65,49 @@ public class FeignTemplate {
     }
 
     /**
-     * 결제 생성
-     */
-//    public ResponsePay registerPay(RequestPay request){
-//        return payClient.payment(request);
-//    }
-
-    /**
      * 결제 정보 조회
      */
-    @Retry(name="default-RT", fallbackMethod = "fallbackForPay")
-//    @CircuitBreaker(name = "default-CB", fallbackMethod = "fallbackForPay")
+//    @Retry(name="default-RT", fallbackMethod = "fallbackForPay")
+    @CircuitBreaker(name = "default-CB", fallbackMethod = "fallbackForPay")
     public ResponsePay getOnePay(String payId){
         return payClient.getOnePay(payId);
     }
 
-    private ResponsePay fallbackForPay(String payId, Throwable throwable){
-        log.debug("getOnePay fallback : {}", throwable.getMessage());
+    private ResponsePay fallbackForPay(String payId, ServerException e){
+        log.debug("ServerException fallback : {}", e.getMessage());
+        return makeResponsePay(payId);
+    }
+
+    private ResponsePay fallbackForPay(String payId, CallNotPermittedException e){
+        log.debug("CallNotPermittedException fallback : {}", e.getMessage());
+        return makeResponsePay(payId);
+    }
+
+    private ResponsePay fallbackForPay(String payId, RetryableException e){
+        log.debug("RetryableException fallback : {}", e.getMessage());
+        return makeResponsePay(payId);
+    }
+
+    private ResponsePay fallbackForPay(String payId, IOException e){
+        log.debug("IOException fallback : {}", e.getMessage());
+        return makeResponsePay(payId);
+    }
+
+    private ResponsePay fallbackForPay(String payId, TimeoutException e){
+        log.debug("TimeoutException fallback : {}", e.getMessage());
+        return makeResponsePay(payId);
+    }
+
+    private ResponsePay fallbackForPay(String payId, HttpServerErrorException e){
+        log.debug("HttpServerErrorException fallback : {}", e.getMessage());
+        return makeResponsePay(payId);
+    }
+
+    private ResponsePay makeResponsePay(String payId){
         return ResponsePay.builder()
                 .payId(payId)
-                .payMethod("ERR")
-                .totalPrice(0L)
+                .payMethod(null)
+                .totalPrice(null)
                 .build();
     }
 }

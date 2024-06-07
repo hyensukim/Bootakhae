@@ -26,6 +26,6 @@ public class FeignErrorDecoder implements ErrorDecoder {
     }
 
     private String makeMessage(Response response) {
-        return "Status : " + response.status();
+        return "Status : " + response.status() + ", reason : " + response.reason() + ", content : " + response;
     }
 }

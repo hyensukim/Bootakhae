@@ -26,6 +26,10 @@ spring:
         show_sql: true
         format_sql: true
         use_sql_comments: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
   mail:
     host: ${mail-host} #SMTP 호스트 서버
     port: ${mail-port} #SMTP 서버 포트

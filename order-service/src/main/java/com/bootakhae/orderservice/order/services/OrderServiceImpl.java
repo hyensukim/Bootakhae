@@ -101,7 +101,8 @@ public class OrderServiceImpl implements OrderService{
             throw new CustomException(ErrorCode.ALREADY_CANCEL_ORDER);
         }
         else if(order.getStatus() == Status.PAYING){
-            throw new CustomException(ErrorCode.NOT_COMPLETE_PAYMENT);
+            orderRepository.delete(order);
+            return order.entityToDto();
         }
         else {
 
