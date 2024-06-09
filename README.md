@@ -50,7 +50,7 @@
 - 동시성 문제 해결 방법 : Pessimistic Lock vs. Reddison
     - 주문 서비스 구현 중 재고 차감 처리 시 동시성 문제 발생( [자세히 보기](https://velog.io/@hyensukim/BootakHae-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0) )
     - 해결 방법 중 Redis를 활용한 분산락 도입( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B02) )
-- 웹 애플리케이션 성능 측정을 위해 JMter 사용
+- 웹 애플리케이션 성능 측정을 위해 JMter 사용( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-%EC%84%B1%EB%8A%A5-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EB%8F%84%EA%B5%AC-%EC%9D%98%EC%82%AC-%EA%B2%B0%EC%A0%95-63ypxm40) )
 
 <br>
 
@@ -71,7 +71,7 @@
 
 ## 기타 구현
 
-- 이메일 인증을 위한 임시 번호 저장소 변경
+- 이메일 인증을 위한 임시 번호 저장소 변경( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-%EC%9D%B4%EB%A9%94%EC%9D%BC-%EC%9D%B8%EC%A6%9D-%EA%B8%B0%EB%8A%A5-%EB%A6%AC%ED%8C%A9%ED%86%A0%EB%A7%81-gj99sx0f) )
 - Spring Scheduler + RabbitMQ 활용하여 특정 이벤트 발생
   - Scheduler 도입( [자세히 보기](https://velog.io/@hyensukim/Spring-Scheduler-%EB%8F%84%EC%9E%85%EA%B8%B0) )
   - Schedule-Service 분리 및 RabbitMQ를 활용한 이벤트 발생 ( [자세히 보기](https://velog.io/@hyensukim/BooTakHae-Scheduler-%EA%B4%80%EB%A0%A8-%EB%A6%AC%ED%8C%A9%ED%86%A0%EB%A7%81-g0c6yxzw) )
