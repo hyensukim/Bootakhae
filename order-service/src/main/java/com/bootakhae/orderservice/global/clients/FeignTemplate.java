@@ -1,19 +1,14 @@
 package com.bootakhae.orderservice.global.clients;
 
-import com.bootakhae.orderservice.global.clients.vo.request.RequestPay;
 import com.bootakhae.orderservice.global.clients.vo.request.RequestStock;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponsePay;
-import com.bootakhae.orderservice.global.constant.StockProcess;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponseProduct;
 import com.bootakhae.orderservice.global.clients.vo.response.ResponseUser;
 import com.bootakhae.orderservice.global.exception.ServerException;
-import com.bootakhae.orderservice.global.resilience4j.FallBackTemplate;
 import com.bootakhae.orderservice.order.dto.OrderProductDto;
-import com.bootakhae.orderservice.order.vo.ProductInfo;
 import feign.RetryableException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,7 +24,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FeignTemplate {
 
-    private final FallBackTemplate fallBackTemplate;
     private final ProductClient productClient;
     private final UserClient userClient;
     private final PayClient payClient;
