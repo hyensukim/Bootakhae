@@ -24,15 +24,6 @@ public class TokenProvider {
 
     private final Environment env;
 
-    @Value("${token.access-expired-time}")
-    private long ACCESS_EXPIRED_TIME;
-
-    @Value("${token.refresh-expired-time}")
-    private long REFRESH_EXPIRED_TIME;
-
-    @Value("${token.secret}")
-    private String SECRET;
-
     /**
      * 토큰 추출
      */
@@ -107,7 +98,7 @@ public class TokenProvider {
     }
 
     private SecretKey getSigningKey(){
-        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("token.secret"));
+        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("jwt.secretKey"));
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

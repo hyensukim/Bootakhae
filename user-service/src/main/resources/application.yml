@@ -64,7 +64,7 @@ aes:
   spec: ${aes-spec}
   key: ${aes-key}
 
-token:
-  secret: ${token-secret}
-  access-expired-time: ${access-exp-time}
-  refresh-expired-time: ${refresh-exp-time}
+#token:
+#  secret: ${token-secret}
+#  access-expired-time: ${access-exp-time}
+#  refresh-expired-time: ${refresh-exp-time}
