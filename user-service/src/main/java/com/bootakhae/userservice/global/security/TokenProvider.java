@@ -11,12 +11,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -24,30 +27,25 @@ public class TokenProvider{
 
     private final UserService userService;
 
-    @Value("${token.access-expired-time}")
-    private String ACCESS_EXPIRED_TIME;
-
-    @Value("${token.refresh-expired-time}")
-    private String REFRESH_EXPIRED_TIME;
-
-    @Value("${token.secret}")
-    private String SECRET;
+    private final Environment env;
 
     public String createAccessToken(String userId, String roles){
+        String expiredTime = Objects.requireNonNull(env.getProperty("token.access-expired-time"));
         return Jwts.builder()
                 .subject(userId)
                 .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + Long.parseLong(ACCESS_EXPIRED_TIME)*1000L))
+                .expiration(new Date(System.currentTimeMillis() + Long.parseLong(expiredTime)*1000L))
                 .signWith(getSigningKey())
                 .compact();
     }
 
     public String createRefreshToken(String roles){
+        String expiredTime = Objects.requireNonNull(env.getProperty("token.refresh-expired-time"));
         return Jwts.builder()
                 .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + Long.parseLong(REFRESH_EXPIRED_TIME)*1000L))
+                .expiration(new Date(System.currentTimeMillis() + Long.parseLong(expiredTime)*1000L))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -83,7 +81,7 @@ public class TokenProvider{
     }
 
     private SecretKey getSigningKey(){
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("jwt.secretKey"));
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

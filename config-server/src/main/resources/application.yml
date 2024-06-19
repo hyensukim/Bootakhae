@@ -2,6 +2,13 @@ server:
   port: 8888
 spring:
   application:
-    name: config-service
-
-# config server ????
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: file:///C:\project\bootakhae-config-repo
+#          default-label: main
+#          password:
+#          username:
+# config server 설정

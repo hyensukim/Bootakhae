@@ -11,8 +11,8 @@ eureka:
 spring:
   application:
     name: gateway-server
-  profiles:
-    active: local
+#  profiles:
+#    active: local
   cloud:
     gateway:
       default-filters:
@@ -28,9 +28,11 @@ spring:
           uri: http://localhost:8080/
           predicates:
             - Path=/user-service/actuator/**
+            - Method=GET,POST
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+            - name: AuthorizationHeaderFilter
 
           # 로그인
         - id: user-service
@@ -76,9 +78,11 @@ spring:
           uri: http://localhost:8081/
           predicates:
             - Path=/order-service/actuator/**
+            - Method=GET,POST
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/order-service/(?<segment>.*), /$\{segment}
+            - name: AuthorizationHeaderFilter
 
           # order-service 공통
         - id: order-service
@@ -95,9 +99,11 @@ spring:
           uri: http://localhost:8082/
           predicates:
             - Path=/product-service/actuator/**
+            - Method=GET,POST
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/product-service/(?<segment>.*), /$\{segment}
+            - name: AuthorizationHeaderFilter
 
         # 상품 등록 - 관리자 권한
         - id : product-service
@@ -126,9 +132,11 @@ spring:
           uri: http://localhost:8084/
           predicates:
             - Path=/pay-service/actuator/**
+            - Method=GET,POST
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/pay-service/(?<segment>.*), /$\{segment}
+            - name: AuthorizationHeaderFilter
 
         # product-service 공통
         - id: pay-service
@@ -144,7 +152,11 @@ logging:
   level:
     com.bootakhae.gatewayserver: DEBUG
 
-token:
-  access-expired-time: ${access-expired-time}
-  refresh-expired-time: ${refresh-expired-time}
-  secret: ${token-secret}
+#token:
+#  secret: ${token-secret}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, refresh
