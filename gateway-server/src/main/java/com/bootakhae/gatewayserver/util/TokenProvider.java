@@ -98,7 +98,7 @@ public class TokenProvider {
     }
 
     private SecretKey getSigningKey(){
-        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("jwt.secretKey"));
+        byte[] keyBytes = Decoders.BASE64.decode(env.getProperty("token.secret"));
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

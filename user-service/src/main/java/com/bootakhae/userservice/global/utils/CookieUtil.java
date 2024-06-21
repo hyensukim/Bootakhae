@@ -1,22 +1,27 @@
 package com.bootakhae.userservice.global.utils;
 
 import jakarta.servlet.http.Cookie;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
+@RequiredArgsConstructor
 public class CookieUtil {
 
-    @Value("${token.refresh-expired-time}")
-    private String refreshTokenExpiredTime;
+    private final Environment env;
 
     public ResponseCookie createRefreshTokenCookie(String refreshToken) {
+        String expiredTime = Objects.requireNonNull(env.getProperty("token.refresh-expired-time"));
         return ResponseCookie.from("refresh-token", refreshToken)
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
-                .maxAge(Long.parseLong(refreshTokenExpiredTime)).build();
+                .maxAge(Long.parseLong(expiredTime)).build();
     }
 
     public ResponseCookie removeRefreshTokenCookie() {

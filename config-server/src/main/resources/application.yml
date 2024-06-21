@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: 8888 # 공식문서 명시
 spring:
   application:
     name: config-server
@@ -7,8 +7,12 @@ spring:
     config:
       server:
         git:
-          uri: file:///C:\project\bootakhae-config-repo
-#          default-label: main
-#          password:
-#          username:
-# config server 설정
+          uri: git@github.com:hyensukim/BooTakHae-Config.git
+          default-label: main
+          ignore-local-ssh-settings: true
+          strict-host-key-checking: false
+          private-key: ENC(7IKT80NMLZjej7a+pXs1hEKiIqZIG38FzYn8bwTIhHyk+IU3KlZhC2EDa2U+D/EMUkRhlaSMH15QyQ1A+yEf1mX5ELFOJ0AUCQ1N3zp+3uPmHNq36JJz4zlORXy8ZcHvsRErJVJjsZA/qLirwGBTObNWeDBsDWPVAcy+3cwykHBpt0IXfNgx2y+NAvoGyFHvT8Br+PeZxFRO5phNRF12n8Z9g457S/629/1axwRh61SuSi25tYzjcAE8v7fFmIWUrOlWxtUH8UmDOjU5OrTANlvLCaTF8M/Se3flHCwSxLHfcj+003lcUE0CFsiWPg5QaGkXflY2hxHIGQSDA++1aulCLTAJoQJencSbvqbxtfUyOsi0ji/TvPdDWX7Fb+xAHrZx8ZCx9DtEBOFtwqVuXVBWevnK/1tHoh/aEebbf22n+Hn53mq9n9mDv6kBwfQbi6J9OoxBUVEctt5v/rZqOXhyIzeptmS3tIzQTJRSEIGxVHWa+M+yproGcXPbQQe25Y+mG9x3CPDXf3qQltWdpJbSwKUJ19JPLZghiZrMdsfK4ipTX0zO1D0Nm5cb9LoCkfUx2XM85KxaFtNDnf9zbaZedzYqbpOhBjfHX5dfBQVWrHLQ9wbal7eAIapv0FP5CPAbZM2NF1qKpYZ11kMHdKBkMHmEyrY+jgXdH3a8huk=)
+          host-key: ENC(eqPbi2MQBwTauZUv4B8D5VitXMtXk49BlTYbMBPw1K1h9i3mUEgyxPugHCm2blg3IStqF6Gz/mDHA3pzQqfVTf4CyxeEWYB0D0DNpzKeBzqEhzdS9k2T+LyTuBxV9A5joETMFNncRk5D4ON7l9jVjGCK1huoKKnmAvuG0L5RfWdlnwSaI7vfd/k/XDyFvkBVncU+tkKHAS0=)
+          host-key-algorithm: ecdsa-sha2-nistp256
+        encrypt:
+          enabled: false
