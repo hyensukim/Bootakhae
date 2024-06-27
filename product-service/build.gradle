@@ -38,10 +38,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 
+	implementation group: 'com.github.ulisesbocchio', name: 'jasypt-spring-boot-starter', version: '3.0.5'
+
 	testImplementation 'org.springframework.amqp:spring-rabbit-test'
 	implementation 'org.redisson:redisson-spring-boot-starter:3.29.0'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
@@ -56,4 +57,5 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	systemProperty "jasypt.encryptor.password", project.getProperties().get("jasypt.encryptor.password")
 }
