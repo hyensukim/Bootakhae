@@ -11,13 +11,11 @@ eureka:
 spring:
   application:
     name: pay-service
-  profiles:
-    active: local
   datasource:
-    url: ${url}
-    driver-class-name: ${driver-class-name}
-    username: ${username_}
-    password: ${password}
+    url: jdbc:mariadb://localhost:13306/mydb
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ENC(oBuC4mjBwGduRWdQ+9afCg==)
+    password: ENC(wBcVIMcVEdaSkzX6YjTxeFL64qKXG8d5)
   jpa:
     hibernate:
       ddl-auto: create

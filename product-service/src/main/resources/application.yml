@@ -11,16 +11,14 @@ eureka:
 spring:
   application:
     name: product-service
-  profiles:
-    active: local
   datasource:
-    url: ${url}
-    driver-class-name: ${driver-class-name}
-    username: ${username_}
-    password: ${password}
+    url: jdbc:mariadb://localhost:13306/mydb
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ENC(oFb0MbP+j+8aeEB+lkq5Xw==)
+    password: ENC(vYP/u6qLkoNEI40qTEju6kGIpzWZFtuT)
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: true
@@ -41,9 +39,6 @@ management:
     web:
       exposure:
         include: info, refresh, health, beans, busrefresh, circuitbreakers
-
-schedule:
-  start-time: ${start-time}
 
 logging:
   level:

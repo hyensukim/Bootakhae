@@ -19,7 +19,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,11 +102,12 @@ public class ProductServiceImpl implements ProductService {
             @CacheEvict(value = "EVENT_PRODUCTS_CACHE", allEntries = true)})
     public void openEventProduct() {
         log.debug("이벤트 상품 오픈 실행");
-        DateTimeFormatter eventDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-        String dateTimeString = Objects.requireNonNull(env.getProperty("schedule.start-time")); // 예시 값입니다. 실제 사용하는 값으로 대체해야 합니다.
-        LocalDateTime startTime = LocalDateTime.parse(dateTimeString, eventDateTimeFormatter);
+//        DateTimeFormatter eventDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+//        String dateTimeString = Objects.requireNonNull(env.getProperty("schedule.start-time")); // 예시 값입니다. 실제 사용하는 값으로 대체해야 합니다.
+//        LocalDateTime startTime = LocalDateTime.parse(dateTimeString, eventDateTimeFormatter);
 
-        List<ProductEntity> productList = productRepository.findEventProductList(startTime, LocalDateTime.now());
+        List<ProductEntity> productList
+                = productRepository.findEventProductList(LocalDateTime.of(LocalDate.now(), LocalTime.of(13,59,59)), LocalDateTime.now());
 
         productList.forEach(ProductEntity::openThisEvent);
     }

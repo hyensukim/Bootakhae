@@ -11,13 +11,11 @@ eureka:
 spring:
   application:
     name: order-service
-  profiles:
-    active: local
   datasource:
-    url: ${url}
-    driver-class-name: ${driver-class-name}
-    username: ${username_}
-    password: ${password}
+    url: jdbc:mariadb://localhost:13306/mydb
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ENC(f1Vfxe8titaW1OVpyS8IQg==)
+    password: ENC(QGXfJwbF5jT0gye5FLNGyL/ACcPMmIOZ)
   jpa:
     hibernate:
       ddl-auto: create

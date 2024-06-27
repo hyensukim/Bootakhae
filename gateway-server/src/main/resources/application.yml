@@ -11,8 +11,6 @@ eureka:
 spring:
   application:
     name: gateway-server
-#  profiles:
-#    active: local
   cloud:
     gateway:
       default-filters:
@@ -151,9 +149,6 @@ spring:
 logging:
   level:
     com.bootakhae.gatewayserver: DEBUG
-
-#token:
-#  secret: ${token-secret}
 
 management:
   endpoints:
