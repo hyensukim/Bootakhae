@@ -8,11 +8,11 @@ spring:
   data:
     redis:
       host: localhost
-      port: 6379
+      port: 1111
 
   mail:
     host: smtp.test.com
-    port: 587
+    port: 111
     username: test
     password: test
     properties:

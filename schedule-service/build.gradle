@@ -8,7 +8,7 @@ group = 'com.bootakhae'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = '21'
+    sourceCompatibility = '17'
 }
 
 configurations {
@@ -26,21 +26,34 @@ ext {
 }
 
 dependencies {
+    // Spring Web
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // RabbitMQ
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
+    // Eureka Client
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    // OpenFeign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // Config
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+    // Bootstrap
     implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
 
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
 
+    // Jasypt
     implementation group: 'com.github.ulisesbocchio', name: 'jasypt-spring-boot-starter', version: '3.0.5'
 
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+    // Test
     testImplementation 'org.springframework.amqp:spring-rabbit-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

@@ -14,8 +14,7 @@ spring:
   datasource:
     url: jdbc:mariadb://localhost:13306/mydb
     driver-class-name: org.mariadb.jdbc.Driver
-    username: ENC(5HP1L75+qdxzh5XMehSs0A==)
-    password: ENC(JpgMqXVM384ILrWyE44M6c1rScTkMjb5)
+    username: root
   jpa:
     hibernate:
       ddl-auto: create
@@ -32,7 +31,7 @@ spring:
     host: ENC(KJNWE3KjMxd9qeTi4EQ071FEUYPqIoy9) # ${mail-host} #SMTP 호스트 서버
     port: 587 #SMTP 서버 포트
     username: ENC(dXsmeRaz3vhCqmooJ1YR/LbXE2py39kB) #${mail.username_} # 발신자 이메일 ex) test@gmail.com - test
-    password: ENC(D0dmU4h2Ij0JZT/PzFjFDE8Leu5962oLyFZ/K4KSS8s=) #${mail.password} # App password
+    password: ENC(jcQHJIlejZFnFlBhdv876Ryubp1T4aKuGkbeisRnbxo=) #${mail.password} # App password
     properties:
       mail:
         smtp:

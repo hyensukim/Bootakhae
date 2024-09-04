@@ -1,0 +1,16 @@
+server:
+  port: 8888 # 공식문서 명시
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: 123
+          default-label: 123
+          private-key: 123
+          host-key: 123
+          host-key-algorithm: 123
+
+jasypt:
+  encryptor:
+    password: 123

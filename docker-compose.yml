@@ -1,0 +1,207 @@
+services:
+  userDb:
+    image: mariadb:11.5.2
+    environment:
+      - MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes
+      - MARIADB_DATABASE=users
+    ports:
+      - 13306:3306
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./data/userDb:/var/lib/mysql
+
+  productsDb:
+    image: mariadb:11.5.2
+    environment:
+      - MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes
+      - MARIADB_DATABASE=products
+    ports:
+      - 13307:3306
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./data/productsDb:/var/lib/mysql
+
+  orderDb:
+    image: mariadb:11.5.2
+    environment:
+      - MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes
+      - MARIADB_DATABASE=orders
+    ports:
+      - 13308:3306
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./data/orderDb:/var/lib/mysql
+
+  payDb:
+    image: mariadb:11.5.2
+    environment:
+      - MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=yes
+      - MARIADB_DATABASE=pays
+    ports:
+      - 13309:3306
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./data/payDb:/var/lib/mysql
+
+  redis:
+    image: 'redis:latest'
+    ports:
+      - 6379:6379
+
+  rabbitmq:
+    image: "rabbitmq:management"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: if netstat -ltn | grep -c '5672'; then echo 0; else echo 1; fi
+      interval: 10s
+      timeout: 5s
+      retries: 2
+
+  config-server:
+    image: kimhyensu/config-server:1.0
+    environment:
+      - spring.rabbitmq.host=rabbitmq
+    ports:
+      - 8888:8888
+    healthcheck:
+      test: if netstat -ltn | grep -c "8888"; then echo 0; else echo 1; fi
+      interval: 10s
+      timeout: 5s
+      retries: 2
+
+  discovery-server:
+    image: kimhyensu/discovery-server:1.0
+    ports:
+      - 8761:8761
+    healthcheck:
+      test: if netstat -ltn | grep -c '8761'; then echo 0; else echo 1; fi
+      interval: 10s
+      timeout: 5s
+      retries: 2
+
+  gateway-server:
+    image: kimhyensu/gateway-server:1.0
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - spring.cloud.config.uri=http://config-server:8888
+      - eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    healthcheck:
+      test: if netstat -ltn | grep -c '8080'; then echo 0; else echo 1; fi
+      interval: 10s
+      timeout: 5s
+      retries: 2
+  
+  schedule-service:
+    image: kimhyensu/schedule-service:1.0
+    environment:
+      - spring.cloud.config.uri=http://config-server:8888
+      - eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
+      - spring.rabbitmq.host=rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    ports:
+      - 8085:8085
+    healthcheck:
+      test: if netstat -ltn | grep -c '8085'; then echo 0; else echo 1; fi
+      interval: 10s
+      timeout: 5s
+      retries: 2
+
+  user-service:
+    image: kimhyensu/user-service:1.0
+    ports:
+      - 8081:8081
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
+      - spring.cloud.config.uri=http://config-server:8888
+      - spring.datasource.url=jdbc:mariadb://userDb:3306/users?useSSL=false&allowPublicKeyRetrieval=true
+      - spring.data.redis.host=redis
+    depends_on:
+      - gateway-server
+      - config-server
+      - userDb
+      - redis
+    healthcheck:
+      test: if netstat -ltn | grep -c "8081"; then echo 0; else echo 1; fi
+      interval: 10s
+      timeout: 5s
+      retries: 2
+
+  product-service:
+    image: kimhyensu/product-service:1.0
+    ports:
+      - 8082:8082
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
+      - spring.cloud.config.uri=http://config-server:8888
+      - spring.datasource.url=jdbc:mariadb://productsDb:3306/products?useSSL=false&allowPublicKeyRetrieval=true
+      - spring.data.redis.host=redis
+      - spring.rabbitmq.host=rabbitmq
+    depends_on:
+      - gateway-server
+      - config-server
+      - productsDb
+      - redis
+      - rabbitmq
+    healthcheck:
+      test: if netstat -ltn | grep -c "8082"; then echo 0; else echo 1; fi
+      interval: 10s
+      timeout: 5s
+      retries: 2
+
+  order-service:
+    image: kimhyensu/order-service:1.0
+    ports:
+      - 8083:8083
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
+      - spring.cloud.config.uri=http://config-server:8888
+      - spring.datasource.url=jdbc:mariadb://orderDb:3306/orders?useSSL=false&allowPublicKeyRetrieval=true
+      - spring.rabbitmq.host=rabbitmq
+    depends_on:
+      - gateway-server
+      - config-server
+      - orderDb
+      - rabbitmq
+    healthcheck:
+      test: if netstat -ltn | grep -c "8083"; then echo 0; else echo 1; fi
+      interval: 10s
+      timeout: 5s
+      retries: 2
+
+  pay-service:
+      image: kimhyensu/pay-service:1.0
+      ports:
+        - 8084:8084
+      environment:
+        - eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
+        - spring.cloud.config.uri=http://config-server:8888
+        - spring.datasource.url=jdbc:mariadb://payDb:3306/pays?useSSL=false&allowPublicKeyRetrieval=true
+      depends_on:
+        - gateway-server
+        - config-server
+        - payDb
+      healthcheck:
+        test: if netstat -ltn | grep -c "8084"; then echo 0; else echo 1; fi
+        interval: 10s
+        timeout: 5s
+        retries: 2

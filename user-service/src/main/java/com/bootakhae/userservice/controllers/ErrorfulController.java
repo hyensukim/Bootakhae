@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalTime;
 import java.util.Random;
 
-@RestController
+//@RestController
 @Slf4j
-@RequestMapping("test/internal")
+//@RequestMapping("test/internal")
 public class ErrorfulController {
 
     // 임계값 테스트 - 실패율
