@@ -3,15 +3,11 @@ package com.bootakhae.gatewayserver.filters;
 import com.bootakhae.gatewayserver.exception.ErrorCode;
 import com.bootakhae.gatewayserver.exception.ErrorResponse;
 import com.bootakhae.gatewayserver.util.TokenProvider;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.http.HttpHeaders;
-
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-
 import org.springframework.core.env.Environment;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;

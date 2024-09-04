@@ -1,0 +1,22 @@
+server:
+  port: 8085
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: schedule-service
+  rabbitmq:
+    host: localhost
+    username : ENC(vM1tiun7Wrhb8SPodz+iYA==)
+    password : ENC(NvEkzuuUWEBZ22jdGnB2lA==)
+    port: 5672
+
+logging:
+  level:
+    com.bootakhae.scheduleservice: DEBUG

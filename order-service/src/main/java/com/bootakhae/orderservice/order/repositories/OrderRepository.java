@@ -19,12 +19,12 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
     Page<OrderEntity> findByUserId(String userId, Pageable pageable);
 
-    @Query("SELECT o FROM OrderEntity o WHERE o.status = 'PAYMENT' AND abs(dateDiff(o.updatedAt,now())) >= 1")
+    @Query("SELECT o FROM OrderEntity o WHERE o.status = 'PAYMENT' AND dateDiff(o.updatedAt,now()) >= 1")
     List<OrderEntity> findAllAfterPayment();
 
-    @Query("SELECT o FROM OrderEntity o WHERE o.status = 'SHIPPING' AND abs(dateDiff(o.updatedAt,now())) >= 1")
+    @Query("SELECT o FROM OrderEntity o WHERE o.status = 'SHIPPING' AND dateDiff(o.updatedAt,now()) >= 1")
     List<OrderEntity> findAllAfterShipping();
 
-    @Query("SELECT o FROM OrderEntity o WHERE o.returnOrder IS NOT NULL AND o.status = 'DONE' AND abs(dateDiff(o.returnOrder.createdAt,now())) >= 1")
+    @Query("SELECT o FROM OrderEntity o WHERE o.status = 'DONE' AND datediff(o.returnOrder.createdAt, now()) >= 1")
     List<OrderEntity> findAllForReturn();
 }

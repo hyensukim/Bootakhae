@@ -8,7 +8,7 @@ group = 'com.bootakhae'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '21'
+	sourceCompatibility = '17'
 }
 
 configurations {
@@ -26,27 +26,58 @@ ext {
 }
 
 dependencies {
+
+	// Spring Data JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// Spring Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Spring Data Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// Spring Actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// RabbitMQ
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
+	// Eureka Server
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+	// OpenFeign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	// Resilience4j
 	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+
+	// Spring Cloud Config + bootstrap
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+
+	// Spring AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop'
 
+	// Jasypt
 	implementation group: 'com.github.ulisesbocchio', name: 'jasypt-spring-boot-starter', version: '3.0.5'
 
+	// MariaDB
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
+	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	testImplementation 'org.springframework.amqp:spring-rabbit-test'
+	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.amqp:spring-rabbit-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 dependencyManagement {
@@ -57,5 +88,4 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
-	systemProperty "jasypt.encryptor.password", project.getProperties().get("jasypt.encryptor.password")
 }

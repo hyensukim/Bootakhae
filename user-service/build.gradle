@@ -8,7 +8,7 @@ group = 'com.bootakhae'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '21'
+	sourceCompatibility = '17'
 }
 
 configurations {
@@ -26,34 +26,64 @@ ext {
 }
 
 dependencies {
+
+	// Spring Data JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// Spring Data Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// Java Mail Sender
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// Spring Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// Validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Spring Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Spring Actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
-	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-
+	// Jasypt
 	implementation group: 'com.github.ulisesbocchio', name: 'jasypt-spring-boot-starter', version: '3.0.5'
 
+	// Eureka Client
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+	// OpenFeign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	// Spring Cloud Config + bootstrap
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
 
+	// MariaDB
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// MapStruct
 	implementation "org.mapstruct:mapstruct:1.5.5.Final"
 	annotationProcessor "org.mapstruct:mapstruct-processor:1.5.5.Final"
 
+	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'com.h2database:h2'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 dependencyManagement {
@@ -64,5 +94,4 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
-	systemProperty "jasypt.encryptor.password", project.getProperties().get("jasypt.encryptor.password")
 }

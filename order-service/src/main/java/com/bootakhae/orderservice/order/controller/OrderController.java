@@ -1,10 +1,11 @@
 package com.bootakhae.orderservice.order.controller;
 
 import com.bootakhae.orderservice.order.dto.OrderDto;
+import com.bootakhae.orderservice.order.entities.OrderEntity;
 import com.bootakhae.orderservice.order.services.OrderService;
+import com.bootakhae.orderservice.order.services.OrderServiceImpl;
 import com.bootakhae.orderservice.order.vo.request.RequestOrder;
 import com.bootakhae.orderservice.order.vo.response.ResponseOrder;
-
 
 import jakarta.validation.Valid;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OrderServiceImpl orderServiceImpl;
 
 
     @GetMapping("health-check")
@@ -70,5 +72,23 @@ public class OrderController {
         List<OrderDto> orderDetailsList = orderService.getOrderListByUserId(userId, nowPage, pageSize);
         List<ResponseOrder> responseOrders = orderDetailsList.stream().map(OrderDto::dtoToVo).toList();
         return ResponseEntity.status(HttpStatus.OK).body(responseOrders);
+    }
+
+    @GetMapping("test1")
+    public ResponseEntity<?> getOrders1(){
+        List<OrderEntity> orderEntities = orderServiceImpl.getOrders1();
+        return ResponseEntity.status(HttpStatus.OK).body(orderEntities);
+    }
+
+    @GetMapping("test2")
+    public ResponseEntity<?> getOrders2(){
+        List<OrderEntity> orderEntities = orderServiceImpl.getOrders2();
+        return ResponseEntity.status(HttpStatus.OK).body(orderEntities);
+    }
+
+    @GetMapping("test3")
+    public ResponseEntity<?> getOrders3(){
+        List<OrderEntity> orderEntities = orderServiceImpl.getOrders3();
+        return ResponseEntity.status(HttpStatus.OK).body(orderEntities);
     }
 }

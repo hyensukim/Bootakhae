@@ -1,6 +1,7 @@
 package com.bootakhae.userservice.dto;
 
 import com.bootakhae.userservice.global.constant.Role;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ public class UserDto {
     private String nickname;
     private String phone;
     private String userId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Role role;
     private LocalDateTime createdAt;
 }

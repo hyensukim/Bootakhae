@@ -4,11 +4,9 @@ import com.bootakhae.userservice.global.exception.CustomException;
 import com.bootakhae.userservice.global.exception.ErrorCode;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -82,7 +80,6 @@ public class EmailServiceImpl implements EmailService {
         return message;
     }
 
-    //todo 아래 코드 이해하기
     private String makeCode(){
         int leftLimit = 48; // number '0'
         int rightLimit = 122; // alphabet 'z'

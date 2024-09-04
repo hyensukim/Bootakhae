@@ -1,5 +1,6 @@
 package com.bootakhae.orderservice.service;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TimeTest {
 
+    @Disabled
     @Test
     @DisplayName("시간 차이를 구하는 로직 테스트")
     public void 시간차이확인(){

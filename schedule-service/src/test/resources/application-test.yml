@@ -1,0 +1,9 @@
+jasypt:
+  encryptor:
+    password: 123
+
+schedule:
+  order:
+    cron: 0 * * * * ?
+  product:
+    cron: 0 * * * * ?

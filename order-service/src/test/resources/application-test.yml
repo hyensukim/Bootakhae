@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:13306/test
+    username: test
+    password: test
+    driver-class-name: org.mariadb.jdbc.Driver
+
+jasypt:
+  encryptor:
+    password: 123

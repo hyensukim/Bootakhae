@@ -1,6 +1,8 @@
 server:
   port: 8888 # 공식문서 명시
 spring:
+  config:
+    import: classpath:application-secret.yml
   application:
     name: config-server
   cloud:

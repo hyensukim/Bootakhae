@@ -1,10 +1,9 @@
 package com.bootakhae.gatewayserver.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-
-import java.time.LocalDateTime;
 
 @Getter
 public enum ErrorCode {

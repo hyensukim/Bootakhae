@@ -1,0 +1,35 @@
+server:
+  port: 8084
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: pay-service
+  datasource:
+    url: jdbc:mariadb://localhost:13306/mydb
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: root
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, refresh, health, beans, busrefresh, circuitbreakers
+
+logging:
+  level:
+    com.bootakhae.payservice: DEBUG

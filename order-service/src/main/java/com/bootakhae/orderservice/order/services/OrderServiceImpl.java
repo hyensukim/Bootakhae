@@ -150,6 +150,11 @@ public class OrderServiceImpl implements OrderService{
         List<OrderEntity> orderList = orderRepository.findAllAfterPayment();
 
         orderList.forEach(OrderEntity::startShipping);
+
+    }
+
+    public List<OrderEntity> getOrders1(){
+        return orderRepository.findAllAfterPayment();
     }
 
     @Transactional
@@ -159,6 +164,10 @@ public class OrderServiceImpl implements OrderService{
         List<OrderEntity> orderList = orderRepository.findAllAfterShipping();
 
         orderList.forEach(OrderEntity::completeShipping);
+    }
+
+    public List<OrderEntity> getOrders2(){
+        return orderRepository.findAllAfterShipping();
     }
 
     @Transactional
@@ -180,6 +189,9 @@ public class OrderServiceImpl implements OrderService{
         orderList.forEach(OrderEntity::returnTheOrder);
     }
 
+    public List<OrderEntity> getOrders3(){
+        return orderRepository.findAllForReturn();
+    }
     /**
      * 주문 반품
      * - 현재 주문상태 : 배송 완료

@@ -53,9 +53,11 @@ public class ProductEntity extends BaseEntity {
     private String producer; // 제조사
 
     @Column(name="product_function", nullable = false, length = 30)
+    @Enumerated(EnumType.STRING)
     private Function function; // 상품 기능
 
     @Column(name="product_type", nullable = false, length = 30)
+    @Enumerated(EnumType.STRING)
     private Type type; // 상품 형태 - 캡슐, 음료(액상), 분말, 젤리, 스프레이형
 
     @Column(name="product_nutrition_facts", nullable = false)
