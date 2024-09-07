@@ -10,10 +10,8 @@
 
 ## 주요 기능
 - 회원
-  - 회원가입
+  - 로그인/회원가입
   - 이메일 인증
-  - 로그인
-  - 로그아웃
 - 위시리스트
   - 상품 등록
   - 상품 수량 변경
@@ -31,6 +29,26 @@
 ## Architecture
 
 ![picture](https://raw.githubusercontent.com/hyensukim/Bootakhae/main/images/Architecture(2).png)
+
+<br>
+
+## Deployment
+- Docker + Docker-Compose를 활용하여, DockerHub에 배포했습니다.
+### 실행 환경
+- Docker & Docker-Compose 로컬에 설치
+### 실행
+1. 깃 클론하기
+```bash
+$ git clone https://github.com/hyensukim/Bootakhae.git
+```
+2. 클론한 프로젝트 위치에서 도커 컴포즈 업
+```bash
+$ docker compose up
+```
+3. 테스트 종료
+```bash
+$ docker compose down -v --rmi all
+```
 
 <br>
 
