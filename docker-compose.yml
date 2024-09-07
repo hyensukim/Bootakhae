@@ -108,6 +108,8 @@ services:
   
   schedule-service:
     image: kimhyensu/schedule-service:1.0
+    ports:
+      - 8085:8085
     environment:
       - spring.cloud.config.uri=http://config-server:8888
       - eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
@@ -117,8 +119,6 @@ services:
         condition: service_healthy
       discovery-server:
         condition: service_healthy
-    ports:
-      - 8085:8085
     healthcheck:
       test: if netstat -ltn | grep -c '8085'; then echo 0; else echo 1; fi
       interval: 10s
@@ -130,6 +130,7 @@ services:
     ports:
       - 8081:8081
     environment:
+      - SPRING_PROFILES_ACTIVE=dev
       - eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
       - spring.cloud.config.uri=http://config-server:8888
       - spring.datasource.url=jdbc:mariadb://userDb:3306/users?useSSL=false&allowPublicKeyRetrieval=true
@@ -173,6 +174,7 @@ services:
     ports:
       - 8083:8083
     environment:
+      - SPRING_PROFILES_ACTIVE=dev
       - eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
       - spring.cloud.config.uri=http://config-server:8888
       - spring.datasource.url=jdbc:mariadb://orderDb:3306/orders?useSSL=false&allowPublicKeyRetrieval=true
@@ -193,6 +195,7 @@ services:
       ports:
         - 8084:8084
       environment:
+        - SPRING_PROFILES_ACTIVE=dev
         - eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
         - spring.cloud.config.uri=http://config-server:8888
         - spring.datasource.url=jdbc:mariadb://payDb:3306/pays?useSSL=false&allowPublicKeyRetrieval=true
