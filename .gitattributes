@@ -4,4 +4,5 @@
 *.styl linguist-vendored
 *.php linguist-vendored
 *.less linguist-vendored
+*.vbp linguist-vendored
 *.java linguist-vendored=false
