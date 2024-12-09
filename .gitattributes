@@ -1,8 +1,5 @@
-*.html linguist-vendored
-*.css linguist-vendored
-*.scss linguist-vendored
-*.styl linguist-vendored
-*.php linguist-vendored
-*.less linguist-vendored
-*.vbp linguist-vendored
-*.java linguist-vendored=false
+*.vba linguist-detectable=false
+*.bas linguist-detectable=false
+*.cls linguist-detectable=false
+Dockerfile linguist-detectable=false
+*.java linguist-detectable=true
